@@ -1,4 +1,4 @@
-
+mod endian_helpers;
 
 fn main() {
     
@@ -45,31 +45,38 @@ fn main() {
     // and that one either.
     // There's also a table that indicates you can determine the format of the image itself (eg UYVY, RGB, etc) from the size,
     // but I don't know which size field it's referring to.
-    const image_name_img_size_offset : u8 = 24; // 4 * 6
-    const image_name_img_size_len : u8 = 4;
+    const image_name_img_size_offset : usize = 24; // 4 * 6
+    const image_name_img_size_len : usize = 4;
 
-    const image_name_img_height_offset : u8 = 32; // 4 * 8
-    const image_name_img_height_len : u8 = 2;
+    const image_name_img_height_offset : usize = 32; // 4 * 8
+    const image_name_img_height_len : usize = 2;
 
-    const image_name_img_width_offset : u8 = image_name_img_height_offset + image_name_img_height_len;
-    const image_name_img_width_len : u8 = image_name_img_height_len;
+    const image_name_img_width_offset : usize = image_name_img_height_offset + image_name_img_height_len;
+    const image_name_img_width_len : usize = image_name_img_height_len;
 
 
     // ----- PHOTO ALBUM -----
     const photo_album_key : &str = "mhba";
     const photo_album_key_ascii : &[u8] = photo_album_key.as_bytes();
 
-    const photo_album_album_item_cnt_offset : u8 = 16; // 4 * 4
-    const photo_album_album_item_cnt_len : u8 = 4;
+    const photo_album_album_item_cnt_offset : usize = 16; // 4 * 4
+    const photo_album_album_item_cnt_len : usize = 4;
 
     // ----- Data Object -----
     const data_object_key : &str = "mhod";
     const data_object_key_ascii  : &[u8] = data_object_key.as_bytes();
 
-    const data_object_type_offset : u8 = 12; // 4 * 8
-    const data_object_type_len : u8 = 2;
+    const data_object_type_offset : usize = 12; // 4 * 8
+    const data_object_type_len : usize = 2;
 
     // ----------------------- End key name definitions
+
+    // Counters
+    let mut num_image_lists = 0;
+    let mut num_image_items = 0;
+    let mut num_image_names = 0;
+    let mut num_photo_albums = 0;
+    let mut num_data_objects = 0;
 
 
 
@@ -95,39 +102,98 @@ fn main() {
             (db_file_as_bytes[idx + 2] == image_list_key_ascii[2]) && 
             (db_file_as_bytes[idx + 3] == image_list_key_ascii[3]) {
 
-                let image_list_num_images : u32 = db_file_as_bytes[idx + image_list_num_images_offset as usize .. idx + image_list_num_images_offset + image_list_num_images_len].iter().map(|i| (*i) as u32).sum();
+                let image_list_num_images_raw = &db_file_as_bytes[idx + image_list_num_images_offset .. idx + image_list_num_images_offset + image_list_num_images_len];
+                println!("ImageList numImages [RAW] {:?}", image_list_num_images_raw);
 
-                println!("ImageList info... NumImages={}", image_list_num_images);
+
+                //let image_list_num_images : u32 = db_file_as_bytes[idx + image_list_num_images_offset as usize .. idx + image_list_num_images_offset + image_list_num_images_len].iter().map(|i| (*i) as u32).sum();
+
+                //println!("ImageList#{} info... NumImages={}", num_image_lists, image_list_num_images);
+
+                num_image_lists += 1;
             }
 
             // Parse Image Item
 
-            if (db_file_as_bytes[idx] == image_item_key_ascii[0]) && 
+            else if (db_file_as_bytes[idx] == image_item_key_ascii[0]) && 
             (db_file_as_bytes[idx + 1] == image_item_key_ascii[1]) && 
             (db_file_as_bytes[idx + 2] == image_item_key_ascii[2]) && 
             (db_file_as_bytes[idx + 3] == image_item_key_ascii[3]) {
 
-                let image_item_rating = std::str::from_utf8(&db_file_as_bytes[idx + image_item_rating_offset .. idx + image_item_rating_offset + image_item_rating_len]).expect("Can't convert raw image rating to string");
+                let image_item_rating_raw :&[u8] = &db_file_as_bytes[idx + image_item_rating_offset .. idx + image_item_rating_offset + image_item_rating_len];
+                println!("ImageItem rating [RAW] {:?}", image_item_rating_raw);
+
+                let image_item_rating = std::str::from_utf8(image_item_rating_raw).expect("Can't convert raw image rating to string");
 
                 // TODO: Add try-catch for commented out blocks
 
-                //let image_item_orig_date = std::str::from_utf8(&db_file_as_bytes[idx + image_item_orig_date_offset .. idx + image_item_orig_date_offset + image_item_orig_date_len]).expect("Can't convert orig date to string");
+                let image_item_orig_date_raw = &db_file_as_bytes[idx + image_item_orig_date_offset .. idx + image_item_orig_date_offset + image_item_orig_date_len];
+                println!("ImageItem OrigDate [RAW] {:?}", image_item_orig_date_raw);
 
-                // let image_item_digitized_date = std::str::from_utf8(&db_file_as_bytes[idx + image_item_digitized_date_offset .. idx + image_item_digitized_date_offset + image_item_digitized_date_len]).expect("Can't convert digitized date to string");
+                let image_item_digitized_date_raw : &[u8] = &db_file_as_bytes[idx + image_item_digitized_date_offset .. idx + image_item_digitized_date_offset + image_item_digitized_date_len];
+                println!("ImageItem DigitizedDate [RAW] {:?}", image_item_digitized_date_raw);
 
-                let image_item_source_img_size = std::str::from_utf8(&db_file_as_bytes[idx + image_item_source_img_size_offset .. idx + image_item_source_img_size_offset + image_item_source_img_size_len]).expect("Can't convert source image size to string");
+
+                //let image_item_source_img_size = std::str::from_utf8(&db_file_as_bytes[idx + image_item_source_img_size_offset .. idx + image_item_source_img_size_offset + image_item_source_img_size_len]).expect("Can't convert source image size to string");
 
                 // println!("ImageItem info... Rating={} , OriginalDate={} , DigitizedDate={} , SourceImgSize={} ", image_item_rating, image_item_orig_date, image_item_digitized_date, image_item_source_img_size);
 
                 // println!("ImageItem info... Rating={} , DigitizedDate={} , SourceImgSize={} ", image_item_rating, image_item_digitized_date, image_item_source_img_size);
 
-                println!("ImageItem info... Rating={} , SourceImgSize={} ", image_item_rating, image_item_source_img_size);
+                //println!("ImageItem#{} info... Rating={} , SourceImgSize={}", num_image_items, image_item_rating, image_item_source_img_size);
+
+                num_image_items += 1;
             }
 
             // Parse Image Name
-            
+
+            else if (db_file_as_bytes[idx] == image_name_key_ascii[0]) && 
+            (db_file_as_bytes[idx + 1] == image_name_key_ascii[1]) && 
+            (db_file_as_bytes[idx + 2] == image_name_key_ascii[2]) && 
+            (db_file_as_bytes[idx + 3] == image_name_key_ascii[3]) {
+
+                // TODO: Add try-catch for commented out blocks
+
+                //let image_name_img_size = std::str::from_utf8(&db_file_as_bytes[idx + image_name_img_size_offset .. idx + image_name_img_size_offset + image_name_img_size_len]).expect("Can't convert img size to string");
+
+                let image_name_img_height = std::str::from_utf8(&db_file_as_bytes[idx + image_name_img_height_offset .. idx + image_name_img_height_offset + image_name_img_height_len]).expect("Can't convert image height to string");
+
+                let image_name_img_width = std::str::from_utf8(&db_file_as_bytes[idx + image_name_img_width_offset .. idx + image_name_img_width_offset + image_name_img_width_len]).expect("Can't convert image width to string");
+
+                //println!("ImageName info... Size={} , Height={} , Width={}", image_name_img_size, image_name_img_height, image_name_img_width);
+                println!("ImageName#{} info... Height={} , Width={}", num_image_names, image_name_img_height, image_name_img_width);
+
+                num_image_names += 1;
+            }
+
+            // Parse Photo Album
+
+            else if (db_file_as_bytes[idx] == photo_album_key_ascii[0]) && 
+            (db_file_as_bytes[idx + 1] == photo_album_key_ascii[1]) && 
+            (db_file_as_bytes[idx + 2] == photo_album_key_ascii[2]) && 
+            (db_file_as_bytes[idx + 3] == photo_album_key_ascii[3]) {
+
+                let photo_album_item_cnt = std::str::from_utf8(&db_file_as_bytes[idx + photo_album_album_item_cnt_offset .. idx + photo_album_album_item_cnt_offset + photo_album_album_item_cnt_len]).expect("Can't convert photo album item count to string");
+
+                println!("PhotoAlbum#{} info... Item count#={}", num_photo_albums, photo_album_item_cnt);
+
+                num_photo_albums += 1;
+            }
 
 
+            // Parse Data Object
+
+            else if (db_file_as_bytes[idx] == data_object_key_ascii[0]) && 
+            (db_file_as_bytes[idx + 1] == data_object_key_ascii[1]) && 
+            (db_file_as_bytes[idx + 2] == data_object_key_ascii[2]) && 
+            (db_file_as_bytes[idx + 3] == data_object_key_ascii[3]) {
+
+                let data_object_type = std::str::from_utf8(&db_file_as_bytes[idx + data_object_type_offset .. idx + data_object_type_offset + data_object_type_len]).expect("Can't convert Data Object type field to string");
+
+                println!("DataObject#{} info... Type={}", num_data_objects, data_object_type);
+
+                num_data_objects += 1;
+            }
 
             idx = idx + SUBSTRUCTURE_SIZE;
         }
