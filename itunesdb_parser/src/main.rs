@@ -13,27 +13,28 @@ fn main() {
 
     // TODO: Move these to another module
     // ==================================
-    // ----- IMAGE ITEM ----- 
+    // ----- IMAGE LIST -----
     const image_list_key : &str = "mhli";
     const image_list_key_ascii : &[u8] = image_list_key.as_bytes();
 
-    const image_list_num_images_offset : u8 = 8; // 4 + 4
-    const image_list_num_images_len : u8 = 4;
+    const image_list_num_images_offset : usize = 8; // 4 + 4
+    const image_list_num_images_len : usize = 4;
 
+    // ----- IMAGE ITEM -----
     const image_item_key : &str = "mhii";
     const image_item_key_ascii : &[u8] = image_item_key.as_bytes();
 
-    const image_item_rating_offset : u8 = 32; // 4 * 8
-    const image_item_rating_len : u8 = 4;
+    const image_item_rating_offset : usize = 32; // 4 * 8
+    const image_item_rating_len : usize = 4;
 
-    const image_item_orig_date_offset : u8 = image_item_rating_offset + image_item_rating_len + 4;
-    const image_item_orig_date_len : u8 = 4;
+    const image_item_orig_date_offset : usize = image_item_rating_offset + image_item_rating_len + 4;
+    const image_item_orig_date_len : usize = 4;
 
-    const image_item_digitized_date_offset : u8 = image_item_orig_date_offset + image_item_orig_date_len;
-    const image_item_digitized_date_len : u8 = 4;
+    const image_item_digitized_date_offset : usize = image_item_orig_date_offset + image_item_orig_date_len;
+    const image_item_digitized_date_len : usize = 4;
 
-    const image_item_source_img_size_offset : u8 = image_item_digitized_date_offset + image_item_digitized_date_len;
-    const image_item_source_img_size_len : u8 = 4;
+    const image_item_source_img_size_offset : usize = image_item_digitized_date_offset + image_item_digitized_date_len;
+    const image_item_source_img_size_len : usize = 4;
 
     // ----- IMAGE NAME -----
     const image_name_key : &str = "mhni";
@@ -58,13 +59,15 @@ fn main() {
     const photo_album_key : &str = "mhba";
     const photo_album_key_ascii : &[u8] = photo_album_key.as_bytes();
 
-    const photo_album_album_item_cnt_offset 
+    const photo_album_album_item_cnt_offset : u8 = 16; // 4 * 4
+    const photo_album_album_item_cnt_len : u8 = 4;
 
+    // ----- Data Object -----
+    const data_object_key : &str = "mhod";
+    const data_object_key_ascii  : &[u8] = data_object_key.as_bytes();
 
-
-
-
-
+    const data_object_type_offset : u8 = 12; // 4 * 8
+    const data_object_type_len : u8 = 2;
 
     // ----------------------- End key name definitions
 
@@ -83,25 +86,46 @@ fn main() {
 
         let mut idx = 0;
 
-        while idx < db_file_as_bytes.len() {
+        while idx < db_file_as_bytes.len() { // TODO: Inside of each of the ifs, advance the index correctly
             
-            // let subseq_as_str = std::str::from_utf8(&db_file_as_bytes[idx..(idx + SUBSTRUCTURE_SIZE)]).expect("Unable to convert ASCII sequence to string");
-
-            // if subseq_as_str == image_list_key {
-            //     println!("Image list found!");
-            // }
+            // Parse Image List
 
             if (db_file_as_bytes[idx] == image_list_key_ascii[0]) && 
             (db_file_as_bytes[idx + 1] == image_list_key_ascii[1]) && 
             (db_file_as_bytes[idx + 2] == image_list_key_ascii[2]) && 
             (db_file_as_bytes[idx + 3] == image_list_key_ascii[3]) {
 
-                //println!("Image list found, starting at idx {}", idx);
+                let image_list_num_images : u32 = db_file_as_bytes[idx + image_list_num_images_offset as usize .. idx + image_list_num_images_offset + image_list_num_images_len].iter().map(|i| (*i) as u32).sum();
 
-                let image_list_num_images : u32 = db_file_as_bytes[idx + image_list_num_images_offset .. idx + image_list_num_images_offset + image_list_num_images_length].iter().map(|i| (*i) as u32).sum();
-
-                println!("{} images found", image_list_num_images);
+                println!("ImageList info... NumImages={}", image_list_num_images);
             }
+
+            // Parse Image Item
+
+            if (db_file_as_bytes[idx] == image_item_key_ascii[0]) && 
+            (db_file_as_bytes[idx + 1] == image_item_key_ascii[1]) && 
+            (db_file_as_bytes[idx + 2] == image_item_key_ascii[2]) && 
+            (db_file_as_bytes[idx + 3] == image_item_key_ascii[3]) {
+
+                let image_item_rating = std::str::from_utf8(&db_file_as_bytes[idx + image_item_rating_offset .. idx + image_item_rating_offset + image_item_rating_len]).expect("Can't convert raw image rating to string");
+
+                // TODO: Add try-catch for commented out blocks
+
+                //let image_item_orig_date = std::str::from_utf8(&db_file_as_bytes[idx + image_item_orig_date_offset .. idx + image_item_orig_date_offset + image_item_orig_date_len]).expect("Can't convert orig date to string");
+
+                // let image_item_digitized_date = std::str::from_utf8(&db_file_as_bytes[idx + image_item_digitized_date_offset .. idx + image_item_digitized_date_offset + image_item_digitized_date_len]).expect("Can't convert digitized date to string");
+
+                let image_item_source_img_size = std::str::from_utf8(&db_file_as_bytes[idx + image_item_source_img_size_offset .. idx + image_item_source_img_size_offset + image_item_source_img_size_len]).expect("Can't convert source image size to string");
+
+                // println!("ImageItem info... Rating={} , OriginalDate={} , DigitizedDate={} , SourceImgSize={} ", image_item_rating, image_item_orig_date, image_item_digitized_date, image_item_source_img_size);
+
+                // println!("ImageItem info... Rating={} , DigitizedDate={} , SourceImgSize={} ", image_item_rating, image_item_digitized_date, image_item_source_img_size);
+
+                println!("ImageItem info... Rating={} , SourceImgSize={} ", image_item_rating, image_item_source_img_size);
+            }
+
+            // Parse Image Name
+            
 
 
 
