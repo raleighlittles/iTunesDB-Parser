@@ -143,13 +143,14 @@ fn main() {
 
                 let image_item_digitized_date_timestamp : u32 = endian_helpers::endian_helpers::build_integer_from_bytes(image_item_digitized_date_raw);
 
-                //let image_item_source_img_size = std::str::from_utf8(&db_file_as_bytes[idx + image_item_source_img_size_offset .. idx + image_item_source_img_size_offset + image_item_source_img_size_len]).expect("Can't convert source image size to string");
+                let image_item_source_img_size_raw  = &db_file_as_bytes[idx + image_item_source_img_size_offset .. idx + image_item_source_img_size_offset + image_item_source_img_size_len];
 
-                // println!("ImageItem info... Rating={} , OriginalDate={} , DigitizedDate={} , SourceImgSize={} ", image_item_rating, image_item_orig_date, image_item_digitized_date, image_item_source_img_size);
+                let image_item_source_img_size = endian_helpers::endian_helpers::build_integer_from_bytes(image_item_source_img_size_raw);
+                println!("ImageItem image size [RAW] {:?}", image_item_source_img_size_raw);
 
-                // println!("ImageItem info... Rating={} , DigitizedDate={} , SourceImgSize={} ", image_item_rating, image_item_digitized_date, image_item_source_img_size);
+                println!("ImageItem#{} info... Rating={} , ImgSize={}, OrigDateTS={} , DigitizedDateTS={}", num_image_items, image_item_rating, image_item_source_img_size, image_item_orig_date_timestamp, image_item_digitized_date_timestamp);
 
-                println!("ImageItem#{} info... Rating={} , OrigDateTS={} , DigitizedDateTS={}", num_image_items, image_item_rating, image_item_orig_date_timestamp, image_item_digitized_date_timestamp);
+                println!("==========");
 
                 num_image_items += 1;
             }
@@ -163,14 +164,21 @@ fn main() {
 
                 // TODO: Add try-catch for commented out blocks
 
-                //let image_name_img_size = std::str::from_utf8(&db_file_as_bytes[idx + image_name_img_size_offset .. idx + image_name_img_size_offset + image_name_img_size_len]).expect("Can't convert img size to string");
+                let image_name_img_size_raw = &db_file_as_bytes[idx + image_name_img_size_offset .. idx + image_name_img_size_offset + image_name_img_size_len];
+                let image_name_img_size = endian_helpers::endian_helpers::build_integer_from_bytes(image_name_img_size_raw);
 
-                let image_name_img_height = std::str::from_utf8(&db_file_as_bytes[idx + image_name_img_height_offset .. idx + image_name_img_height_offset + image_name_img_height_len]).expect("Can't convert image height to string");
+                let image_name_img_height_raw = &db_file_as_bytes[idx + image_name_img_height_offset .. idx + image_name_img_height_offset + image_name_img_height_len];
+                let image_name_img_height = endian_helpers::endian_helpers::build_integer_from_bytes(image_name_img_height_raw);
+                println!("ImageName image height [RAW] {:?}", image_name_img_height_raw);
 
-                let image_name_img_width = std::str::from_utf8(&db_file_as_bytes[idx + image_name_img_width_offset .. idx + image_name_img_width_offset + image_name_img_width_len]).expect("Can't convert image width to string");
+                let image_name_img_width_raw = &db_file_as_bytes[idx + image_name_img_width_offset .. idx + image_name_img_width_offset + image_name_img_width_len];
+                let image_name_img_width = endian_helpers::endian_helpers::build_integer_from_bytes(image_name_img_width_raw);
+                println!("ImageName image width [RAW] {:?}", image_name_img_width_raw);
 
                 //println!("ImageName info... Size={} , Height={} , Width={}", image_name_img_size, image_name_img_height, image_name_img_width);
-                println!("ImageName#{} info... Height={} , Width={}", num_image_names, image_name_img_height, image_name_img_width);
+                println!("ImageName#{} info... Size(bytes)={} , Height={} , Width={}", num_image_names, image_name_img_size, image_name_img_height, image_name_img_width);
+
+                println!("==========");
 
                 num_image_names += 1;
             }
