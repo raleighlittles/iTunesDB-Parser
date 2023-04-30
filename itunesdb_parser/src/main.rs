@@ -1,5 +1,7 @@
 mod endian_helpers;
 
+use crate::endian_helpers::endian_helpers::build_integer_from_bytes;
+
 fn main() {
     
     let itunesdb_filename : String = std::env::args().nth(1).expect("Missing parameter: iTunes DB filename");
@@ -105,10 +107,11 @@ fn main() {
                 let image_list_num_images_raw = &db_file_as_bytes[idx + image_list_num_images_offset .. idx + image_list_num_images_offset + image_list_num_images_len];
                 println!("ImageList numImages [RAW] {:?}", image_list_num_images_raw);
 
+                let image_list_num_images : u32 = endian_helpers::endian_helpers::build_integer_from_bytes(image_list_num_images_raw);
 
                 //let image_list_num_images : u32 = db_file_as_bytes[idx + image_list_num_images_offset as usize .. idx + image_list_num_images_offset + image_list_num_images_len].iter().map(|i| (*i) as u32).sum();
 
-                //println!("ImageList#{} info... NumImages={}", num_image_lists, image_list_num_images);
+                println!("ImageList#{} info... NumImages={}", num_image_lists, image_list_num_images);
 
                 num_image_lists += 1;
             }
