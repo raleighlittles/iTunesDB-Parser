@@ -69,8 +69,18 @@ fn main() {
     const data_object_key : &str = "mhod";
     const data_object_key_ascii  : &[u8] = data_object_key.as_bytes();
 
+    const data_object_header_length : usize = 0x18;
+
     const data_object_type_offset : usize = 12; // 4 + 8
     const data_object_type_len : usize = 2;
+
+    // See the 'String MHODs' section
+    const data_object_string_subcontainer_length_offset : usize = data_object_header_length;
+    const data_object_string_subcontainer_length_len : usize = 4;
+
+    const data_object_string_subcontainer_encoding_offset : usize = data_object_header_length + 4;
+    const data_object_string_subcontainer_encoding_len : usize = 4;
+
 
     // ----------------------- End key name definitions
 
@@ -218,6 +228,23 @@ fn main() {
                 let data_object_type_raw = &db_file_as_bytes[idx + data_object_type_offset .. idx + data_object_type_offset + data_object_type_len];
 
                 let data_object_type = endian_helpers::endian_helpers::build_integer_from_bytes(data_object_type_raw);
+
+                if data_object_type == 1 || data_object_type == 3 {
+
+                    let data_object_subcontainer_str_len = endian_helpers::endian_helpers::build_integer_from_bytes(&db_file_as_bytes[idx + data_object_string_subcontainer_length_offset .. idx + data_object_string_subcontainer_length_offset + data_object_string_subcontainer_length_len]);
+
+                    let data_object_subcontainer_encoding = endian_helpers::endian_helpers::build_integer_from_bytes(&db_file_as_bytes[idx + data_object_string_subcontainer_encoding_offset .. idx + data_object_string_subcontainer_encoding_offset + data_object_string_subcontainer_encoding_len]);
+
+                    if data_object_subcontainer_encoding == 0 || data_object_subcontainer_encoding == 1 {
+                        // use UTF 8
+                        let data_object_subcontainer_data = std::
+
+                    } else if data_object_subcontainer_encoding == 2 {
+                        // Use UTF 16
+                    }
+
+                    println!("String MHOD detected... Len={}, Encoding={}", data_object_subcontainer_str_len, data_object_subcontainer_encoding);
+                }
 
                 println!("DataObject#{} info... Type={}", num_data_objects, data_object_type);
 
