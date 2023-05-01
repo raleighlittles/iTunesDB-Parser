@@ -1,6 +1,7 @@
 mod endian_helpers;
 
 use crate::endian_helpers::endian_helpers::build_integer_from_bytes;
+use chrono::{DateTime, Utc, NaiveDateTime};
 
 fn main() {
     
@@ -138,17 +139,20 @@ fn main() {
 
                 let image_item_orig_date_timestamp = endian_helpers::endian_helpers::build_integer_from_bytes(image_item_orig_date_raw);
 
+                let image_item_orig_date_date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(image_item_orig_date_timestamp as i64 - 2082844800, 0).unwrap(), Utc);
+
                 let image_item_digitized_date_raw : &[u8] = &db_file_as_bytes[idx + image_item_digitized_date_offset .. idx + image_item_digitized_date_offset + image_item_digitized_date_len];
                 println!("ImageItem DigitizedDate [RAW] {:?}", image_item_digitized_date_raw);
 
                 let image_item_digitized_date_timestamp : u32 = endian_helpers::endian_helpers::build_integer_from_bytes(image_item_digitized_date_raw);
+
 
                 let image_item_source_img_size_raw  = &db_file_as_bytes[idx + image_item_source_img_size_offset .. idx + image_item_source_img_size_offset + image_item_source_img_size_len];
 
                 let image_item_source_img_size = endian_helpers::endian_helpers::build_integer_from_bytes(image_item_source_img_size_raw);
                 println!("ImageItem image size [RAW] {:?}", image_item_source_img_size_raw);
 
-                println!("ImageItem#{} info... Rating={} , ImgSize={}, OrigDateTS={} , DigitizedDateTS={}", num_image_items, image_item_rating, image_item_source_img_size, image_item_orig_date_timestamp, image_item_digitized_date_timestamp);
+                println!("ImageItem#{} info... Rating={} , ImgSize={}, OrigDateTS={} , DigitizedDateTS={}", num_image_items, image_item_rating, image_item_source_img_size, image_item_orig_date_date, image_item_digitized_date_timestamp);
 
                 println!("==========");
 
@@ -190,9 +194,13 @@ fn main() {
             (db_file_as_bytes[idx + 2] == photo_album_key_ascii[2]) && 
             (db_file_as_bytes[idx + 3] == photo_album_key_ascii[3]) {
 
-                let photo_album_item_cnt = std::str::from_utf8(&db_file_as_bytes[idx + photo_album_album_item_cnt_offset .. idx + photo_album_album_item_cnt_offset + photo_album_album_item_cnt_len]).expect("Can't convert photo album item count to string");
+                let photo_album_item_cnt_raw = &db_file_as_bytes[idx + photo_album_album_item_cnt_offset .. idx + photo_album_album_item_cnt_offset + photo_album_album_item_cnt_len];
+
+                let photo_album_item_cnt = endian_helpers::endian_helpers::build_integer_from_bytes(photo_album_item_cnt_raw);
 
                 println!("PhotoAlbum#{} info... Item count#={}", num_photo_albums, photo_album_item_cnt);
+
+                println!("==========");
 
                 num_photo_albums += 1;
             }
@@ -205,7 +213,9 @@ fn main() {
             (db_file_as_bytes[idx + 2] == data_object_key_ascii[2]) && 
             (db_file_as_bytes[idx + 3] == data_object_key_ascii[3]) {
 
-                let data_object_type = std::str::from_utf8(&db_file_as_bytes[idx + data_object_type_offset .. idx + data_object_type_offset + data_object_type_len]).expect("Can't convert Data Object type field to string");
+                let data_object_type_raw = &db_file_as_bytes[idx + data_object_type_offset .. idx + data_object_type_offset + data_object_type_len];
+
+                let data_object_type = endian_helpers::endian_helpers::build_integer_from_bytes(data_object_type_raw);
 
                 println!("DataObject#{} info... Type={}", num_data_objects, data_object_type);
 
