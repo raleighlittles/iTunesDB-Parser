@@ -1,7 +1,7 @@
 mod endian_helpers;
 
 use crate::endian_helpers::endian_helpers::build_integer_from_bytes;
-use chrono::{DateTime, Utc, NaiveDateTime};
+use chrono::{DateTime, NaiveDateTime, Utc};
 
 fn main() {
     
@@ -69,7 +69,7 @@ fn main() {
     const data_object_key : &str = "mhod";
     const data_object_key_ascii  : &[u8] = data_object_key.as_bytes();
 
-    const data_object_type_offset : usize = 12; // 4 * 8
+    const data_object_type_offset : usize = 12; // 4 + 8
     const data_object_type_len : usize = 2;
 
     // ----------------------- End key name definitions
@@ -80,6 +80,8 @@ fn main() {
     let mut num_image_names = 0;
     let mut num_photo_albums = 0;
     let mut num_data_objects = 0;
+
+    const mac_to_linux_epoch_conversion : i64 = 2082844800;
 
 
 
@@ -135,24 +137,24 @@ fn main() {
                 // TODO: Add try-catch for commented out blocks
 
                 let image_item_orig_date_raw = &db_file_as_bytes[idx + image_item_orig_date_offset .. idx + image_item_orig_date_offset + image_item_orig_date_len];
-                println!("ImageItem OrigDate [RAW] {:?}", image_item_orig_date_raw);
+                //println!("ImageItem OrigDate [RAW] {:?}", image_item_orig_date_raw);
 
                 let image_item_orig_date_timestamp = endian_helpers::endian_helpers::build_integer_from_bytes(image_item_orig_date_raw);
 
-                let image_item_orig_date_date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(image_item_orig_date_timestamp as i64 - 2082844800, 0).unwrap(), Utc);
+                let image_item_orig_date_date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(image_item_orig_date_timestamp as i64 - mac_to_linux_epoch_conversion, 0).unwrap(), Utc);
 
                 let image_item_digitized_date_raw : &[u8] = &db_file_as_bytes[idx + image_item_digitized_date_offset .. idx + image_item_digitized_date_offset + image_item_digitized_date_len];
-                println!("ImageItem DigitizedDate [RAW] {:?}", image_item_digitized_date_raw);
-
+                //println!("ImageItem DigitizedDate [RAW] {:?}", image_item_digitized_date_raw);
+        
                 let image_item_digitized_date_timestamp : u32 = endian_helpers::endian_helpers::build_integer_from_bytes(image_item_digitized_date_raw);
-
+                let image_item_digitized_date_date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(image_item_digitized_date_timestamp as i64 - mac_to_linux_epoch_conversion, 0).unwrap(), Utc);
 
                 let image_item_source_img_size_raw  = &db_file_as_bytes[idx + image_item_source_img_size_offset .. idx + image_item_source_img_size_offset + image_item_source_img_size_len];
 
                 let image_item_source_img_size = endian_helpers::endian_helpers::build_integer_from_bytes(image_item_source_img_size_raw);
                 println!("ImageItem image size [RAW] {:?}", image_item_source_img_size_raw);
 
-                println!("ImageItem#{} info... Rating={} , ImgSize={}, OrigDateTS={} , DigitizedDateTS={}", num_image_items, image_item_rating, image_item_source_img_size, image_item_orig_date_date, image_item_digitized_date_timestamp);
+                println!("ImageItem#{} info... Rating= {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, image_item_rating, image_item_source_img_size, image_item_orig_date_date, image_item_digitized_date_date);
 
                 println!("==========");
 
@@ -218,6 +220,8 @@ fn main() {
                 let data_object_type = endian_helpers::endian_helpers::build_integer_from_bytes(data_object_type_raw);
 
                 println!("DataObject#{} info... Type={}", num_data_objects, data_object_type);
+
+                println!("==========");
 
                 num_data_objects += 1;
             }
