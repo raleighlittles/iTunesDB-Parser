@@ -66,3 +66,5 @@ pub mod itunesdb_constants {
     
         pub const data_object_string_subcontainer_data_offset : usize = data_object_string_subcontainer_encoding_offset + 4;
 }
+
+pub const mac_to_linux_epoch_conversion : i64 = 2082844800;

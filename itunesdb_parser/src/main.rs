@@ -1,8 +1,8 @@
-mod helpers;
 mod constants;
+mod helpers;
 
-use crate::helpers::helpers::build_le_u32_from_bytes;
 use crate::constants::itunesdb_constants::*;
+use crate::helpers::helpers::build_le_u32_from_bytes;
 
 use chrono::{DateTime, NaiveDateTime, Utc};
 
@@ -30,9 +30,6 @@ fn main() {
     let mut num_image_names = 0;
     let mut num_photo_albums = 0;
     let mut num_data_objects = 0;
-
-    const mac_to_linux_epoch_conversion : i64 = 2082844800;
-
 
     if itunesdb_file_type == "photo" {
 
@@ -73,12 +70,12 @@ fn main() {
 
                 let image_item_orig_date_timestamp = helpers::helpers::build_le_u32_from_bytes(image_item_orig_date_raw);
 
-                let image_item_orig_date_date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(image_item_orig_date_timestamp as i64 - mac_to_linux_epoch_conversion, 0).unwrap(), Utc);
+                let image_item_orig_date_date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(image_item_orig_date_timestamp as i64 - constants::mac_to_linux_epoch_conversion, 0).unwrap(), Utc);
 
                 let image_item_digitized_date_raw : &[u8] = &db_file_as_bytes[idx + image_item_digitized_date_offset .. idx + image_item_digitized_date_offset + image_item_digitized_date_len];
         
                 let image_item_digitized_date_timestamp : u32 = helpers::helpers::build_le_u32_from_bytes(image_item_digitized_date_raw);
-                let image_item_digitized_date_date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(image_item_digitized_date_timestamp as i64 - mac_to_linux_epoch_conversion, 0).unwrap(), Utc);
+                let image_item_digitized_date_date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(image_item_digitized_date_timestamp as i64 - constants::mac_to_linux_epoch_conversion, 0).unwrap(), Utc);
 
                 let image_item_source_img_size_raw  = &db_file_as_bytes[idx + image_item_source_img_size_offset .. idx + image_item_source_img_size_offset + image_item_source_img_size_len];
 
