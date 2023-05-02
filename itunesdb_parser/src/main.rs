@@ -7,11 +7,11 @@ use crate::helpers::helpers::build_le_u32_from_bytes;
 use chrono::{DateTime, NaiveDateTime, Utc};
 
 fn main() {
+    
     let itunesdb_filename: String = std::env::args()
         .nth(1)
         .expect("Missing parameter: iTunes DB filename");
 
-    // TODO: Convert to enum
     let itunesdb_file_type : String = std::env::args().nth(2).expect("Missing parameter: iTunes DB file type. Values are: 'itunes', 'playcounts', 'otg', 'eq', 'art', or 'photo'.");
 
     let db_file_as_bytes: Vec<u8> = std::fs::read(itunesdb_filename).unwrap();
@@ -48,8 +48,10 @@ fn main() {
                     num_image_lists, image_list_num_images
                 );
                 println!("==========");
-
                 num_image_lists += 1;
+
+                // Done parsing the header, move the index forward up to the end of it
+                idx = idx + image_list_last_offset;
             }
             // Parse Image Item
             else if (db_file_as_bytes[idx] == image_item_key_ascii[0])
@@ -105,8 +107,9 @@ fn main() {
                 println!("ImageItem#{} info... Rating= {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, image_item_rating, image_item_source_img_size, image_item_orig_date_date, image_item_digitized_date_date);
 
                 println!("==========");
-
                 num_image_items += 1;
+
+                idx = idx + image_item_last_offset;
             }
             // Parse Image Name
             else if (db_file_as_bytes[idx] == image_name_key_ascii[0])
@@ -143,8 +146,9 @@ fn main() {
                 );
 
                 println!("==========");
-
                 num_image_names += 1;
+
+                idx = idx + image_name_last_offset;
             }
             // Parse Photo Album
             else if (db_file_as_bytes[idx] == photo_album_key_ascii[0])
@@ -165,8 +169,9 @@ fn main() {
                 );
 
                 println!("==========");
-
                 num_photo_albums += 1;
+
+                idx = idx + photo_album_last_offset;
             }
             // Parse Data Object
             else if (db_file_as_bytes[idx] == data_object_key_ascii[0])
@@ -200,12 +205,14 @@ fn main() {
                     if data_object_subcontainer_encoding == 0
                         || data_object_subcontainer_encoding == 1
                     {
-                        // use UTF 8
+                        // TODO: Figure out why I'm off by a width of 4 on the length.
+                        // Same issue with UTF-16 encoding (below)
+
                         let data_object_subcontainer_data = std::str::from_utf8(
-                            &db_file_as_bytes[idx + data_object_string_subcontainer_data_offset
+                            &db_file_as_bytes[idx + data_object_string_subcontainer_data_offset + 4
                                 ..idx
                                     + data_object_string_subcontainer_data_offset
-                                    + data_object_subcontainer_str_len as usize],
+                                    + data_object_subcontainer_str_len as usize + 4],
                         )
                         .expect("Can't parse MHOD string");
 
@@ -214,7 +221,6 @@ fn main() {
                         // Build UTF-16 array, out of UTF-8, by combining elements pairwise
                         let mut data_object_pairwise_combined: Vec<u16> = vec![];
 
-                        // TODO: Figure out why I'm off by a width of 4 on the length (below)
                         for i in (idx + data_object_string_subcontainer_data_offset + 4
                             ..idx
                                 + data_object_string_subcontainer_data_offset
@@ -246,8 +252,9 @@ fn main() {
                 );
 
                 println!("==========");
-
                 num_data_objects += 1;
+
+                idx = idx + data_object_last_offset;
             }
 
             idx = idx + SUBSTRUCTURE_SIZE;

@@ -1,3 +1,7 @@
+/** 
+ * File: helpers.rs
+ * 
+ */
 pub mod helpers {
 
     // TODO: Once Rust adds support for default arguments, add the following arguments:
