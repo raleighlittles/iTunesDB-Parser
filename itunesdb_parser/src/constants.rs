@@ -1,4 +1,8 @@
+
 pub mod itunesdb_constants {
+
+        pub const SUBSTRUCTURE_SIZE: usize = 4;
+
         // ----- IMAGE LIST -----
         pub const image_list_key : &str = "mhli";
         pub const image_list_key_ascii : &[u8] = image_list_key.as_bytes();
