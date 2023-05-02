@@ -1,7 +1,9 @@
 pub mod endian_helpers {
 
-    // TODO: Build version that can handle endianness and different radix
-    pub fn build_integer_from_bytes(bytes : &[u8]) -> u32 {
+    // TODO: Once Rust adds support for default arguments, add the following arguments:
+    //       * endianness
+    //       * radix
+    pub fn build_le_u32_from_bytes(bytes : &[u8]) -> u32 {
 
         let mut number: u32 = 0;
         const RADIX : u32 = 256;
