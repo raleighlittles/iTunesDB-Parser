@@ -18,6 +18,62 @@ The parser is written in Rust. You can build it by running `cargo build`. It req
 $ /target/debug/itunesdb_parser <path-to-itunesdb-file> 'photo'
 ```
 
+This will output all of the information about the relevant structures that were in your iTunesDB file. The output is probably going to be pretty large, so I recommend redirecting it to a text file.
+
+Here's an example of what to expect:
+
+```
+ImageList#0 info... NumImages=883
+==========
+ImageItem#0 info... Rating= 0 , ImgSize= 0, OrigDateTS= 2008-08-23 21:50:00 UTC , DigitizedDateTS= 2008-08-23 21:50:00 UTC
+==========
+DataObject#0 info... Type=5
+==========
+ImageName#0 info... Size(bytes)=523225 , Height=0 , Width=0
+==========
+MHOD substring (UTF-16)= E::DCIM:112CANON:IMG_1100.JPG
+String MHOD detected... Len=58, Encoding (raw)=2
+DataObject#1 info... Type=3
+==========
+DataObject#2 info... Type=6
+==========
+ImageItem#1 info... Rating= 0 , ImgSize= 0, OrigDateTS= 2008-08-23 21:50:12 UTC , DigitizedDateTS= 2008-08-23 21:50:12 UTC
+==========
+DataObject#3 info... Type=5
+==========
+ImageName#1 info... Size(bytes)=473779 , Height=0 , Width=0
+==========
+MHOD substring (UTF-16)= E::DCIM:112CANON:IMG_1101.JPG
+String MHOD detected... Len=58, Encoding (raw)=2
+DataObject#4 info... Type=3
+==========
+DataObject#5 info... Type=6
+==========
+ImageItem#2 info... Rating= 0 , ImgSize= 0, OrigDateTS= 2008-08-23 23:14:42 UTC , DigitizedDateTS= 2008-08-23 23:14:42 UTC
+==========
+DataObject#6 info... Type=5
+==========
+ImageName#2 info... Size(bytes)=491549 , Height=0 , Width=0
+==========
+MHOD substring (UTF-16)= E::DCIM:112CANON:IMG_1102.JPG
+String MHOD detected... Len=58, Encoding (raw)=2
+DataObject#7 info... Type=3
+==========
+DataObject#8 info... Type=6
+==========
+ImageItem#3 info... Rating= 0 , ImgSize= 0, OrigDateTS= 2008-08-23 23:15:02 UTC , DigitizedDateTS= 2008-08-23 23:15:02 UTC
+==========
+DataObject#9 info... Type=5
+==========
+ImageName#3 info... Size(bytes)=462812 , Height=0 , Width=0
+==========
+MHOD substring (UTF-16)= E::DCIM:112CANON:IMG_1103.JPG
+String MHOD detected... Len=58, Encoding (raw)=2
+DataObject#10 info... Type=3
+==========
+DataObject#11 info... Type=6
+```
+
 # Future roadmap
 
 This project is an early work-in-progress. The biggest thing I'm missing so far is support for extracting the actual photo thumbnails themselves.
