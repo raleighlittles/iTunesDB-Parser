@@ -7,46 +7,7 @@
 <link rel="shortcut icon" href="http://www.ipodlinux.org/favicon.ico">
 
 <link rel="copyright" href="http://www.gnu.org/copyleft/fdl.html">
-
-<title>
-
-ITunesDB - wikiPodLinux
-
-</title>
-<style type="text/css" media="screen,projection">
-
-/\*\<!\[CDATA\[\*/ @import "../stylesheets/monobook/main.css";
-/\*\]\]\>\*/
-
-</style>
-
-`   `<link rel="stylesheet" type="text/css" media="print" href="./ITunesDB - wikiPodLinux_files/commonPrint.css">  
-`   `  
-`   `  
-`   `  
-`   `  
-`       `
-
-<script type="text/javascript" async="" id="topmailru-code" src="./ITunesDB - wikiPodLinux_files/code.js">
-</script>
-<script type="text/javascript" src="./ITunesDB - wikiPodLinux_files/wikibits.js">
-</script>
-<style type="text/css">
-
-/\*\<!\[CDATA\[\*/ @import ""; @import ""; /\*\]\]\>\*/
-
-</style>
-<script data-ad-client="ca-pub-2601587627618324" async="" src="./ITunesDB - wikiPodLinux_files/f.txt">
-</script>
-</head>
-<body class="ns-0">
-<div id="globalWrapper">
-<div id="column-content">
-<div id="content">
-
-`     `<a name="top" id="contentTop"></a>  
-`         `
-
+  
 <h1 class="firstHeading">
 
 ITunesDB
@@ -61,16 +22,9 @@ From wikiPodLinux
 <div id="contentSub">
 </div>
 <center>
-<script async="" src="./ITunesDB - wikiPodLinux_files/f.txt">
-</script>
 
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2601587627618324" data-ad-slot="8010159564" data-ad-format="auto" data-full-width-responsive="true"><iframe id="aswift_0" style="height: 1px !important; max-height: 1px !important; max-width: 1px !important; width: 1px !important;" src="./ITunesDB - wikiPodLinux_files/saved_resource.html"><iframe id="google_ads_frame0" src="./ITunesDB - wikiPodLinux_files/saved_resource(1).html"></iframe></iframe></ins>
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2601587627618324" data-ad-slot="8010159564" data-ad-format="auto" data-full-width-responsive="true"></ins>
 
-<script>
-
-`    (adsbygoogle = window.adsbygoogle || []).push({});`
-
-</script>
 </center>
 <dl>
 <dd>
@@ -169,12 +123,6 @@ File</a>
 <td align="center">
 
 <b>Table of contents</b>
-
-<script type="text/javascript">
-
-showTocToggle("show","hide")
-
-</script>
 
 <span class="toctoggle">\[<a href="javascript:toggleToc()" class="internal"><span id="showlink" style="display:none;">show</span><span id="hidelink">hide</span></a>\]</span>
 
@@ -19226,11 +19174,7 @@ Personal tools
 `   `
 
 </div>
-<script type="text/javascript">
 
-if (window.isMSIE55) fixalpha();
-
-</script>
 <div class="portlet" id="p-nav">
 <h5>
 
@@ -19276,16 +19220,10 @@ Toolbox
     pages</a>
 
 </div>
-<script async="" src="./ITunesDB - wikiPodLinux_files/f.txt">
-</script>
 
 <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2601587627618324" data-ad-slot="4565738575" data-ad-format="auto" data-full-width-responsive="true"><iframe id="aswift_1" style="height: 1px !important; max-height: 1px !important; max-width: 1px !important; width: 1px !important;" src="./ITunesDB - wikiPodLinux_files/saved_resource(2).html"><iframe id="google_ads_frame1" src="./ITunesDB - wikiPodLinux_files/saved_resource(3).html"></iframe></iframe></ins>
 
-<script>
 
-`    (adsbygoogle = window.adsbygoogle || []).push({});`
-
-</script>
 </div>
 </div>
 <div class="visualClear">
@@ -19313,21 +19251,7 @@ Toolbox
 
 </div>
 </div>
-<script type="text/javascript">
 
-var \_tmr = window.\_tmr \|\| (window.\_tmr = \[\]); \_tmr.push({id:
-"994598", type: "pageView", start: (new Date()).getTime()}); (function
-(d, w, id) {
-
-` if (d.getElementById(id)) return;`  
-` var ts = d.createElement("script"); ts.type = "text/javascript"; ts.async = true; ts.id = id;`  
-` ts.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//top-fwz1.mail.ru/js/code.js";`  
-` var f = function () {var s = d.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ts, s);};`  
-` if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); }`
-
-})(document, window, "topmailru-code");
-
-</script>
 <noscript>
 <div>
 
