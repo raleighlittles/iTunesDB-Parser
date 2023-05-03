@@ -2,12 +2,9 @@ mod constants;
 mod helpers;
 
 use crate::constants::itunesdb_constants::*;
-use crate::helpers::helpers::build_le_u32_from_bytes;
-
 use chrono::{DateTime, NaiveDateTime, Utc};
 
 fn main() {
-    
     let itunesdb_filename: String = std::env::args()
         .nth(1)
         .expect("Missing parameter: iTunes DB filename");
@@ -27,17 +24,15 @@ fn main() {
         let mut idx = 0;
 
         while idx < db_file_as_bytes.len() {
-            // TODO: Inside of each of the ifs, advance the index correctly
-
             // Parse Image List
 
-            if (db_file_as_bytes[idx] == image_list_key_ascii[0])
-                && (db_file_as_bytes[idx + 1] == image_list_key_ascii[1])
-                && (db_file_as_bytes[idx + 2] == image_list_key_ascii[2])
-                && (db_file_as_bytes[idx + 3] == image_list_key_ascii[3])
+            if (db_file_as_bytes[idx] == IMAGE_LIST_KEY_ASCII[0])
+                && (db_file_as_bytes[idx + 1] == IMAGE_LIST_KEY_ASCII[1])
+                && (db_file_as_bytes[idx + 2] == IMAGE_LIST_KEY_ASCII[2])
+                && (db_file_as_bytes[idx + 3] == IMAGE_LIST_KEY_ASCII[3])
             {
-                let image_list_num_images_raw = &db_file_as_bytes[idx + image_list_num_images_offset
-                    ..idx + image_list_num_images_offset + image_list_num_images_len];
+                let image_list_num_images_raw = &db_file_as_bytes[idx + IMAGE_LIST_NUM_IMAGES_OFFSET
+                    ..idx + IMAGE_LIST_NUM_IMAGES_OFFSET + IMAGE_LIST_NUM_IMAGES_LEN];
                 println!("ImageList numImages [RAW] {:?}", image_list_num_images_raw);
 
                 let image_list_num_images: u32 =
@@ -51,22 +46,22 @@ fn main() {
                 num_image_lists += 1;
 
                 // Done parsing the header, move the index forward up to the end of it
-                idx = idx + image_list_last_offset;
+                idx = idx + IMAGE_LIST_LAST_OFFSET;
             }
             // Parse Image Item
-            else if (db_file_as_bytes[idx] == image_item_key_ascii[0])
-                && (db_file_as_bytes[idx + 1] == image_item_key_ascii[1])
-                && (db_file_as_bytes[idx + 2] == image_item_key_ascii[2])
-                && (db_file_as_bytes[idx + 3] == image_item_key_ascii[3])
+            else if (db_file_as_bytes[idx] == IMAGE_ITEM_KEY_ASCII[0])
+                && (db_file_as_bytes[idx + 1] == IMAGE_ITEM_KEY_ASCII[1])
+                && (db_file_as_bytes[idx + 2] == IMAGE_ITEM_KEY_ASCII[2])
+                && (db_file_as_bytes[idx + 3] == IMAGE_ITEM_KEY_ASCII[3])
             {
-                let image_item_rating_raw: &[u8] = &db_file_as_bytes[idx + image_item_rating_offset
-                    ..idx + image_item_rating_offset + image_item_rating_len];
+                let image_item_rating_raw: &[u8] = &db_file_as_bytes[idx + IMAGE_ITEM_RATING_OFFSET
+                    ..idx + IMAGE_ITEM_RATING_OFFSET + IMAGE_ITEM_RATING_LEN];
 
                 let image_item_rating: u32 =
                     helpers::helpers::build_le_u32_from_bytes(image_item_rating_raw);
 
-                let image_item_orig_date_raw = &db_file_as_bytes[idx + image_item_orig_date_offset
-                    ..idx + image_item_orig_date_offset + image_item_orig_date_len];
+                let image_item_orig_date_raw = &db_file_as_bytes[idx + IMAGE_ITEM_ORIG_DATE_OFFSET
+                    ..idx + IMAGE_ITEM_ORIG_DATE_OFFSET + IMAGE_ITEM_ORIG_DATE_LEN];
 
                 let image_item_orig_date_timestamp =
                     helpers::helpers::build_le_u32_from_bytes(image_item_orig_date_raw);
@@ -74,7 +69,7 @@ fn main() {
                 let image_item_orig_date_date = DateTime::<Utc>::from_utc(
                     NaiveDateTime::from_timestamp_opt(
                         image_item_orig_date_timestamp as i64
-                            - constants::mac_to_linux_epoch_conversion,
+                            - constants::MAC_TO_LINUX_EPOCH_CONVERSION,
                         0,
                     )
                     .unwrap(),
@@ -82,15 +77,15 @@ fn main() {
                 );
 
                 let image_item_digitized_date_raw: &[u8] = &db_file_as_bytes[idx
-                    + image_item_digitized_date_offset
-                    ..idx + image_item_digitized_date_offset + image_item_digitized_date_len];
+                    + IMAGE_ITEM_DIGITIZED_DATE_OFFSET
+                    ..idx + IMAGE_ITEM_DIGITIZED_DATE_OFFSET + IMAGE_ITEM_DIGITIZED_DATE_LEN];
 
                 let image_item_digitized_date_timestamp: u32 =
                     helpers::helpers::build_le_u32_from_bytes(image_item_digitized_date_raw);
                 let image_item_digitized_date_date = DateTime::<Utc>::from_utc(
                     NaiveDateTime::from_timestamp_opt(
                         image_item_digitized_date_timestamp as i64
-                            - constants::mac_to_linux_epoch_conversion,
+                            - constants::MAC_TO_LINUX_EPOCH_CONVERSION,
                         0,
                     )
                     .unwrap(),
@@ -98,8 +93,8 @@ fn main() {
                 );
 
                 let image_item_source_img_size_raw = &db_file_as_bytes[idx
-                    + image_item_source_img_size_offset
-                    ..idx + image_item_source_img_size_offset + image_item_source_img_size_len];
+                    + IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET
+                    ..idx + IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET + IMAGE_ITEM_SOURCE_IMG_SIZE_LEN];
 
                 let image_item_source_img_size =
                     helpers::helpers::build_le_u32_from_bytes(image_item_source_img_size_raw);
@@ -109,33 +104,30 @@ fn main() {
                 println!("==========");
                 num_image_items += 1;
 
-                idx = idx + image_item_last_offset;
+                idx = idx + IMAGE_ITEM_LAST_OFFSET;
             }
             // Parse Image Name
-            else if (db_file_as_bytes[idx] == image_name_key_ascii[0])
-                && (db_file_as_bytes[idx + 1] == image_name_key_ascii[1])
-                && (db_file_as_bytes[idx + 2] == image_name_key_ascii[2])
-                && (db_file_as_bytes[idx + 3] == image_name_key_ascii[3])
+            else if (db_file_as_bytes[idx] == IMAGE_NAME_KEY_ASCII[0])
+                && (db_file_as_bytes[idx + 1] == IMAGE_NAME_KEY_ASCII[1])
+                && (db_file_as_bytes[idx + 2] == IMAGE_NAME_KEY_ASCII[2])
+                && (db_file_as_bytes[idx + 3] == IMAGE_NAME_KEY_ASCII[3])
             {
-                let image_name_img_size_raw = &db_file_as_bytes[idx + image_name_img_size_offset
-                    ..idx + image_name_img_size_offset + image_name_img_size_len];
+                let image_name_img_size_raw = &db_file_as_bytes[idx + IMAGE_NAME_IMG_SIZE_OFFSET
+                    ..idx + IMAGE_NAME_IMG_SIZE_OFFSET + IMAGE_NAME_IMG_SIZE_LEN];
                 let image_name_img_size =
                     helpers::helpers::build_le_u32_from_bytes(image_name_img_size_raw);
 
-                let image_name_img_height_raw = &db_file_as_bytes[idx + image_name_img_height_offset
-                    ..idx + image_name_img_height_offset + image_name_img_height_len];
+                let image_name_img_height_raw = &db_file_as_bytes[idx + IMAGE_NAME_IMG_HEIGHT_OFFSET
+                    ..idx + IMAGE_NAME_IMG_HEIGHT_OFFSET + IMAGE_NAME_IMG_HEIGHT_LEN];
+                
+                // TODO: Figure out why the Image Height and Image Width are both 0
                 let image_name_img_height =
                     helpers::helpers::build_le_u32_from_bytes(image_name_img_height_raw);
-                println!(
-                    "ImageName image height [RAW] {:?}",
-                    image_name_img_height_raw
-                );
 
-                let image_name_img_width_raw = &db_file_as_bytes[idx + image_name_img_width_offset
-                    ..idx + image_name_img_width_offset + image_name_img_width_len];
+                let image_name_img_width_raw = &db_file_as_bytes[idx + IMAGE_NAME_IMG_WIDTH_OFFSET
+                    ..idx + IMAGE_NAME_IMG_WIDTH_OFFSET + IMAGE_NAME_IMG_WIDTH_LEN];
                 let image_name_img_width =
                     helpers::helpers::build_le_u32_from_bytes(image_name_img_width_raw);
-                println!("ImageName image width [RAW] {:?}", image_name_img_width_raw);
 
                 println!(
                     "ImageName#{} info... Size(bytes)={} , Height={} , Width={}",
@@ -148,17 +140,17 @@ fn main() {
                 println!("==========");
                 num_image_names += 1;
 
-                idx = idx + image_name_last_offset;
+                idx = idx + IMAGE_NAME_LAST_OFFSET;
             }
             // Parse Photo Album
-            else if (db_file_as_bytes[idx] == photo_album_key_ascii[0])
-                && (db_file_as_bytes[idx + 1] == photo_album_key_ascii[1])
-                && (db_file_as_bytes[idx + 2] == photo_album_key_ascii[2])
-                && (db_file_as_bytes[idx + 3] == photo_album_key_ascii[3])
+            else if (db_file_as_bytes[idx] == PHOTO_ALBUM_KEY_ASCII[0])
+                && (db_file_as_bytes[idx + 1] == PHOTO_ALBUM_KEY_ASCII[1])
+                && (db_file_as_bytes[idx + 2] == PHOTO_ALBUM_KEY_ASCII[2])
+                && (db_file_as_bytes[idx + 3] == PHOTO_ALBUM_KEY_ASCII[3])
             {
                 let photo_album_item_cnt_raw = &db_file_as_bytes[idx
-                    + photo_album_album_item_cnt_offset
-                    ..idx + photo_album_album_item_cnt_offset + photo_album_album_item_cnt_len];
+                    + PHOTO_ALBUM_ALBUM_ITEM_CNT_OFFSET
+                    ..idx + PHOTO_ALBUM_ALBUM_ITEM_CNT_OFFSET + PHOTO_ALBUM_ALBUM_ITEM_CNT_LEN];
 
                 let photo_album_item_cnt =
                     helpers::helpers::build_le_u32_from_bytes(photo_album_item_cnt_raw);
@@ -171,16 +163,16 @@ fn main() {
                 println!("==========");
                 num_photo_albums += 1;
 
-                idx = idx + photo_album_last_offset;
+                idx = idx + PHOTO_ALBUM_LAST_OFFSET;
             }
             // Parse Data Object
-            else if (db_file_as_bytes[idx] == data_object_key_ascii[0])
-                && (db_file_as_bytes[idx + 1] == data_object_key_ascii[1])
-                && (db_file_as_bytes[idx + 2] == data_object_key_ascii[2])
-                && (db_file_as_bytes[idx + 3] == data_object_key_ascii[3])
+            else if (db_file_as_bytes[idx] == DATA_OBJECT_KEY_ASCII[0])
+                && (db_file_as_bytes[idx + 1] == DATA_OBJECT_KEY_ASCII[1])
+                && (db_file_as_bytes[idx + 2] == DATA_OBJECT_KEY_ASCII[2])
+                && (db_file_as_bytes[idx + 3] == DATA_OBJECT_KEY_ASCII[3])
             {
-                let data_object_type_raw = &db_file_as_bytes[idx + data_object_type_offset
-                    ..idx + data_object_type_offset + data_object_type_len];
+                let data_object_type_raw = &db_file_as_bytes[idx + DATA_OBJECT_TYPE_OFFSET
+                    ..idx + DATA_OBJECT_TYPE_OFFSET + DATA_OBJECT_TYPE_LEN];
 
                 let data_object_type =
                     helpers::helpers::build_le_u32_from_bytes(data_object_type_raw);
@@ -188,18 +180,18 @@ fn main() {
                 if data_object_type == 1 || data_object_type == 3 {
                     let data_object_subcontainer_str_len =
                         helpers::helpers::build_le_u32_from_bytes(
-                            &db_file_as_bytes[idx + data_object_string_subcontainer_length_offset
+                            &db_file_as_bytes[idx + DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_OFFSET
                                 ..idx
-                                    + data_object_string_subcontainer_length_offset
-                                    + data_object_string_subcontainer_length_len],
+                                    + DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_OFFSET
+                                    + DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_LEN],
                         );
 
                     let data_object_subcontainer_encoding =
                         helpers::helpers::build_le_u32_from_bytes(
-                            &db_file_as_bytes[idx + data_object_string_subcontainer_encoding_offset
+                            &db_file_as_bytes[idx + DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_OFFSET
                                 ..idx
-                                    + data_object_string_subcontainer_encoding_offset
-                                    + data_object_string_subcontainer_encoding_len],
+                                    + DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_OFFSET
+                                    + DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_LEN],
                         );
 
                     if data_object_subcontainer_encoding == 0
@@ -209,10 +201,11 @@ fn main() {
                         // Same issue with UTF-16 encoding (below)
 
                         let data_object_subcontainer_data = std::str::from_utf8(
-                            &db_file_as_bytes[idx + data_object_string_subcontainer_data_offset + 4
+                            &db_file_as_bytes[idx + DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET + 4
                                 ..idx
-                                    + data_object_string_subcontainer_data_offset
-                                    + data_object_subcontainer_str_len as usize + 4],
+                                    + DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET
+                                    + data_object_subcontainer_str_len as usize
+                                    + 4],
                         )
                         .expect("Can't parse MHOD string");
 
@@ -221,9 +214,9 @@ fn main() {
                         // Build UTF-16 array, out of UTF-8, by combining elements pairwise
                         let mut data_object_pairwise_combined: Vec<u16> = vec![];
 
-                        for i in (idx + data_object_string_subcontainer_data_offset + 4
+                        for i in (idx + DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET + 4
                             ..idx
-                                + data_object_string_subcontainer_data_offset
+                                + DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET
                                 + data_object_subcontainer_str_len as usize
                                 + 4)
                             .step_by(2)
@@ -254,7 +247,7 @@ fn main() {
                 println!("==========");
                 num_data_objects += 1;
 
-                idx = idx + data_object_last_offset;
+                idx = idx + DATA_OBJECT_LAST_OFFSET;
             }
 
             idx = idx + SUBSTRUCTURE_SIZE;

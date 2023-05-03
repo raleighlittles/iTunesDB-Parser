@@ -1,6 +1,6 @@
-/** 
+/**
  * File: helpers.rs
- * 
+ *
  */
 pub mod helpers {
 
@@ -17,7 +17,7 @@ pub mod helpers {
                 .unwrap_or_else(|| panic!("Can't raise {} to power {}", RADIX, idx))
                 as u32;
 
-            number += ((summand as u32) * (*item as u32));
+            number += (summand as u32) * (*item as u32);
         }
 
         return number;
