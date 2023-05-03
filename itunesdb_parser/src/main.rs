@@ -33,7 +33,6 @@ fn main() {
             {
                 let image_list_num_images_raw = &db_file_as_bytes[idx + IMAGE_LIST_NUM_IMAGES_OFFSET
                     ..idx + IMAGE_LIST_NUM_IMAGES_OFFSET + IMAGE_LIST_NUM_IMAGES_LEN];
-                println!("ImageList numImages [RAW] {:?}", image_list_num_images_raw);
 
                 let image_list_num_images: u32 =
                     helpers::helpers::build_le_u32_from_bytes(image_list_num_images_raw);
