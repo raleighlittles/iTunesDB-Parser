@@ -72,7 +72,7 @@ pub mod itunesdb_constants {
 
     pub const PHOTO_ALBUM_LAST_OFFSET: usize = 64; // 4 * 16
 
-    // ----- DATA OBJECT ----- //
+    // ----- DATA OBJECT (for photosDB only!!) ----- //
     pub const DATA_OBJECT_KEY: &str = "mhod";
 
     pub const DATA_OBJECT_HEADER_LENGTH: usize = 0x18;
@@ -109,7 +109,7 @@ pub mod itunesdb_constants {
 
     pub const TRACK_LIST_LAST_OFFSET : usize = 12;
 
-    // ----- TRACK_ITEM ----- //
+    // ----- TRACK ITEM ----- //
     pub const TRACK_ITEM_KEY : &str = "mhit";
 
     pub const TRACK_ITEM_TRACK_FILETYPE_OFFSET : usize = 24;
@@ -118,8 +118,8 @@ pub mod itunesdb_constants {
     pub const TRACK_ITEM_TRACK_BITRATE_SETTING_OFFSET : usize = 28;
     pub const TRACK_ITEM_TRACK_BITRATE_SETTING_LEN : usize = 1;
 
-    pub const TRACK_ITEM_IS_COMPILATION_OFFSET : usize = 30;
-    pub const TRACK_ITEM_IS_COMPILATION_LEN : usize = 1;
+    pub const TRACK_ITEM_IS_COMPILATION_SETTING_OFFSET : usize = 30;
+    pub const TRACK_ITEM_IS_COMPILATION_SETTING_LEN : usize = 1;
 
     pub const TRACK_ITEM_TRACK_RATING_OFFSET : usize = 31;
     pub const TRACK_ITEM_TRACK_RATING_LEN : usize = 1;
@@ -161,14 +161,118 @@ pub mod itunesdb_constants {
     pub const TRACK_ITEM_TRACK_PLAY_COUNT_LEN : usize = 4;
 
     pub const TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_OFFSET : usize = 88;
-    pub const TRACK_ITEM_TRACK_LAST_PLAYED_LEN : usize = 4;
+    pub const TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_LEN : usize = 4;
 
+    pub const TRACK_ITEM_TRACK_DISC_NUMBER_OFFSET : usize = 92;
+    pub const TRACK_ITEM_TRACK_DISC_NUMBER_LEN : usize = 4;
 
+    pub const TRACK_ITEM_TRACK_TOTAL_NUM_DISCS_OFFSET : usize = 96;
+    pub const TRACK_ITEM_TRACK_TOTAL_NUM_DISCS_LEN : usize = 4;
 
+    pub const TRACK_ITEM_TRACK_USER_ID_OFFSET : usize = 100;
+    pub const TRACK_ITEM_TRACK_USER_ID_LEN : usize = 4;
 
+    pub const TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET : usize = 104;
+    pub const TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN : usize = 4;
+
+    pub const TRACK_ITEM_TRACK_BOOKMARK_TIME_MILLISECONDS_OFFSET : usize = 108;
+    pub const TRACK_ITEM_TRACK_BOOKMARK_TIME_MILLISECONDS_OFFSET : usize = 4;
+
+    pub const TRACK_ITEM_TRACK_PREVIOUS_RATING_OFFSET : usize = 121;
+    pub const TRACK_ITEM_TRACK_PREVIOUS_RATING_LEN : usize = 1;
+
+    pub const TRACK_ITEM_TRACK_BPM_OFFSET : usize = 122;
+    pub const TRACK_ITEM_TRACK_BPM_LEN : usize = 2;
+
+    pub const TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_OFFSET : usize = 128;
+    pub const TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_LEN : usize = 4;
+
+    pub const TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET : usize = 140;
+    pub const TRACK_ITEM_TRACK_RELEASE_TIMESTAMP_LEN : usize = 4;
+
+    pub const TRACK_ITEM_TRACK_SKIPPED_COUNT_OFFSET : usize = 156;
+    pub const TRACK_ITEM_TRACK_SKIPPED_COUNT_LEN : usize = 4;
+
+    pub const TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_OFFSET : usize =  160;
+    pub const TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_LEN : usize = 4;
+
+    pub const TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET : usize = 165;
+    pub const TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_LEN : usize = 1;
+
+    pub const TRACK_ITEM_TRACK_REMEMBER_PLAYBACK_POSITION_SETTING_OFSET : usize = 166;
+    pub const TRACK_ITEM_TRACK_REMEMBER_PLAYBACK_POSITION_SETTING_LEN : usize = 1;
+
+    pub const TRACK_ITEM_TRACK_LYRICS_AVAILABLE_SETTING_OFFSET : usize = 176;
+    pub const TRACK_ITEM_TRACK_LYRICS_AVAILABLE_SETTING_LEN : usize = 1;
+
+    pub const TRACK_ITEM_TRACK_MOVIE_FLAG_SETTING_OFFSET : usize = 177;
+    pub const TRACK_ITEM_TRACK_MOVIE_FLAG_SETTING_LEN : usize = 1;
+
+    pub const TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_OFFSET : usize = 184;
+    pub const TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_LEN : usize = 4;
+
+    pub const TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET : usize = 188;
+    pub const TRACK_ITEM_TRACK_NUM_SAMPLES_LEN : usize = 8;
+
+    pub const TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_OFFSET : usize = 200;
+    pub const TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_LEN : usize = 4;
+
+    pub const TRACK_ITEM_TRACK_MEDIA_TYPE_OFFSET : usize = 208;
+    pub const TRACK_ITEM_TRACK_MEDIA_TYPE_LEN : usize = 4;
+
+    // Parse this FIRST, before doing anything else
+    pub const TRACK_ITEM_TRACK_SEASON_NUMBER_OFFSET : usize = 212;
+    pub const TRACK_ITEM_TRACK_SEASON_NUMBER_LEN : usize = 4;
+    
+    pub const TRACK_ITEM_TRACK_EPISODE_NUMBER_OFFSET : usize = 216;
+    pub const TRACK_ITEM_TRACK_EPISODE_NUMBER_LEN : usize = 4;
+
+    pub const TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_OFFSET : usize = 256;
+    pub const TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_LEN : usize = 2;
+
+    pub const TRACK_ITEM_TRACK_CROSSFADING_SETTING_OFFSET : usize = 258;
+    pub const TRACK_ITEM_TRACK_CROSSFADING_SETTING_LEN : usize = 2;
 
     pub const TRACK_ITEM_LAST_OFFSET : usize = 356;
 
+    // ----- PLAYLIST ----- //
+    pub const PLAYLIST_KEY : &str = "mhyp";
+    pub const PLAYLIST_IS_MASTER_PLAYLIST_SETTING_OFFSET : usize = 20;
+    pub const PLAYLIST_IS_MASTER_PLAYLIST_SETTING_LEN : usize = 1;
+
+    pub const PLAYLIST_CREATED_TIMESTAMP_OFFSET : usize = 24;
+    pub const PLAYLIST_CREATED_TIMESTAMP_LEN : usize = 4;
+
+    pub const PLAYLIST_PLAYLIST_SORT_ORDER_OFFSET : usize = 44;
+    pub const PLAYLIST_PLAYLIST_SORT_ORDER_LEN : usize = 4;
+
+    pub const PLAYLIST_LAST_OFFSET : usize = 48;
+
+    // ----- PLAYLIST ITEM ----- //
+    pub const PLAYLIST_ITEM_KEY : &str = "mhip";
+    
+    pub const PLAYLIST_ITEM_SONG_ADDED_TIMESTAMP_OFFSET : usize = 28;
+    pub const PLAYLIST_ITEM_SONG_ADDED_TIMESTAMP_LEN : usize = 4;
+
+    pub const PLAYLIST_ITEM_LAST_OFFSET : usize = 36;
+
+    // Add data object (for music only)
+
+    // ----- ALBUM LIST ----- //
+    pub const ALBUM_LIST_KEY : &str = "mhla";
+
+    pub const ALBUM_LIST_TOTAL_NUM_SONGS_OFFSET : usize = 8;
+    pub const ALBUM_LIST_TOTAL_NUM_SONGS_LEN : usize = 4;
+
+    pub const ALBUM_LIST_LAST_OFFSET : usize = 12;
+
+    // ----- ALBUM ITEM ----- //
+    pub const ALBUM_ITEM_KEY : &str = "mhia";
+
+    pub const ALBUM_ITEM_UNKNOWN_TIMESTAMP_OFFSET : usize = 20;
+    pub const ALBUM_ITEM_UNKNOWN_TIMESTAMP_LEN : usize = 8;
+
+    pub const ALBUM_ITEM_LAST_OFFSET : usize = 32;
 
 }
 
