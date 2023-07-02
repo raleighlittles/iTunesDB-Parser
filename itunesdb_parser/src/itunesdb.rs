@@ -15,10 +15,12 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 
 pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
 
-pub mod photo_database_constants {
+pub mod photo_database {
 
     // ----- IMAGE LIST ----- //
     pub const IMAGE_LIST_KEY: &str = "mhli";
+
+    pub const IMAGE_LIST_KEY_ASCII : &[u8] = IMAGE_ITEM_KEY.as_bytes();
 
     pub const IMAGE_LIST_NUM_IMAGES_OFFSET: usize = 8; // 4 + 4
     pub const IMAGE_LIST_NUM_IMAGES_LEN: usize = 4;
@@ -95,15 +97,54 @@ pub mod photo_database_constants {
 
     pub const DATA_OBJECT_LAST_OFFSET: usize = 16; // 4 * 4
 
+    pub enum MhodType {
+        ALBUM_NAME = 1,
+        THUMBNAIL_IMAGE = 2,
+        FILE_NAME = 3,
+        CONTAINER = 5
+    }
+
+    /// See "MHOD types" table in Photos Database section
+    pub fn decode_mhod_type(mhod_type : u16) -> String {
+
+        let mhod_type_name : String;
+        
+        if mhod_type == 1 {
+            mhod_type_name = String::from("Album Name");
+        }
+
+        else if mhod_type == 2 {
+            mhod_type_name = String::from("Thumbnail image");
+        }
+
+        else if mhod_type == 3 {
+            mhod_type_name = String::from("File name");
+        }
+
+        else if mhod_type == 5 {
+            mhod_type_name = String::from("Container (unused)");
+        }
+
+        else {
+            // panic!("{} is not a supported mhod type", mhod_type);
+            // I would normally have panicked here, since the wiki doesn't mention any other valid mhod types,
+            // but in my testing I found that for some reason, I was seeing mhod type "6" in the photo database file,
+            // which shouldn't be possible...
+            mhod_type_name = String::from("Unsupported");
+        }
+
+        return mhod_type_name;
+    }
+
 }
 
-pub mod itunesdb_constants {
+pub mod iTunesDB {
 
     // ----- DATABASE OBJECT ----- //
     pub const DATABASE_OBJECT_KEY : &str = "mhbd";
 
     // 4×8+2+8+2+20
-    pub const DATABASE_OBJECT_LANGUAGE_OFFSET : usize = 64;
+    pub const DATABASE_OBJECT_LANGUAGE_OFFSET : usize = 70;
     pub const DATABASE_OBJECT_LANGUAGE_LEN : usize = 2;
 
     pub const DATABASE_OBJECT_LAST_OFFSET : usize = 108;
