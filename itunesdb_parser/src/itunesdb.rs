@@ -11,6 +11,8 @@
  */
 
 
+ use std::fmt::Write;
+
 use chrono::{DateTime, NaiveDateTime, Utc};
 
 pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
@@ -366,6 +368,24 @@ pub mod itunesdb_helpers {
     pub fn get_timestamp_as_mac(mac_timestamp : u64) -> chrono::DateTime<chrono::Utc> {
 
         return chrono::DateTime::<chrono::Utc>::from_utc( chrono::NaiveDateTime::from_timestamp_opt((mac_timestamp as i64) - MAC_TO_LINUX_EPOCH_CONVERSION, 0).unwrap(), chrono::offset::Utc);
+    }
+
+    // Shows how many "stars" a song had in iTunes, based on the raw rating value.
+    // The formula is: rating / 20 = stars
+    // and the max rating is 100, so stars are out of 5
+    pub fn decode_itunes_stars(users_rating_raw : u32) -> String {
+
+        let num_stars = users_rating_raw / 20;
+
+        let rating : String;
+        
+        if num_stars != 0 {
+            rating = format!("{}/5 ⭐", num_stars);
+        } else {
+            rating = "N/A".to_string();
+        }
+
+        return rating
     }
 
 }

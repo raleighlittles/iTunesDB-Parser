@@ -22,4 +22,7 @@
 
         return number;
     }
+
+    
+    // TODO: Add function to take in a raw number of bytes, and print it as either KB, or MB, depending on whichever is appropriate (leaving it between 1-10)
 //}

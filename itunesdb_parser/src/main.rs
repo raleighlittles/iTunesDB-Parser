@@ -88,7 +88,7 @@ fn main() {
                 let image_item_source_img_size =
                     helpers::build_le_u32_from_bytes(image_item_source_img_size_raw);
 
-                println!("ImageItem#{} info : Rating= {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, image_item_rating, image_item_source_img_size, image_item_orig_date_date, image_item_digitized_date_date);
+                println!("ImageItem#{} info : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, itunesdb_helpers::decode_itunes_stars(image_item_rating), image_item_source_img_size, image_item_orig_date_date, image_item_digitized_date_date);
 
                 println!("==========");
                 num_image_items += 1;
@@ -268,18 +268,35 @@ fn main() {
                 
                 let track_filetype_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_FILETYPE_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_FILETYPE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_FILETYPE_LEN];
 
-                let mut track_item_info = String::new();
+                let mut track_item_info : String = String::new();
 
                 if (helpers::build_le_u32_from_bytes(track_filetype_raw) == 0) {
                     println!("Track Item file type missing. Is this is a 1st - 4th gen iPod?");
                 } else {
                     let track_item_extension = iTunesDB::decode_track_item_filetype(track_filetype_raw);
-                    write!(track_item_info, "Track has extension: '{}'", track_item_extension).unwrap();
+                    write!(track_item_info, "Track extension: '{}' ", track_item_extension).unwrap();
                 }
 
-                let track_bitrate_type_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_SETTING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_BITRATE_LEN];
+                let track_bitrate_type_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_SETTING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_BITRATE_SETTING_LEN];
 
-                write!(track_item_info, "({})", iTunesDB::decode_track_bitrate_type_setting(track_bitrate_type_raw)).unwrap();
+                write!(track_item_info, "({}) ", iTunesDB::decode_track_bitrate_type_setting(track_bitrate_type_raw)).unwrap();
+
+                let track_is_compilation_setting_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_IS_COMPILATION_SETTING_OFFSET .. idx + iTunesDB::TRACK_ITEM_IS_COMPILATION_SETTING_OFFSET + iTunesDB::TRACK_ITEM_IS_COMPILATION_SETTING_LEN];
+
+                write!(track_item_info, "Is part of compilation? {} , ", track_is_compilation_setting_raw[0]).unwrap();
+
+                let track_rating = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_RATING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_RATING_OFFSET + iTunesDB::TRACK_ITEM_TRACK_RATING_LEN];
+
+                write!(track_item_info, "User rating: {} , ", itunesdb_helpers::decode_itunes_stars(helpers::build_le_u32_from_bytes(track_rating))).unwrap();
+
+                let track_modified_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_MODIFIED_TIME_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_MODIFIED_TIME_OFFSET + iTunesDB::TRACK_ITEM_TRACK_MODIFIED_TIME_LEN];
+
+                write!(track_item_info, "Last modified: {}, ", itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(track_modified_timestamp_raw) as u64)).unwrap();
+
+                let track_size_bytes = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_OFFSET + iTunesDB::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_LEN];
+
+                write!(track_item_info, "Track size: {} bytes", helpers::build_le_u32_from_bytes(track_size_bytes)).unwrap();
+
 
                 println!("{}", track_item_info);
 
