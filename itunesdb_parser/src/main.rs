@@ -1,7 +1,10 @@
 mod itunesdb;
 mod helpers;
 
+use std::fmt::Write;
+
 use crate::itunesdb::*;
+use crate::helpers::*;
 
 fn main() {
     let itunesdb_filename: String = std::env::args()
@@ -40,8 +43,7 @@ fn main() {
                 let image_list_num_images_raw = &db_file_as_bytes[idx + photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET
                     ..idx + photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET + photo_database::IMAGE_LIST_NUM_IMAGES_LEN];
 
-                let image_list_num_images: u32 =
-                    helpers::helpers::build_le_u32_from_bytes(image_list_num_images_raw);
+                let image_list_num_images: u32 = helpers::build_le_u32_from_bytes(image_list_num_images_raw);
 
                 println!(
                     "ImageList#{} info : NumImages={}",
@@ -60,13 +62,13 @@ fn main() {
                     ..idx + photo_database::IMAGE_ITEM_RATING_OFFSET + photo_database::IMAGE_ITEM_RATING_LEN];
 
                 let image_item_rating: u32 =
-                    helpers::helpers::build_le_u32_from_bytes(image_item_rating_raw);
+                    helpers::build_le_u32_from_bytes(image_item_rating_raw);
 
                 let image_item_orig_date_raw = &db_file_as_bytes[idx + photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET
                     ..idx + photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET + photo_database::IMAGE_ITEM_ORIG_DATE_LEN];
 
                 let image_item_orig_date_timestamp =
-                    helpers::helpers::build_le_u32_from_bytes(image_item_orig_date_raw);
+                    helpers::build_le_u32_from_bytes(image_item_orig_date_raw);
 
                 let image_item_orig_date_date = itunesdb_helpers::get_timestamp_as_mac(image_item_orig_date_timestamp as u64);
 
@@ -75,7 +77,7 @@ fn main() {
                     ..idx + photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET + photo_database::IMAGE_ITEM_DIGITIZED_DATE_LEN];
 
                 let image_item_digitized_date_timestamp: u32 =
-                    helpers::helpers::build_le_u32_from_bytes(image_item_digitized_date_raw);
+                    helpers::build_le_u32_from_bytes(image_item_digitized_date_raw);
 
                 let image_item_digitized_date_date = itunesdb_helpers::get_timestamp_as_mac(image_item_digitized_date_timestamp as u64);
 
@@ -84,7 +86,7 @@ fn main() {
                     ..idx + photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET + photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN];
 
                 let image_item_source_img_size =
-                    helpers::helpers::build_le_u32_from_bytes(image_item_source_img_size_raw);
+                    helpers::build_le_u32_from_bytes(image_item_source_img_size_raw);
 
                 println!("ImageItem#{} info : Rating= {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, image_item_rating, image_item_source_img_size, image_item_orig_date_date, image_item_digitized_date_date);
 
@@ -99,19 +101,19 @@ fn main() {
                 let image_name_img_size_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_SIZE_OFFSET
                     ..idx + photo_database::IMAGE_NAME_IMG_SIZE_OFFSET + photo_database::IMAGE_NAME_IMG_SIZE_LEN];
                 let image_name_img_size =
-                    helpers::helpers::build_le_u32_from_bytes(image_name_img_size_raw);
+                    helpers::build_le_u32_from_bytes(image_name_img_size_raw);
 
                 let image_name_img_height_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_HEIGHT_OFFSET
                     ..idx + photo_database::IMAGE_NAME_IMG_HEIGHT_OFFSET + photo_database::IMAGE_NAME_IMG_HEIGHT_LEN];
                 
                 // TODO: Figure out why the Image Height and Image Width are both 0
                 let image_name_img_height =
-                    helpers::helpers::build_le_u32_from_bytes(image_name_img_height_raw);
+                    helpers::build_le_u32_from_bytes(image_name_img_height_raw);
 
                 let image_name_img_width_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET
                     ..idx + photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET + photo_database::IMAGE_NAME_IMG_WIDTH_LEN];
                 let image_name_img_width =
-                    helpers::helpers::build_le_u32_from_bytes(image_name_img_width_raw);
+                    helpers::build_le_u32_from_bytes(image_name_img_width_raw);
 
                 println!(
                     "ImageName#{} info : Size(bytes)={} , Height={} , Width={}",
@@ -134,7 +136,7 @@ fn main() {
                     ..idx + photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_OFFSET + photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_LEN];
 
                 let photo_album_item_cnt =
-                    helpers::helpers::build_le_u32_from_bytes(photo_album_item_cnt_raw);
+                    helpers::build_le_u32_from_bytes(photo_album_item_cnt_raw);
 
                 println!(
                     "PhotoAlbum#{} info : Item count#={}",
@@ -153,11 +155,11 @@ fn main() {
                     ..idx + photo_database::DATA_OBJECT_TYPE_OFFSET + photo_database::DATA_OBJECT_TYPE_LEN];
 
                 let data_object_type =
-                    helpers::helpers::build_le_u32_from_bytes(data_object_type_raw);
+                    helpers::build_le_u32_from_bytes(data_object_type_raw);
 
                 if data_object_type == (photo_database::MhodType::ALBUM_NAME as u32) || data_object_type == (photo_database::MhodType::FILE_NAME as u32) {
                     let data_object_subcontainer_str_len =
-                        helpers::helpers::build_le_u32_from_bytes(
+                        helpers::build_le_u32_from_bytes(
                             &db_file_as_bytes[idx + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_OFFSET
                                 ..idx
                                     + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_OFFSET
@@ -165,7 +167,7 @@ fn main() {
                         );
 
                     let data_object_subcontainer_encoding =
-                        helpers::helpers::build_le_u32_from_bytes(
+                        helpers::build_le_u32_from_bytes(
                             &db_file_as_bytes[idx + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_OFFSET
                                 ..idx
                                     + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_OFFSET
@@ -249,6 +251,38 @@ fn main() {
                 println!("File {} is using language: {}", itunesdb_file_type, db_language);
 
                 idx += iTunesDB::DATABASE_OBJECT_LAST_OFFSET;
+            }
+
+            // Parse TrackList
+            else if potential_section_heading == iTunesDB::TRACKLIST_KEY.as_bytes() {
+
+                let num_songs_in_db = helpers::build_le_u32_from_bytes(&db_file_as_bytes[idx + iTunesDB::TRACKLIST_NUM_SONGS_OFFSET .. idx + iTunesDB::TRACKLIST_NUM_SONGS_OFFSET + iTunesDB::TRACKLIST_NUM_SONGS_LEN]);
+
+                println!("{} songs total", num_songs_in_db);
+                
+                idx += iTunesDB::TRACKLIST_LAST_OFFSET;
+
+            }
+
+            else if potential_section_heading == iTunesDB::TRACK_ITEM_KEY.as_bytes() {
+                
+                let track_filetype_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_FILETYPE_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_FILETYPE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_FILETYPE_LEN];
+
+                let mut track_item_info = String::new();
+
+                if (helpers::build_le_u32_from_bytes(track_filetype_raw) == 0) {
+                    println!("Track Item file type missing. Is this is a 1st - 4th gen iPod?");
+                } else {
+                    let track_item_extension = iTunesDB::decode_track_item_filetype(track_filetype_raw);
+                    write!(track_item_info, "Track has extension: '{}'", track_item_extension).unwrap();
+                }
+
+                let track_bitrate_type_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_SETTING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_BITRATE_LEN];
+
+                write!(track_item_info, "({})", iTunesDB::decode_track_bitrate_type_setting(track_bitrate_type_raw)).unwrap();
+
+                println!("{}", track_item_info);
+
             }
 
             idx += DEFAULT_SUBSTRUCTURE_SIZE;

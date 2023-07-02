@@ -10,8 +10,8 @@
  * Each section of constants has a "last offset" value that indicates the offset of the last item in the header.
  */
 
-use chrono::{DateTime, NaiveDateTime, Utc};
 
+use chrono::{DateTime, NaiveDateTime, Utc};
 
 pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
 
@@ -149,13 +149,13 @@ pub mod iTunesDB {
 
     pub const DATABASE_OBJECT_LAST_OFFSET : usize = 108;
 
-    // ----- TRACK LIST ----- //
-    pub const TRACK_LIST_KEY : &str = "mhlt";
+    // ----- TRACKLIST ----- //
+    pub const TRACKLIST_KEY : &str = "mhlt";
 
-    pub const TRACK_LIST_NUM_SONGS_OFFSET : usize = 8;
-    pub const TRACK_LIST_NUM_SONGS_LEN : usize = 4;
+    pub const TRACKLIST_NUM_SONGS_OFFSET : usize = 8;
+    pub const TRACKLIST_NUM_SONGS_LEN : usize = 4;
 
-    pub const TRACK_LIST_LAST_OFFSET : usize = 12;
+    pub const TRACKLIST_LAST_OFFSET : usize = 12;
 
     // ----- TRACK ITEM ----- //
     pub const TRACK_ITEM_KEY : &str = "mhit";
@@ -282,6 +282,38 @@ pub mod iTunesDB {
     pub const TRACK_ITEM_TRACK_CROSSFADING_SETTING_LEN : usize = 2;
 
     pub const TRACK_ITEM_LAST_OFFSET : usize = 356;
+
+    // From the wiki: "the file's type [..] an ANSI string padded with spaces"
+    pub fn decode_track_item_filetype(file_type_raw : &[u8]) -> String {
+
+        let mut filetype_str : String = String::from(std::str::from_utf8(&file_type_raw).expect("Can't parse Track Item file type raw string"));
+
+        // The Track Item filetype has spaces in it, we obviously don't want that
+        filetype_str.retain(|ch : char| !ch.is_whitespace());
+
+        // Technically the characters are stored in reverse-endian order, but they're ASCII
+        // (8-bit) so you can just achieve the same result by reversing the string
+        return filetype_str.chars().rev().collect();
+    }
+
+    pub fn decode_track_bitrate_type_setting(bitrate_type_raw : &[u8]) -> String {
+
+        let bitrate_type : String;
+
+        if bitrate_type_raw[0] == 0x0 {
+            bitrate_type = "Constant bitrate".to_string();
+        }
+
+        else if bitrate_type_raw[0] == 0x1 {
+            bitrate_type = "Variable bitrate/AAC-encoded".to_string();
+        }
+
+        else {
+            bitrate_type = "Unable to determine if constant or variable bitrate".to_string();
+        }
+
+        return bitrate_type;
+    }
 
     // ----- PLAYLIST ----- //
     pub const PLAYLIST_KEY : &str = "mhyp";
