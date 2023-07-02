@@ -12,9 +12,10 @@
 
 use chrono::{DateTime, NaiveDateTime, Utc};
 
-pub mod itunesdb_constants {
 
-    pub const SUBSTRUCTURE_SIZE: usize = 4;
+pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
+
+pub mod photo_database_constants {
 
     // ----- IMAGE LIST ----- //
     pub const IMAGE_LIST_KEY: &str = "mhli";
@@ -94,12 +95,18 @@ pub mod itunesdb_constants {
 
     pub const DATA_OBJECT_LAST_OFFSET: usize = 16; // 4 * 4
 
+}
+
+pub mod itunesdb_constants {
+
     // ----- DATABASE OBJECT ----- //
     pub const DATABASE_OBJECT_KEY : &str = "mhbd";
 
     // 4×8+2+8+2+20
     pub const DATABASE_OBJECT_LANGUAGE_OFFSET : usize = 64;
     pub const DATABASE_OBJECT_LANGUAGE_LEN : usize = 2;
+
+    pub const DATABASE_OBJECT_LAST_OFFSET : usize = 108;
 
     // ----- TRACK LIST ----- //
     pub const TRACK_LIST_KEY : &str = "mhlt";
@@ -176,7 +183,7 @@ pub mod itunesdb_constants {
     pub const TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN : usize = 4;
 
     pub const TRACK_ITEM_TRACK_BOOKMARK_TIME_MILLISECONDS_OFFSET : usize = 108;
-    pub const TRACK_ITEM_TRACK_BOOKMARK_TIME_MILLISECONDS_OFFSET : usize = 4;
+    pub const TRACK_ITEM_TRACK_BOOKMARK_TIME_MILLISECONDS_LEN : usize = 4;
 
     pub const TRACK_ITEM_TRACK_PREVIOUS_RATING_OFFSET : usize = 121;
     pub const TRACK_ITEM_TRACK_PREVIOUS_RATING_LEN : usize = 1;
@@ -273,19 +280,19 @@ pub mod itunesdb_constants {
     pub const ALBUM_ITEM_UNKNOWN_TIMESTAMP_LEN : usize = 8;
 
     pub const ALBUM_ITEM_LAST_OFFSET : usize = 32;
-
 }
 
 
 pub mod itunesdb_helpers {
 
+    /// Mac timestamps start on Jan 1 1904, whereas Linux timestamps
+    /// (which is what Rust's `chrono` library uses) start at Jan 1 1970,
+    /// hence this difference
+    const MAC_TO_LINUX_EPOCH_CONVERSION: i64 = 2082844800;
+
     pub fn get_timestamp_as_mac(mac_timestamp : u64) -> chrono::DateTime<chrono::Utc> {
 
-        return chrono::DateTime::<chrono::Utc>::from_utc( chrono::NaiveDateTime::from_timestamp_opt((mac_timestamp as i64) - super::MAC_TO_LINUX_EPOCH_CONVERSION, 0).unwrap(), chrono::offset::Utc);
+        return chrono::DateTime::<chrono::Utc>::from_utc( chrono::NaiveDateTime::from_timestamp_opt((mac_timestamp as i64) - MAC_TO_LINUX_EPOCH_CONVERSION, 0).unwrap(), chrono::offset::Utc);
     }
 
 }
-/// Mac timestamps start on Jan 1 1904, whereas Linux timestamps
-/// (which is what Rust's `chrono` library uses) start at Jan 1 1970,
-/// hence this difference
- const MAC_TO_LINUX_EPOCH_CONVERSION: i64 = 2082844800;
