@@ -25,4 +25,6 @@
 
     
     // TODO: Add function to take in a raw number of bytes, and print it as either KB, or MB, depending on whichever is appropriate (leaving it between 1-10)
+
+    // TODO add function for converting time in seconds, to time in minutes and seconds
 //}

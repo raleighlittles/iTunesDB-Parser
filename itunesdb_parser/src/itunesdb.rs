@@ -132,7 +132,7 @@ pub mod photo_database {
             // I would normally have panicked here, since the wiki doesn't mention any other valid mhod types,
             // but in my testing I found that for some reason, I was seeing mhod type "6" in the photo database file,
             // which shouldn't be possible...
-            mhod_type_name = String::from("Unsupported");
+            mhod_type_name = format!("Unsupported ({})", mhod_type);
         }
 
         return mhod_type_name;
@@ -145,11 +145,129 @@ pub mod iTunesDB {
     // ----- DATABASE OBJECT ----- //
     pub const DATABASE_OBJECT_KEY : &str = "mhbd";
 
-    // 4×8+2+8+2+20
+    // TODO add a function to decode
+    pub const DATABASE_OBJECT_VERSION_NUMBER_OFFSET : usize = 4;
+    pub const DATABASE_OBJECT_VERSION_NUMBER_LEN : usize = 4;
+
     pub const DATABASE_OBJECT_LANGUAGE_OFFSET : usize = 70;
     pub const DATABASE_OBJECT_LANGUAGE_LEN : usize = 2;
 
     pub const DATABASE_OBJECT_LAST_OFFSET : usize = 108;
+
+    pub fn parse_version_number(version_number : u32) -> String {
+
+        let itunes_version : String;
+
+        if version_number == 0x09 {
+            itunes_version = "iTunes 4.2".to_string();
+        }
+
+        else if version_number == 0x0A {
+            itunes_version = "iTunes 4.5".to_string();
+        }
+
+        else if version_number == 0x0B {
+            itunes_version = "iTunes 4.7".to_string();
+        }
+
+        else if version_number == 0x0C {
+            itunes_version = "iTunes 4.71 or 4.8".to_string();
+        }
+
+        else if version_number == 0x0D {
+            itunes_version = "iTunes 4.9".to_string();
+        }
+
+        else if version_number == 0x0E {
+            itunes_version = "iTunes 5".to_string();
+        }
+
+        else if version_number == 0x0F {
+            itunes_version = "iTunes 6".to_string();
+        }
+
+        else if version_number == 0x10 {
+            itunes_version = "iTunes 6.0.1".to_string();
+        }
+
+        else if version_number == 0x011 {
+            itunes_version = "iTunes 6.0.2 - 6.0.4".to_string();
+        }
+
+        else if version_number == 0x12 {
+            itunes_version = "iTunes 6.0.5".to_string();
+        }
+
+        else if version_number == 0x13 {
+            itunes_version = "iTunes 7.0".to_string();
+        }
+
+        else if version_number == 0x14 {
+            itunes_version = "iTunes 7.1".to_string();
+        }
+
+        else if version_number == 0x15 {
+            itunes_version = "iTunes 7.2".to_string();
+        }
+
+        else if version_number == 0x17 {
+            itunes_version = "iTunes 7.3.0".to_string();
+        }
+
+        else if version_number == 0x18 {
+            itunes_version = "Tunes 7.3.1 - 7.3.2".to_string();
+        }
+
+        else if version_number == 0x19 {
+            itunes_version = "iTunes 7.4".to_string();
+        }
+
+        else {
+            itunes_version = format!("N/A ({})", version_number);
+        }
+
+        return itunes_version;
+    }
+
+
+    // ----- DATASET ----- //
+    pub const DATASET_KEY : &str = "mhsd";
+    
+    pub const DATASET_TYPE_OFFSET : usize = 12;
+    pub const DATASET_TYPE_LEN : usize = 12;
+
+    pub const DATASET_LAST_OFFSET : usize = 16;
+
+    pub fn parse_dataset_type(dataset_type_raw : u32) -> String {
+        
+        let dataset_type : String;
+
+        if dataset_type_raw == 1 {
+            dataset_type = "Track List".to_string();
+        }
+
+        else if dataset_type_raw == 2 {
+            dataset_type = "Playlist List".to_string();
+        }
+
+        else if dataset_type_raw == 3 {
+            dataset_type = "Podcast List".to_string();
+        }
+
+        else if dataset_type_raw == 4 {
+            dataset_type = "Album List".to_string();
+        }
+
+        else if dataset_type_raw == 5 {
+            dataset_type = "New Playlist List (smart playlists)".to_string();
+        }
+
+        else {
+            dataset_type = format!("N/A ({})", dataset_type_raw);
+        }
+
+        return dataset_type;
+    }
 
     // ----- TRACKLIST ----- //
     pub const TRACKLIST_KEY : &str = "mhlt";
@@ -237,8 +355,15 @@ pub mod iTunesDB {
     pub const TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_OFFSET : usize = 128;
     pub const TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_LEN : usize = 4;
 
+    pub const TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_OFFSET : usize = 164;
+    pub const TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_LEN : usize = 1;
+
     pub const TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET : usize = 140;
     pub const TRACK_ITEM_TRACK_RELEASE_TIMESTAMP_LEN : usize = 4;
+
+    // Called "unk14/1"
+    pub const TRACK_ITEM_ADVANCED_TRACK_TYPE_OFFSET : usize = 144;
+    pub const TRACK_ITEM_ADVANCED_TRACK_TYPE_LEN : usize = 2;
 
     pub const TRACK_ITEM_TRACK_SKIPPED_COUNT_OFFSET : usize = 156;
     pub const TRACK_ITEM_TRACK_SKIPPED_COUNT_LEN : usize = 4;
@@ -267,6 +392,7 @@ pub mod iTunesDB {
     pub const TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_OFFSET : usize = 200;
     pub const TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_LEN : usize = 4;
 
+    /// Formerly known as unk28
     pub const TRACK_ITEM_TRACK_MEDIA_TYPE_OFFSET : usize = 208;
     pub const TRACK_ITEM_TRACK_MEDIA_TYPE_LEN : usize = 4;
 
@@ -317,6 +443,127 @@ pub mod iTunesDB {
         return bitrate_type;
     }
 
+    /// Each track has both a real duration (how long the actual song is), and, also:
+    /// (1) a 'start' time, which is where the song starts playing
+    /// (2) a 'end' time, which is where the song starts playing
+    /// This function shows both the "experimental" song duration (which takes into account the difference above) 
+    /// and the "theoretical" song duration
+    pub fn get_track_length_info(track_length_ms : u32, start_time_offset_ms : u32, stop_time_offset_ms : u32) -> String {
+
+        let mut formatted_track_length_info : String = String::new();
+
+        // // Track length is stored in milliseconds, but we want seconds
+        let track_length_s = track_length_ms / 1000;
+
+        formatted_track_length_info.push_str(&format!("Track length: {} seconds", track_length_s).to_owned());
+
+        let played_track_length_ms = stop_time_offset_ms - start_time_offset_ms;
+
+        if (played_track_length_ms != track_length_ms) && ((start_time_offset_ms != 0) || (stop_time_offset_ms != 0)) {
+
+            formatted_track_length_info.push_str(&format!(" | w/ offset: {} seconds (Start ~ {}s, Stop ~{}s)", played_track_length_ms / 1000, start_time_offset_ms / 1000, stop_time_offset_ms / 1000).to_owned());
+        }
+
+        return formatted_track_length_info 
+        
+    }
+
+    pub fn decode_track_samplerate(track_samplerate_raw : u32) -> String {
+
+        // Divide by 0x10000 (65536d) to get the actual sample rate
+
+        return format!("{} Hz", track_samplerate_raw / 65536 );
+    }
+
+    pub fn decode_track_audio_type(track_type_unk14_1 : u32) -> String {
+
+        let suspected_track_type : String;
+
+        if track_type_unk14_1 == 0x0 {
+            suspected_track_type = "WAV (Waveform Audio File Format)".to_string();
+        }
+
+        else if track_type_unk14_1 == 0x000c /* 12d */ {
+            
+            suspected_track_type = "MPEG-1 Layer-3".to_string();
+        }
+
+        else if track_type_unk14_1 == 0x0016 /* 22d */ {
+
+            suspected_track_type = "MPEG-2 Layer 3".to_string();
+        }
+
+        else if track_type_unk14_1 == 0x0020 /* 32d */ {
+
+            suspected_track_type = "MPEG-2.5 Layer 3".to_string();
+        }
+
+        else if track_type_unk14_1 == 0x0029 /* 41d */ {
+            suspected_track_type = "Audible (audio book)".to_string();
+        }
+
+        else if track_type_unk14_1 == 0x0033 /* 51d */ {
+            suspected_track_type = "AAC (Advanced Audio Codec)".to_string();
+        }
+
+        else {
+            suspected_track_type = "N/A".to_string();
+        }
+
+        return suspected_track_type;
+    }
+
+    pub fn decode_track_media_type(track_media_type_raw : &[u8]) -> String {
+
+        let media_type : String;
+
+        let conditional_byte = track_media_type_raw[0];
+
+        if conditional_byte == 0x00 {
+            media_type = "Audio/Video".to_string();
+        }
+
+        else if conditional_byte == 0x01 {
+            media_type = "Audio".to_string();
+        }
+
+        else if conditional_byte == 0x02 {
+            media_type = "Video".to_string();
+        }
+
+        else if conditional_byte == 0x04 {
+            media_type = "Podcast".to_string();
+        }
+
+        else if conditional_byte == 0x06 {
+            media_type = "Video Podcast".to_string();
+        }
+
+        else if conditional_byte == 0x08 {
+            media_type = "Audiobook".to_string();
+        }
+
+        else if conditional_byte == 0x20 /* 32d */ {
+            media_type = "Music Video".to_string();
+        }
+
+        else if conditional_byte == 0x40 /* 64d */ {
+            media_type = "TV Show (only!)".to_string();
+        }
+
+        else if conditional_byte == 0x60 /* 96d */ {
+            media_type = "TV show (hybrid w/ Music)".to_string();
+        }
+
+        else {
+            media_type = "N/A".to_string();
+        }
+
+        return media_type;
+    }
+
+
+
     // ----- PLAYLIST ----- //
     pub const PLAYLIST_KEY : &str = "mhyp";
     pub const PLAYLIST_IS_MASTER_PLAYLIST_SETTING_OFFSET : usize = 20;
@@ -338,7 +585,23 @@ pub mod iTunesDB {
 
     pub const PLAYLIST_ITEM_LAST_OFFSET : usize = 36;
 
-    // Add data object (for music only)
+    // ----- DATA OBJECT ----- //
+
+    pub const DATA_OBJECT_KEY : &str = "mhod";
+
+    // Must parse this first, to decide how to handle the rest of the object
+
+    pub const DATA_OBJECT_TYPE_OFFSET : usize = 12;
+    pub const DATA_OBJECT_TYPE_LEN : usize = 4;
+
+    pub const DATA_OBJECT_STRING_LENGTH_OFFSET : usize = 28;
+    pub const DATA_OBJECT_STRING_LENGTH_LEN : usize = 4;
+
+    // This is where the actual string (for string mhod-types only! is held)
+    // Use the length you derived above to index it
+    pub const DATA_OBJECT_STRING_LOCATION_OFFSET : usize = 40;
+
+    //pub const DATA_OBJECT_LAST_OFFSET
 
     // ----- ALBUM LIST ----- //
     pub const ALBUM_LIST_KEY : &str = "mhla";
