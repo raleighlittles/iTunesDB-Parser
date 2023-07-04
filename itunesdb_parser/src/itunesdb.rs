@@ -141,6 +141,8 @@ pub mod photo_database {
 }
 
 pub mod iTunesDB {
+    use std::f32::consts::E;
+
 
     // ----- DATABASE OBJECT ----- //
     pub const DATABASE_OBJECT_KEY : &str = "mhbd";
@@ -566,6 +568,7 @@ pub mod iTunesDB {
 
     // ----- PLAYLIST ----- //
     pub const PLAYLIST_KEY : &str = "mhyp";
+
     pub const PLAYLIST_IS_MASTER_PLAYLIST_SETTING_OFFSET : usize = 20;
     pub const PLAYLIST_IS_MASTER_PLAYLIST_SETTING_LEN : usize = 1;
 
@@ -577,11 +580,138 @@ pub mod iTunesDB {
 
     pub const PLAYLIST_LAST_OFFSET : usize = 48;
 
+    pub fn decode_playlist_sort_order(playlist_sort_order_raw : u32) -> String {
+
+        let mut playlist_sort_order : String = "Playlist sort order: ".to_string();
+
+        if playlist_sort_order_raw == 1 {
+            playlist_sort_order.push_str("Manual (user sorted)");
+        }
+
+        else if playlist_sort_order_raw == 3 {
+            playlist_sort_order.push_str("Song title");
+        }
+
+        else if playlist_sort_order_raw == 4 {
+            playlist_sort_order.push_str("Album");
+        }
+
+        else if playlist_sort_order_raw == 5 {
+            playlist_sort_order.push_str("Artist");
+        }
+
+        else if playlist_sort_order_raw == 6 {
+            playlist_sort_order.push_str("Bitrate");
+        }
+        
+        else if playlist_sort_order_raw == 7 {
+            playlist_sort_order.push_str("Genre");
+        }
+
+        else if playlist_sort_order_raw == 8 {
+            playlist_sort_order.push_str("Kind");
+        }
+
+        else if playlist_sort_order_raw == 9 {
+            playlist_sort_order.push_str("Date Modified");
+        }
+
+        else if playlist_sort_order_raw == 10 {
+            playlist_sort_order.push_str("Track number");
+        }
+        
+        else if playlist_sort_order_raw == 11 {
+            playlist_sort_order.push_str("Size");
+        }
+
+        else if playlist_sort_order_raw == 12 {
+            playlist_sort_order.push_str("Time");
+        }
+        
+        else if playlist_sort_order_raw == 13 {
+            playlist_sort_order.push_str("Year");
+        }
+
+        else if playlist_sort_order_raw == 14 {
+            playlist_sort_order.push_str("Sample Rate");
+        }
+
+        else if playlist_sort_order_raw == 15 {
+            playlist_sort_order.push_str("Comment");
+        }
+
+        else if playlist_sort_order_raw == 16 {
+            playlist_sort_order.push_str("Date Added");
+        }
+
+        else if playlist_sort_order_raw == 17 {
+            playlist_sort_order.push_str("Equalizer");
+        }
+
+        else if playlist_sort_order_raw == 18 {
+            playlist_sort_order.push_str("Composer");
+        }
+
+        else if playlist_sort_order_raw == 20 {
+            playlist_sort_order.push_str("Play count");
+        }
+        
+        else if playlist_sort_order_raw == 21 {
+            playlist_sort_order.push_str("Last played");
+        }
+
+        else if playlist_sort_order_raw == 22 {
+            playlist_sort_order.push_str("Disc number");
+        }
+
+        else if playlist_sort_order_raw == 23 {
+            playlist_sort_order.push_str("My rating (# of stars)");
+        }
+
+        else if playlist_sort_order_raw == 24 {
+            playlist_sort_order.push_str("Release Date (?)");
+        }
+
+        else if playlist_sort_order_raw == 25 {
+            playlist_sort_order.push_str("BPM");
+        }
+
+        else if playlist_sort_order_raw == 26 {
+            playlist_sort_order.push_str("Grouping");
+        }
+
+        else if playlist_sort_order_raw == 27 {
+            playlist_sort_order.push_str("Category");
+        }
+
+        else if playlist_sort_order_raw == 28 {
+            playlist_sort_order.push_str("Description");
+        }
+
+        else if playlist_sort_order_raw == 29 {
+            playlist_sort_order.push_str("Show (Television)");
+        }
+
+        else if playlist_sort_order_raw == 30 {
+            playlist_sort_order.push_str("Season (Television)");
+        }
+
+        else if playlist_sort_order_raw == 31 {
+            playlist_sort_order.push_str("Episode # (Television)");
+        }
+
+        else {
+            playlist_sort_order.push_str(&format!("N/A ({} ?)", playlist_sort_order_raw));
+        }
+
+        return playlist_sort_order;
+    }
+
     // ----- PLAYLIST ITEM ----- //
     pub const PLAYLIST_ITEM_KEY : &str = "mhip";
     
-    pub const PLAYLIST_ITEM_SONG_ADDED_TIMESTAMP_OFFSET : usize = 28;
-    pub const PLAYLIST_ITEM_SONG_ADDED_TIMESTAMP_LEN : usize = 4;
+    pub const PLAYLIST_ITEM_ADDED_TIMESTAMP_OFFSET : usize = 28;
+    pub const PLAYLIST_ITEM_ADDED_TIMESTAMP_LEN : usize = 4;
 
     pub const PLAYLIST_ITEM_LAST_OFFSET : usize = 36;
 

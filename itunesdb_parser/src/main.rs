@@ -1,7 +1,6 @@
 mod itunesdb;
 mod helpers;
 
-use core::num;
 use std::fmt::Write;
 
 use crate::itunesdb::*;
@@ -304,8 +303,6 @@ fn main() {
                 
                 let track_filetype_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_FILETYPE_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_FILETYPE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_FILETYPE_LEN];
 
-                let track_media_type_former_unk28 = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_MEDIA_TYPE_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_MEDIA_TYPE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_MEDIA_TYPE_LEN];
-
                 // TODO: encapsulate this logic elsewhere
                 if helpers::build_le_u32_from_bytes(track_filetype_raw) == 0 {
                     println!("Track Item file type missing. Is this is a 1st - 4th gen iPod?");
@@ -417,13 +414,81 @@ fn main() {
 
                 println!("{} \n", track_item_info);
 
-                
-
-                
+                idx += iTunesDB::TRACK_ITEM_LAST_OFFSET;
             }
 
+            else if potential_section_heading == iTunesDB::PLAYLIST_KEY.as_bytes() {
+
+                let mut playlist_info : String = "==== ".to_string();
+
+                let is_master_playlist_setting = &db_file_as_bytes[idx + iTunesDB::PLAYLIST_IS_MASTER_PLAYLIST_SETTING_OFFSET .. idx + iTunesDB::PLAYLIST_IS_MASTER_PLAYLIST_SETTING_OFFSET + iTunesDB::PLAYLIST_IS_MASTER_PLAYLIST_SETTING_LEN];
+
+                if is_master_playlist_setting[0] == 1 {
+                    write!(playlist_info, "Master ").unwrap();
+                }
+                
+                write!(playlist_info, "Playlist found!").unwrap();
+                
+
+                let playlist_created_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::PLAYLIST_CREATED_TIMESTAMP_OFFSET .. idx + iTunesDB::PLAYLIST_CREATED_TIMESTAMP_OFFSET + iTunesDB::PLAYLIST_CREATED_TIMESTAMP_LEN];
+
+                write!(playlist_info, " | Playlist created at: {} ", itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(playlist_created_timestamp_raw) as u64)).unwrap();
+
+                let playlist_sort_order_raw = &db_file_as_bytes[idx + iTunesDB::PLAYLIST_PLAYLIST_SORT_ORDER_OFFSET .. idx + iTunesDB::PLAYLIST_PLAYLIST_SORT_ORDER_OFFSET + iTunesDB::PLAYLIST_PLAYLIST_SORT_ORDER_LEN];
+
+                write!(playlist_info, "| {} \n", iTunesDB::decode_playlist_sort_order(helpers::build_le_u32_from_bytes(playlist_sort_order_raw))).unwrap();
+
+
+                println!("{} ====", playlist_info);
+
+                idx += iTunesDB::PLAYLIST_LAST_OFFSET;
+            }
+
+            else if potential_section_heading == iTunesDB::PLAYLIST_ITEM_KEY.as_bytes() {
+
+                let mut playlist_item_info : String = "-----".to_string();
+
+                let playlist_item_added_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::PLAYLIST_ITEM_ADDED_TIMESTAMP_OFFSET .. idx + iTunesDB::PLAYLIST_ITEM_ADDED_TIMESTAMP_OFFSET + iTunesDB::PLAYLIST_ITEM_ADDED_TIMESTAMP_LEN];
+
+                write!(playlist_item_info, " | Date added to playlist: {}", itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(playlist_item_added_timestamp_raw) as u64)).unwrap();
+
+                println!("{}  -----\n", playlist_item_info);
+
+                idx += iTunesDB::PLAYLIST_ITEM_LAST_OFFSET;
+            }
+
+            else if potential_section_heading == iTunesDB::ALBUM_LIST_KEY.as_bytes() {
+
+                let mut album_list_info : String = "~~~~~~~".to_string();
+
+                let album_item_total_num_songs = &db_file_as_bytes[idx + iTunesDB::ALBUM_LIST_TOTAL_NUM_SONGS_OFFSET .. idx + iTunesDB::ALBUM_LIST_TOTAL_NUM_SONGS_OFFSET + iTunesDB::ALBUM_LIST_TOTAL_NUM_SONGS_LEN];
+
+                write!(album_list_info, " Num songs in Album List: {}", helpers::build_le_u32_from_bytes(album_item_total_num_songs)).unwrap();
+
+                println!("{}  ~~~~~~~\n", album_list_info);
+
+                idx += iTunesDB::ALBUM_LIST_LAST_OFFSET;
+
+            }
+
+            else if potential_section_heading == iTunesDB::ALBUM_ITEM_KEY.as_bytes() {
+
+                let mut album_item_info = "######## Album item found! | ".to_string();
+
+                // let album_item_unknown_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::ALBUM_ITEM_UNKNOWN_TIMESTAMP_OFFSET .. idx + iTunesDB::ALBUM_ITEM_UNKNOWN_TIMESTAMP_OFFSET + iTunesDB::ALBUM_ITEM_UNKNOWN_TIMESTAMP_LEN];
+
+                // write!(album_item_info, " {} ########\n", itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(album_item_unknown_timestamp_raw) as u64)).unwrap();
+
+                println!("{} ########\n", album_item_info);
+
+                idx += iTunesDB::ALBUM_ITEM_LAST_OFFSET;
+
+            }
+
+
+
             idx += DEFAULT_SUBSTRUCTURE_SIZE;
-        }
+        } // End 'music' parser
         
     }
 }
