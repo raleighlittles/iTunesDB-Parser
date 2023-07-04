@@ -473,7 +473,7 @@ fn main() {
 
             else if potential_section_heading == iTunesDB::ALBUM_ITEM_KEY.as_bytes() {
 
-                let mut album_item_info = "######## Album item found! | ".to_string();
+                let mut album_item_info : String = "######## Album item found! | ".to_string();
 
                 // let album_item_unknown_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::ALBUM_ITEM_UNKNOWN_TIMESTAMP_OFFSET .. idx + iTunesDB::ALBUM_ITEM_UNKNOWN_TIMESTAMP_OFFSET + iTunesDB::ALBUM_ITEM_UNKNOWN_TIMESTAMP_LEN];
 
@@ -483,6 +483,15 @@ fn main() {
 
                 idx += iTunesDB::ALBUM_ITEM_LAST_OFFSET;
 
+            }
+            
+            else if potential_section_heading == iTunesDB::DATA_OBJECT_KEY.as_bytes() {
+
+                let mut data_object_info : String = "%%%%%%% Data Object found!\n".to_string();
+
+                // TODO parse mhod type
+
+                //idx += iTunesDB::DATA_OBJECT_LAST_OFFSET;
             }
 
 
