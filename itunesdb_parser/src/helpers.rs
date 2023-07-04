@@ -2,29 +2,26 @@
  * File: helpers.rs
  *
  */
-// pub mod helpers {
 
-    // TODO: Once Rust adds support for default arguments, add the following arguments:
-    //       * endianness
-    //       * radix
-    pub fn build_le_u32_from_bytes(bytes: &[u8]) -> u32 {
-        let mut number: u32 = 0;
-        const RADIX: u32 = 256;
+// TODO: Once Rust adds support for default arguments, add the following arguments:
+//       * endianness
+//       * radix
+pub fn build_le_u32_from_bytes(bytes: &[u8]) -> u32 {
+    let mut number: u32 = 0;
+    const RADIX: u32 = 256;
 
-        for (idx, item) in bytes.iter().enumerate() {
-            let summand: u32 = RADIX
-                .checked_pow(idx as u32)
-                .unwrap_or_else(|| panic!("Can't raise {} to power {}", RADIX, idx))
-                as u32;
+    for (idx, item) in bytes.iter().enumerate() {
+        let summand: u32 = RADIX
+            .checked_pow(idx as u32)
+            .unwrap_or_else(|| panic!("Can't raise {} to power {}", RADIX, idx))
+            as u32;
 
-            number += (summand as u32) * (*item as u32);
-        }
-
-        return number;
+        number += (summand as u32) * (*item as u32);
     }
 
-    
-    // TODO: Add function to take in a raw number of bytes, and print it as either KB, or MB, depending on whichever is appropriate (leaving it between 1-10)
+    return number;
+}
 
-    // TODO add function for converting time in seconds, to time in minutes and seconds
-//}
+// TODO: Add function to take in a raw number of bytes, and print it as either KB, or MB, depending on whichever is appropriate (leaving it between 1-10)
+
+// TODO add function for converting time in seconds, to time in minutes and seconds
