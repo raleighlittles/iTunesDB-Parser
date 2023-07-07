@@ -32,22 +32,17 @@ fn main() {
 
             let potential_photo_section_heading = &db_file_as_bytes[idx .. idx + DEFAULT_SUBSTRUCTURE_SIZE];
 
-            // println!("Comparing slice {:?} against {:?}", potential_photo_section_heading, photo_database::IMAGE_LIST_KEY.as_bytes());
-
-            // if (db_file_as_bytes[idx] == photo_database::IMAGE_LIST_KEY_ASCII[0])
-            //     && (db_file_as_bytes[idx + 1] == photo_database::IMAGE_LIST_KEY_ASCII[1])
-            //     && (db_file_as_bytes[idx + 2] == photo_database::IMAGE_LIST_KEY_ASCII[2])
-            //     && (db_file_as_bytes[idx + 3] == photo_database::IMAGE_LIST_KEY_ASCII[3])
             if potential_photo_section_heading == photo_database::IMAGE_LIST_KEY.as_bytes()
             {
-                let image_list_num_images_raw = &db_file_as_bytes[idx + photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET
-                    ..idx + photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET + photo_database::IMAGE_LIST_NUM_IMAGES_LEN];
+                // let image_list_num_images_raw = &db_file_as_bytes[idx + photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET
+                //     ..idx + photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET + photo_database::IMAGE_LIST_NUM_IMAGES_LEN];
+
+                let image_list_num_images_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET, photo_database::IMAGE_LIST_NUM_IMAGES_LEN);
 
                 let image_list_num_images: u32 = helpers::build_le_u32_from_bytes(image_list_num_images_raw);
 
                 println!(
-                    "ImageList#{} info : NumImages={}",
-                    num_image_lists, image_list_num_images
+                    "{} images found in {}", image_list_num_images, itunesdb_filename
                 );
                 println!("==========");
                 num_image_lists += 1;
@@ -58,37 +53,45 @@ fn main() {
             // Parse Image Item
             else if potential_photo_section_heading == photo_database::IMAGE_ITEM_KEY.as_bytes()
             {
-                let image_item_rating_raw: &[u8] = &db_file_as_bytes[idx + photo_database::IMAGE_ITEM_RATING_OFFSET
-                    ..idx + photo_database::IMAGE_ITEM_RATING_OFFSET + photo_database::IMAGE_ITEM_RATING_LEN];
+                // let image_item_rating_raw: &[u8] = &db_file_as_bytes[idx + photo_database::IMAGE_ITEM_RATING_OFFSET
+                //     ..idx + photo_database::IMAGE_ITEM_RATING_OFFSET + photo_database::IMAGE_ITEM_RATING_LEN];
+
+                let image_item_rating_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_RATING_OFFSET, photo_database::IMAGE_ITEM_RATING_LEN);
 
                 let image_item_rating: u32 =
                     helpers::build_le_u32_from_bytes(image_item_rating_raw);
 
-                let image_item_orig_date_raw = &db_file_as_bytes[idx + photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET
-                    ..idx + photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET + photo_database::IMAGE_ITEM_ORIG_DATE_LEN];
+                // let image_item_orig_date_raw = &db_file_as_bytes[idx + photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET
+                //     ..idx + photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET + photo_database::IMAGE_ITEM_ORIG_DATE_LEN];
 
-                let image_item_orig_date_timestamp =
-                    helpers::build_le_u32_from_bytes(image_item_orig_date_raw);
+                let image_item_orig_date_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET, photo_database::IMAGE_ITEM_ORIG_DATE_LEN);
 
-                let image_item_orig_date_date = itunesdb_helpers::get_timestamp_as_mac(image_item_orig_date_timestamp as u64);
+                // let image_item_orig_date_timestamp_raw =
+                //     helpers::build_le_u32_from_bytes(image_item_orig_date_raw);
 
-                let image_item_digitized_date_raw: &[u8] = &db_file_as_bytes[idx
-                    + photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET
-                    ..idx + photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET + photo_database::IMAGE_ITEM_DIGITIZED_DATE_LEN];
+                // let image_item_orig_date_date = itunesdb_helpers::get_timestamp_as_mac(image_item_orig_date_timestamp as u64);
 
-                let image_item_digitized_date_timestamp: u32 =
-                    helpers::build_le_u32_from_bytes(image_item_digitized_date_raw);
+                // let image_item_digitized_date_raw: &[u8] = &db_file_as_bytes[idx
+                //     + photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET
+                //     ..idx + photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET + photo_database::IMAGE_ITEM_DIGITIZED_DATE_LEN];
 
-                let image_item_digitized_date_date = itunesdb_helpers::get_timestamp_as_mac(image_item_digitized_date_timestamp as u64);
+                let image_item_digitized_timestamp_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET, photo_database::IMAGE_ITEM_DIGITIZED_DATE_LEN);
 
-                let image_item_source_img_size_raw = &db_file_as_bytes[idx
-                    + photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET
-                    ..idx + photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET + photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN];
+                // let image_item_digitized_date_timestamp: u32 =
+                //     helpers::build_le_u32_from_bytes(image_item_digitized_date_raw);
+
+                // let image_item_digitized_date_date = itunesdb_helpers::get_timestamp_as_mac(image_item_digitized_date_timestamp as u64);
+
+                // let image_item_source_img_size_raw = &db_file_as_bytes[idx
+                //     + photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET
+                //     ..idx + photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET + photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN];
+
+                let image_item_source_img_size_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN);
 
                 let image_item_source_img_size =
                     helpers::build_le_u32_from_bytes(image_item_source_img_size_raw);
 
-                println!("ImageItem#{} info : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, itunesdb_helpers::decode_itunes_stars(image_item_rating), image_item_source_img_size, image_item_orig_date_date, image_item_digitized_date_date);
+                println!("ImageItem#{} : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, itunesdb_helpers::decode_itunes_stars(image_item_rating), image_item_source_img_size, itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(image_item_orig_date_raw) as u64), itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(image_item_digitized_timestamp_raw) as u64));
 
                 println!("==========");
                 num_image_items += 1;

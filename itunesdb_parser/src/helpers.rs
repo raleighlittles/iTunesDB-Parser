@@ -1,3 +1,5 @@
+use std::array;
+
 /**
  * File: helpers.rs
  *
@@ -20,6 +22,11 @@ pub fn build_le_u32_from_bytes(bytes: &[u8]) -> u32 {
     }
 
     return number;
+}
+
+pub fn get_slice_from_offset_with_len(array_idx : usize, file_as_array: &[u8], file_offset : usize, slice_len : usize) -> Vec<u8> {
+
+    return file_as_array[array_idx + file_offset .. array_idx + file_offset + slice_len].to_vec();
 }
 
 // TODO: Add function to take in a raw number of bytes, and print it as either KB, or MB, depending on whichever is appropriate (leaving it between 1-10)
