@@ -101,25 +101,33 @@ fn main() {
             // Parse Image Name
             else if potential_photo_section_heading == photo_database::IMAGE_NAME_KEY.as_bytes()
             {
-                let image_name_img_size_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_SIZE_OFFSET
-                    ..idx + photo_database::IMAGE_NAME_IMG_SIZE_OFFSET + photo_database::IMAGE_NAME_IMG_SIZE_LEN];
+                // let image_name_img_size_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_SIZE_OFFSET
+                //     ..idx + photo_database::IMAGE_NAME_IMG_SIZE_OFFSET + photo_database::IMAGE_NAME_IMG_SIZE_LEN];
+
+                let image_name_img_size_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_SIZE_OFFSET, photo_database::IMAGE_NAME_IMG_SIZE_LEN);
+
                 let image_name_img_size =
                     helpers::build_le_u32_from_bytes(image_name_img_size_raw);
 
-                let image_name_img_height_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_HEIGHT_OFFSET
-                    ..idx + photo_database::IMAGE_NAME_IMG_HEIGHT_OFFSET + photo_database::IMAGE_NAME_IMG_HEIGHT_LEN];
+                // let image_name_img_height_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_HEIGHT_OFFSET
+                //     ..idx + photo_database::IMAGE_NAME_IMG_HEIGHT_OFFSET + photo_database::IMAGE_NAME_IMG_HEIGHT_LEN];
+
+                let image_name_img_height_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_HEIGHT_OFFSET, photo_database::IMAGE_NAME_IMG_HEIGHT_LEN);
                 
                 // TODO: Figure out why the Image Height and Image Width are both 0
                 let image_name_img_height =
                     helpers::build_le_u32_from_bytes(image_name_img_height_raw);
 
-                let image_name_img_width_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET
-                    ..idx + photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET + photo_database::IMAGE_NAME_IMG_WIDTH_LEN];
+                // let image_name_img_width_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET
+                //     ..idx + photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET + photo_database::IMAGE_NAME_IMG_WIDTH_LEN];
+
+                let image_name_img_width_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET, photo_database::IMAGE_NAME_IMG_WIDTH_LEN);
+
                 let image_name_img_width =
                     helpers::build_le_u32_from_bytes(image_name_img_width_raw);
 
                 println!(
-                    "ImageName#{} info : Size(bytes)={} , Height={} , Width={}",
+                    "ImageName#{} : Size= {} bytes, Height={} , Width={}",
                     num_image_names,
                     image_name_img_size,
                     image_name_img_height,
