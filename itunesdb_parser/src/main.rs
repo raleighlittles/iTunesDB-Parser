@@ -37,12 +37,14 @@ fn main() {
                 // let image_list_num_images_raw = &db_file_as_bytes[idx + photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET
                 //     ..idx + photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET + photo_database::IMAGE_LIST_NUM_IMAGES_LEN];
 
-                let image_list_num_images_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET, photo_database::IMAGE_LIST_NUM_IMAGES_LEN);
+                // let image_list_num_images_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET, photo_database::IMAGE_LIST_NUM_IMAGES_LEN);
 
-                let image_list_num_images: u32 = helpers::build_le_u32_from_bytes(image_list_num_images_raw);
+                // let image_list_num_images: u32 = helpers::build_le_u32_from_bytes(image_list_num_images_raw);
+
+                let image_list_num_images = get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET, photo_database::IMAGE_LIST_NUM_IMAGES_LEN);
 
                 println!(
-                    "{} images found in {}", image_list_num_images, itunesdb_filename
+                    "{} images found in file {}", image_list_num_images, itunesdb_filename
                 );
                 println!("==========");
                 num_image_lists += 1;
@@ -56,10 +58,12 @@ fn main() {
                 // let image_item_rating_raw: &[u8] = &db_file_as_bytes[idx + photo_database::IMAGE_ITEM_RATING_OFFSET
                 //     ..idx + photo_database::IMAGE_ITEM_RATING_OFFSET + photo_database::IMAGE_ITEM_RATING_LEN];
 
-                let image_item_rating_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_RATING_OFFSET, photo_database::IMAGE_ITEM_RATING_LEN);
+                // let image_item_rating_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_RATING_OFFSET, photo_database::IMAGE_ITEM_RATING_LEN);
 
-                let image_item_rating: u32 =
-                    helpers::build_le_u32_from_bytes(image_item_rating_raw);
+                // let image_item_rating: u32 =
+                //     helpers::build_le_u32_from_bytes(image_item_rating_raw);
+
+                let image_item_rating = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_RATING_OFFSET, photo_database::IMAGE_ITEM_RATING_LEN);
 
                 // let image_item_orig_date_raw = &db_file_as_bytes[idx + photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET
                 //     ..idx + photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET + photo_database::IMAGE_ITEM_ORIG_DATE_LEN];
@@ -86,10 +90,12 @@ fn main() {
                 //     + photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET
                 //     ..idx + photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET + photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN];
 
-                let image_item_source_img_size_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN);
+                // let image_item_source_img_size_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN);
 
-                let image_item_source_img_size =
-                    helpers::build_le_u32_from_bytes(image_item_source_img_size_raw);
+                // let image_item_source_img_size =
+                //     helpers::build_le_u32_from_bytes(image_item_source_img_size_raw);
+
+                let image_item_source_img_size = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN);
 
                 println!("ImageItem#{} : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, itunesdb_helpers::decode_itunes_stars(image_item_rating), image_item_source_img_size, itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(image_item_orig_date_raw) as u64), itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(image_item_digitized_timestamp_raw) as u64));
 
@@ -104,27 +110,33 @@ fn main() {
                 // let image_name_img_size_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_SIZE_OFFSET
                 //     ..idx + photo_database::IMAGE_NAME_IMG_SIZE_OFFSET + photo_database::IMAGE_NAME_IMG_SIZE_LEN];
 
-                let image_name_img_size_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_SIZE_OFFSET, photo_database::IMAGE_NAME_IMG_SIZE_LEN);
+                // let image_name_img_size_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_SIZE_OFFSET, photo_database::IMAGE_NAME_IMG_SIZE_LEN);
 
-                let image_name_img_size =
-                    helpers::build_le_u32_from_bytes(image_name_img_size_raw);
+                // let image_name_img_size =
+                //     helpers::build_le_u32_from_bytes(image_name_img_size_raw);
+
+                let image_name_img_size = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_SIZE_OFFSET, photo_database::IMAGE_NAME_IMG_SIZE_LEN);
 
                 // let image_name_img_height_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_HEIGHT_OFFSET
                 //     ..idx + photo_database::IMAGE_NAME_IMG_HEIGHT_OFFSET + photo_database::IMAGE_NAME_IMG_HEIGHT_LEN];
 
-                let image_name_img_height_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_HEIGHT_OFFSET, photo_database::IMAGE_NAME_IMG_HEIGHT_LEN);
+                // let image_name_img_height_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_HEIGHT_OFFSET, photo_database::IMAGE_NAME_IMG_HEIGHT_LEN);
                 
-                // TODO: Figure out why the Image Height and Image Width are both 0
-                let image_name_img_height =
-                    helpers::build_le_u32_from_bytes(image_name_img_height_raw);
+                // // TODO: Figure out why the Image Height and Image Width are both 0
+                // let image_name_img_height =
+                //     helpers::build_le_u32_from_bytes(image_name_img_height_raw);
+
+                let image_name_img_height = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_SIZE_OFFSET, photo_database::IMAGE_NAME_IMG_SIZE_LEN);
 
                 // let image_name_img_width_raw = &db_file_as_bytes[idx + photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET
                 //     ..idx + photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET + photo_database::IMAGE_NAME_IMG_WIDTH_LEN];
 
-                let image_name_img_width_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET, photo_database::IMAGE_NAME_IMG_WIDTH_LEN);
+                // let image_name_img_width_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET, photo_database::IMAGE_NAME_IMG_WIDTH_LEN);
 
-                let image_name_img_width =
-                    helpers::build_le_u32_from_bytes(image_name_img_width_raw);
+                // let image_name_img_width =
+                //     helpers::build_le_u32_from_bytes(image_name_img_width_raw);
+
+                let image_name_img_width = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET, photo_database::IMAGE_NAME_IMG_WIDTH_LEN);
 
                 println!(
                     "ImageName#{} : Size= {} bytes, Height={} , Width={}",
@@ -142,16 +154,19 @@ fn main() {
             // Parse Photo Album
             else if potential_photo_section_heading == photo_database::PHOTO_ALBUM_KEY.as_bytes()
             {
-                let photo_album_item_cnt_raw = &db_file_as_bytes[idx
-                    + photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_OFFSET
-                    ..idx + photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_OFFSET + photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_LEN];
+                // let photo_album_item_cnt_raw = &db_file_as_bytes[idx
+                //     + photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_OFFSET
+                //     ..idx + photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_OFFSET + photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_LEN];
+                // let photo_album_item_count_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes,  photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_OFFSET, photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_LEN);
 
-                let photo_album_item_cnt =
-                    helpers::build_le_u32_from_bytes(photo_album_item_cnt_raw);
+                // let photo_album_item_count =
+                //     helpers::build_le_u32_from_bytes(photo_album_item_count_raw);
+
+                let photo_album_item_count = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_OFFSET, photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_LEN);
 
                 println!(
-                    "PhotoAlbum#{} info : Item count#={}",
-                    num_photo_albums, photo_album_item_cnt
+                    "PhotoAlbum#{} : Item count#={}",
+                    num_photo_albums, photo_album_item_count
                 );
 
                 println!("==========");
@@ -162,28 +177,36 @@ fn main() {
             // Parse Data Object
             else if potential_photo_section_heading == photo_database::DATA_OBJECT_KEY.as_bytes()
             {
-                let data_object_type_raw = &db_file_as_bytes[idx + photo_database::DATA_OBJECT_TYPE_OFFSET
-                    ..idx + photo_database::DATA_OBJECT_TYPE_OFFSET + photo_database::DATA_OBJECT_TYPE_LEN];
+                // let data_object_type_raw = &db_file_as_bytes[idx + photo_database::DATA_OBJECT_TYPE_OFFSET
+                //     ..idx + photo_database::DATA_OBJECT_TYPE_OFFSET + photo_database::DATA_OBJECT_TYPE_LEN];
 
-                let data_object_type =
-                    helpers::build_le_u32_from_bytes(data_object_type_raw);
+                // let data_object_type =
+                //     helpers::build_le_u32_from_bytes(&get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_TYPE_OFFSET, photo_database::DATA_OBJECT_TYPE_LEN));
+
+                let data_object_type = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_TYPE_OFFSET, photo_database::DATA_OBJECT_TYPE_LEN);
 
                 if data_object_type == (photo_database::MhodType::ALBUM_NAME as u32) || data_object_type == (photo_database::MhodType::FILE_NAME as u32) {
-                    let data_object_subcontainer_str_len =
-                        helpers::build_le_u32_from_bytes(
-                            &db_file_as_bytes[idx + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_OFFSET
-                                ..idx
-                                    + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_OFFSET
-                                    + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_LEN],
-                        );
+                    // let data_object_subcontainer_str_len =
+                    //     helpers::build_le_u32_from_bytes(
+                    //         &db_file_as_bytes[idx + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_OFFSET
+                    //             ..idx
+                    //                 + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_OFFSET
+                    //                 + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_LEN],
+                    //     );
 
-                    let data_object_subcontainer_encoding =
-                        helpers::build_le_u32_from_bytes(
-                            &db_file_as_bytes[idx + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_OFFSET
-                                ..idx
-                                    + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_OFFSET
-                                    + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_LEN],
-                        );
+                    // let data_object_subcontainer_str_len = helpers::build_le_u32_from_bytes(&get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_OFFSET, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_LEN));
+
+                    let data_object_subcontainer_str_len = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_OFFSET, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_LENGTH_LEN);
+
+                    // let data_object_subcontainer_encoding =
+                    //     helpers::build_le_u32_from_bytes(
+                    //         &db_file_as_bytes[idx + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_OFFSET
+                    //             ..idx
+                    //                 + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_OFFSET
+                    //                 + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_LEN],
+                    //     );
+
+                    let data_object_subcontainer_encoding = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_OFFSET, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_LEN);
 
                     if data_object_subcontainer_encoding == 0
                         || data_object_subcontainer_encoding == 1
@@ -200,8 +223,10 @@ fn main() {
                         )
                         .expect("Can't parse MHOD string");
 
-                        println!("MHOD substring (UTF-8) = {}", data_object_subcontainer_data);
+                        println!("MHOD substring = {}", data_object_subcontainer_data);
+
                     } else if data_object_subcontainer_encoding == 2 {
+
                         // Build UTF-16 array, out of UTF-8, by combining elements pairwise
                         // Maybe put this into its own function in helpers
                         let mut data_object_pairwise_combined: Vec<u16> = vec![];
@@ -222,11 +247,11 @@ fn main() {
                             String::from_utf16(&data_object_pairwise_combined)
                                 .expect("Can't convert UTF-16 array to string");
 
-                        println!("MHOD substring (UTF-16) = {}", data_object_subcontainer_data);
+                        println!("MHOD substring = {}", data_object_subcontainer_data);
                     }
 
                     println!(
-                        "String MHOD detected : Length={}, Encoding (raw)={}",
+                        "String MHOD detected : Length= {}, Encoding (raw)= {}",
                         data_object_subcontainer_str_len, data_object_subcontainer_encoding
                     );
                 }
