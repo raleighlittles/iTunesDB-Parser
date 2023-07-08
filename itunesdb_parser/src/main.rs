@@ -60,11 +60,9 @@ fn main() {
 
                 let image_item_rating = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_RATING_OFFSET, photo_database::IMAGE_ITEM_RATING_LEN);
 
-                // let image_item_orig_date_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET, photo_database::IMAGE_ITEM_ORIG_DATE_LEN);
 
                 let image_item_orig_date_timestamp_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET, photo_database::IMAGE_ITEM_ORIG_DATE_LEN);
 
-                // let image_item_digitized_timestamp_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET, photo_database::IMAGE_ITEM_DIGITIZED_DATE_LEN);
 
                 let image_item_digitized_timestamp_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET, photo_database::IMAGE_ITEM_DIGITIZED_DATE_LEN);
 
@@ -195,14 +193,26 @@ fn main() {
 
                 idx += photo_database::DATA_OBJECT_LAST_OFFSET;
 
+
                 // Once you've parsed the data object, all properties for the "current" image have been set
-                // so store the current one, then 'reset' t
-                images_found.push(curr_img);
-                curr_img = itunesdb::Image::default();
+                // so store the current one, then 'reset' it
+
+                if (curr_img.filename.len() > 0) && (curr_img.file_size > 0) && (curr_img.original_date_epoch != 0) && (curr_img.digitized_date_epoch != 0) {
+                    images_found.push(curr_img);
+                    curr_img = itunesdb::Image::default();
+                }
             }
 
             idx += DEFAULT_SUBSTRUCTURE_SIZE;
+
+        } // end while
+
+        println!("{} images found", images_found.len());
+
+        for image in images_found.iter() {
+            println!("Image name = {}, Image size = {}", image.filename, image.file_size);
         }
+
     } else if itunesdb_file_type == "music" {
 
         let mut idx = 0;
@@ -469,5 +479,7 @@ fn main() {
             idx += DEFAULT_SUBSTRUCTURE_SIZE;
         } // End 'music' parser
         
+    
     }
+
 }
