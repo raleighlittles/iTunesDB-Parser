@@ -15,20 +15,41 @@ use std::fmt::Write;
 
 use chrono::{DateTime, NaiveDateTime, Utc};
 
+use self::itunesdb_helpers::get_timestamp_as_mac;
+
 pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
 
 pub struct Image {
     pub filename : String,
     pub file_size: u64,
     pub original_date_epoch: u64,
-    pub digitized_date_epoch : u64
+    original_date_ts : chrono::DateTime<chrono::Utc>,
+    pub digitized_date_epoch : u64,
+    digitized_date_ts : chrono::DateTime<chrono::Utc>
 }
 
 /// Allows instantiation of a "default" Image,
-/// since image values will be populated separately
+/// since each property/field of the image struct will be populated
+/// at a different time
 impl Default for Image {
     fn default() -> Image {
-        return Image{filename: "".to_string(), file_size: 0, original_date_epoch: 0, digitized_date_epoch : 0};
+        return Image{filename: "".to_string(), file_size: 0, original_date_epoch: 0, original_date_ts: get_timestamp_as_mac(0), digitized_date_epoch : 0, digitized_date_ts : get_timestamp_as_mac(0)};
+    }
+}
+
+impl Image {
+
+    pub fn set_original_date(&mut self, orig_date_epoch : u64) { 
+
+        self.original_date_epoch = orig_date_epoch;
+        self.original_date_ts = get_timestamp_as_mac(orig_date_epoch);
+    }
+
+
+    pub fn set_digitized_date(&mut self, digitized_date_epoch : u64) {
+
+        self.digitized_date_epoch = digitized_date_epoch;
+        self.digitized_date_ts = get_timestamp_as_mac(digitized_date_epoch);
     }
 }
 
@@ -36,8 +57,6 @@ pub mod photo_database {
 
     // ----- IMAGE LIST ----- //
     pub const IMAGE_LIST_KEY: &str = "mhli";
-
-    pub const IMAGE_LIST_KEY_ASCII : &[u8] = IMAGE_ITEM_KEY.as_bytes();
 
     pub const IMAGE_LIST_NUM_IMAGES_OFFSET: usize = 8; // 4 + 4
     pub const IMAGE_LIST_NUM_IMAGES_LEN: usize = 4;
@@ -156,8 +175,6 @@ pub mod photo_database {
 }
 
 pub mod iTunesDB {
-    use std::f32::consts::E;
-
 
     // ----- DATABASE OBJECT ----- //
     pub const DATABASE_OBJECT_KEY : &str = "mhbd";
@@ -746,7 +763,7 @@ pub mod iTunesDB {
     // Use the length you derived above to index it
     pub const DATA_OBJECT_STRING_LOCATION_OFFSET : usize = 40;
 
-    //pub const DATA_OBJECT_LAST_OFFSET
+    pub const DATA_OBJECT_LAST_OFFSET : usize = 0x18; // 24d
 
     // ----- ALBUM LIST ----- //
     pub const ALBUM_LIST_KEY : &str = "mhla";

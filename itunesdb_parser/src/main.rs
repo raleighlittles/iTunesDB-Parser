@@ -29,7 +29,7 @@ fn main() {
         println!("Parsing photo file: {}", itunesdb_filename);
 
         // Setup CSV file
-        // let mut csv_writer = csv::Writer::from_path(itunesdb_filename.clone() + ".csv");
+        let mut csv_writer = csv::Writer::from_path(itunesdb_filename.clone() + ".csv");
 
         let mut images_found : Vec<itunesdb::Image> = Vec::new();
 
@@ -68,16 +68,18 @@ fn main() {
 
                 let image_item_source_img_size = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN);
 
-                println!("ImageItem#{} : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, itunesdb_helpers::decode_itunes_stars(image_item_rating), image_item_source_img_size, itunesdb_helpers::get_timestamp_as_mac(image_item_orig_date_timestamp_raw as u64), itunesdb_helpers::get_timestamp_as_mac(image_item_digitized_timestamp_raw as u64));
+                // println!("ImageItem#{} : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, itunesdb_helpers::decode_itunes_stars(image_item_rating), image_item_source_img_size, itunesdb_helpers::get_timestamp_as_mac(image_item_orig_date_timestamp_raw as u64), itunesdb_helpers::get_timestamp_as_mac(image_item_digitized_timestamp_raw as u64));
 
-                println!("==========");
+                //println!("==========");
                 num_image_items += 1;
 
                 idx += photo_database::IMAGE_ITEM_LAST_OFFSET;
 
                 // Populate existing image with properties
-                curr_img.original_date_epoch = image_item_orig_date_timestamp_raw as u64;
-                curr_img.digitized_date_epoch = image_item_digitized_timestamp_raw as u64;
+                //curr_img.original_date_epoch = image_item_orig_date_timestamp_raw as u64;
+                curr_img.set_original_date(image_item_orig_date_timestamp_raw as u64);
+                //curr_img.digitized_date_epoch = image_item_digitized_timestamp_raw as u64;
+                curr_img.set_digitized_date(image_item_digitized_timestamp_raw as u64);
             }
             // Parse Image Name
             else if potential_photo_section_heading == photo_database::IMAGE_NAME_KEY.as_bytes()
@@ -90,15 +92,15 @@ fn main() {
 
                 let image_name_img_width = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_NAME_IMG_WIDTH_OFFSET, photo_database::IMAGE_NAME_IMG_WIDTH_LEN);
 
-                println!(
-                    "ImageName#{} : Size= {} bytes, Height={} , Width={}",
-                    num_image_names,
-                    image_name_img_size,
-                    image_name_img_height,
-                    image_name_img_width
-                );
+                // println!(
+                //     "ImageName#{} : Size= {} bytes, Height={} , Width={}",
+                //     num_image_names,
+                //     image_name_img_size,
+                //     image_name_img_height,
+                //     image_name_img_width
+                // );
+                // println!("==========");
 
-                println!("==========");
                 num_image_names += 1;
 
                 idx += photo_database::IMAGE_NAME_LAST_OFFSET;
@@ -111,12 +113,12 @@ fn main() {
 
                 let photo_album_item_count = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_OFFSET, photo_database::PHOTO_ALBUM_ALBUM_ITEM_CNT_LEN);
 
-                println!(
-                    "PhotoAlbum#{} : Item count#={}",
-                    num_photo_albums, photo_album_item_count
-                );
+                // println!(
+                //     "PhotoAlbum#{} : Item count#={}",
+                //     num_photo_albums, photo_album_item_count
+                // );
+                // println!("==========");
 
-                println!("==========");
                 num_photo_albums += 1;
 
                 idx += photo_database::PHOTO_ALBUM_LAST_OFFSET;
@@ -147,48 +149,51 @@ fn main() {
                         )
                         .expect("Can't parse MHOD string");
 
-                        println!("MHOD substring = {}", data_object_subcontainer_data);
+                        //println!("MHOD substring = {}", data_object_subcontainer_data);
+
                         curr_img.filename = data_object_subcontainer_data.to_string();
 
                     } else if data_object_subcontainer_encoding == 2 {
 
                         // Build UTF-16 array, out of UTF-8, by combining elements pairwise
                         // Maybe put this into its own function in helpers
-                        let mut data_object_pairwise_combined: Vec<u16> = vec![];
+                        // let mut data_object_pairwise_combined: Vec<u16> = vec![];
 
-                        for i in (idx + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET + 4
-                            ..idx
-                                + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET
-                                + data_object_subcontainer_str_len as usize
-                                + 4)
-                            .step_by(2)
-                        {
-                            let u16_elem: u16 = ((db_file_as_bytes[i + 1] as u16) << 8)
-                                | db_file_as_bytes[i] as u16;
-                            data_object_pairwise_combined.push(u16_elem);
-                        }
+                        // for i in (idx + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET + 4
+                        //     ..idx
+                        //         + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET
+                        //         + data_object_subcontainer_str_len as usize
+                        //         + 4)
+                        //     .step_by(2)
+                        // {
+                        //     let u16_elem: u16 = ((db_file_as_bytes[i + 1] as u16) << 8)
+                        //         | db_file_as_bytes[i] as u16;
+                        //     data_object_pairwise_combined.push(u16_elem);
+                        // }
+
+                        let data_object_pairwise_combined = &helpers::return_utf16_from_utf8(&helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET + 4, (data_object_subcontainer_str_len + 4) as usize));
 
                         let data_object_subcontainer_data =
                             String::from_utf16(&data_object_pairwise_combined)
                                 .expect("Can't convert UTF-16 array to string");
 
-                        println!("MHOD substring = {}", data_object_subcontainer_data);
+                        //println!("MHOD substring = {}", data_object_subcontainer_data);
 
                         curr_img.filename = data_object_subcontainer_data;
                     }
 
-                    println!(
-                        "String MHOD detected : Length= {}, Encoding (raw)= {}",
-                        data_object_subcontainer_str_len, data_object_subcontainer_encoding
-                    );
+                    // println!(
+                    //     "String MHOD detected : Length= {}, Encoding (raw)= {}",
+                    //     data_object_subcontainer_str_len, data_object_subcontainer_encoding
+                    // );
                 }
 
-                println!(
-                    "DataObject#{} info : Type={}",
-                    num_photo_data_objects, &photo_database::decode_mhod_type(data_object_type as u16)
-                );
+                // println!(
+                //     "DataObject#{} info : Type={}",
+                //     num_photo_data_objects, &photo_database::decode_mhod_type(data_object_type as u16)
+                // );
+                // println!("==========");
 
-                println!("==========");
                 num_photo_data_objects += 1;
 
                 idx += photo_database::DATA_OBJECT_LAST_OFFSET;
@@ -469,9 +474,27 @@ fn main() {
 
                 let mut data_object_info : String = "%%%%%%% Data Object found!\n".to_string();
 
-                // TODO parse mhod type
+                let data_object_type_raw = helpers::get_slice_as_le_u32(idx,  &db_file_as_bytes, iTunesDB::DATA_OBJECT_TYPE_OFFSET, iTunesDB::DATA_OBJECT_TYPE_LEN);
 
-                //idx += iTunesDB::DATA_OBJECT_LAST_OFFSET;
+                write!(data_object_info, "Type (raw) = {} | ", data_object_type_raw).unwrap();
+
+                if data_object_type_raw < 15 { // Means its a 'string' MHOD
+        
+                    let data_object_string_len = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::DATA_OBJECT_STRING_LENGTH_OFFSET, iTunesDB::DATA_OBJECT_STRING_LENGTH_LEN);
+
+                    let data_object_str_bytes = helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, iTunesDB::DATA_OBJECT_STRING_LOCATION_OFFSET, data_object_string_len as usize);
+
+                    // let data_object_str = std::str::from_utf8(&data_object_str_bytes).expect("Can't parse string data object!");
+                    let data_object_str = String::from_utf16(&helpers::return_utf16_from_utf8(&data_object_str_bytes)).expect("Can't decode string to UTF-16");
+
+                    write!(data_object_info, "Length= {} | Value: '{}'", data_object_string_len, data_object_str).unwrap();
+                }
+
+
+                println!("{} %%%%%%% \r\n", data_object_info);
+                
+
+                idx += iTunesDB::DATA_OBJECT_LAST_OFFSET;
             }
 
 
