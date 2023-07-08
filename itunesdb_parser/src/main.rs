@@ -3,6 +3,8 @@ mod helpers;
 
 use std::fmt::Write;
 
+//use csv::Writer;
+
 use crate::itunesdb::*;
 use crate::helpers::*;
 
@@ -25,6 +27,13 @@ fn main() {
     if itunesdb_file_type == "photo" {
 
         println!("Parsing photo file: {}", itunesdb_filename);
+
+        // Setup CSV file
+        // let mut csv_writer = csv::Writer::from_path(itunesdb_filename.clone() + ".csv");
+
+        let mut images_found : Vec<itunesdb::Image> = Vec::new();
+
+        let mut curr_img = itunesdb::Image::default();
 
         let mut idx = 0;
 
@@ -51,18 +60,26 @@ fn main() {
 
                 let image_item_rating = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_RATING_OFFSET, photo_database::IMAGE_ITEM_RATING_LEN);
 
-                let image_item_orig_date_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET, photo_database::IMAGE_ITEM_ORIG_DATE_LEN);
+                // let image_item_orig_date_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET, photo_database::IMAGE_ITEM_ORIG_DATE_LEN);
 
-                let image_item_digitized_timestamp_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET, photo_database::IMAGE_ITEM_DIGITIZED_DATE_LEN);
+                let image_item_orig_date_timestamp_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET, photo_database::IMAGE_ITEM_ORIG_DATE_LEN);
+
+                // let image_item_digitized_timestamp_raw = &helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET, photo_database::IMAGE_ITEM_DIGITIZED_DATE_LEN);
+
+                let image_item_digitized_timestamp_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET, photo_database::IMAGE_ITEM_DIGITIZED_DATE_LEN);
 
                 let image_item_source_img_size = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_OFFSET, photo_database::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN);
 
-                println!("ImageItem#{} : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, itunesdb_helpers::decode_itunes_stars(image_item_rating), image_item_source_img_size, itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(image_item_orig_date_raw) as u64), itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(image_item_digitized_timestamp_raw) as u64));
+                println!("ImageItem#{} : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, itunesdb_helpers::decode_itunes_stars(image_item_rating), image_item_source_img_size, itunesdb_helpers::get_timestamp_as_mac(image_item_orig_date_timestamp_raw as u64), itunesdb_helpers::get_timestamp_as_mac(image_item_digitized_timestamp_raw as u64));
 
                 println!("==========");
                 num_image_items += 1;
 
                 idx += photo_database::IMAGE_ITEM_LAST_OFFSET;
+
+                // Populate existing image with properties
+                curr_img.original_date_epoch = image_item_orig_date_timestamp_raw as u64;
+                curr_img.digitized_date_epoch = image_item_digitized_timestamp_raw as u64;
             }
             // Parse Image Name
             else if potential_photo_section_heading == photo_database::IMAGE_NAME_KEY.as_bytes()
@@ -87,6 +104,8 @@ fn main() {
                 num_image_names += 1;
 
                 idx += photo_database::IMAGE_NAME_LAST_OFFSET;
+
+                curr_img.file_size = image_name_img_size as u64;
             }
             // Parse Photo Album
             else if potential_photo_section_heading == photo_database::PHOTO_ALBUM_KEY.as_bytes()
@@ -131,6 +150,7 @@ fn main() {
                         .expect("Can't parse MHOD string");
 
                         println!("MHOD substring = {}", data_object_subcontainer_data);
+                        curr_img.filename = data_object_subcontainer_data.to_string();
 
                     } else if data_object_subcontainer_encoding == 2 {
 
@@ -155,6 +175,8 @@ fn main() {
                                 .expect("Can't convert UTF-16 array to string");
 
                         println!("MHOD substring = {}", data_object_subcontainer_data);
+
+                        curr_img.filename = data_object_subcontainer_data;
                     }
 
                     println!(
@@ -172,6 +194,11 @@ fn main() {
                 num_photo_data_objects += 1;
 
                 idx += photo_database::DATA_OBJECT_LAST_OFFSET;
+
+                // Once you've parsed the data object, all properties for the "current" image have been set
+                // so store the current one, then 'reset' t
+                images_found.push(curr_img);
+                curr_img = itunesdb::Image::default();
             }
 
             idx += DEFAULT_SUBSTRUCTURE_SIZE;

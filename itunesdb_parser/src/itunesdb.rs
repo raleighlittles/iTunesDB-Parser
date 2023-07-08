@@ -11,11 +11,26 @@
  */
 
 
- use std::fmt::Write;
+use std::fmt::Write;
 
 use chrono::{DateTime, NaiveDateTime, Utc};
 
 pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
+
+pub struct Image {
+    pub filename : String,
+    pub file_size: u64,
+    pub original_date_epoch: u64,
+    pub digitized_date_epoch : u64
+}
+
+/// Allows instantiation of a "default" Image,
+/// since image values will be populated separately
+impl Default for Image {
+    fn default() -> Image {
+        return Image{filename: "".to_string(), file_size: 0, original_date_epoch: 0, digitized_date_epoch : 0};
+    }
+}
 
 pub mod photo_database {
 
