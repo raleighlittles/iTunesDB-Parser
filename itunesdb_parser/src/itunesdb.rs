@@ -393,7 +393,7 @@ pub mod iTunesDB {
     pub const TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_LEN : usize = 1;
 
     pub const TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET : usize = 140;
-    pub const TRACK_ITEM_TRACK_RELEASE_TIMESTAMP_LEN : usize = 4;
+    pub const TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_LEN : usize = 4;
 
     // Called "unk14/1"
     pub const TRACK_ITEM_ADVANCED_TRACK_TYPE_OFFSET : usize = 144;
@@ -783,17 +783,8 @@ pub mod iTunesDB {
 }
 
 
+/// Helper functions that are shared across the different iTunesDB file types
 pub mod itunesdb_helpers {
-
-    /// Mac timestamps start on Jan 1 1904, whereas Linux timestamps
-    /// (which is what Rust's `chrono` library uses) start at Jan 1 1970,
-    /// hence this difference
-    const MAC_TO_LINUX_EPOCH_CONVERSION: i64 = 2082844800;
-
-    pub fn get_timestamp_as_mac(mac_timestamp : u64) -> chrono::DateTime<chrono::Utc> {
-
-        return chrono::DateTime::<chrono::Utc>::from_utc( chrono::NaiveDateTime::from_timestamp_opt((mac_timestamp as i64) - MAC_TO_LINUX_EPOCH_CONVERSION, 0).unwrap(), chrono::offset::Utc);
-    }
 
     // Shows how many "stars" a song had in iTunes, based on the raw rating value.
     // The formula is: rating / 20 = stars
@@ -812,5 +803,4 @@ pub mod itunesdb_helpers {
 
         return rating
     }
-
 }

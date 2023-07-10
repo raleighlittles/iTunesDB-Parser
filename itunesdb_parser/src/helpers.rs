@@ -39,6 +39,18 @@ pub fn get_slice_as_le_u32(array_idx : usize, file_as_array: &[u8], file_offset 
     return build_le_u32_from_bytes(&get_slice_from_offset_with_len(array_idx, file_as_array, file_offset, slice_len));
 }
 
+pub fn get_slice_as_mac_timestamp(array_idx : usize, file_as_array : &[u8], file_offset : usize, slice_len : usize) -> chrono::DateTime<chrono::Utc> {
+
+
+    let epoch_time : u64 = get_slice_as_le_u32(array_idx, file_as_array, file_offset, slice_len) as u64;
+
+    if epoch_time == 0 {
+        panic!("Error! Epoch time converted was 0. Check the slice starting at idx {} with len {}, actually contains a valid timestamp", array_idx, slice_len);
+    }
+
+    return get_timestamp_as_mac(epoch_time);
+}
+
 /// // Build UTF-16 array, out of UTF-8, by combining elements pairwise
 pub fn return_utf16_from_utf8(utf8_bytes : &[u8]) -> Vec<u16> {
     
@@ -53,6 +65,18 @@ pub fn return_utf16_from_utf8(utf8_bytes : &[u8]) -> Vec<u16> {
 
     return arr_elements_pairwise_combined;
 }
+
+/// Apple (Mac OS X, iOS, iPadOS, et al) timestamps start on Jan 1 1904, whereas Linux timestamps
+/// (which is what Rust's `chrono` library uses) start at Jan 1 1970,
+/// hence this difference
+const MAC_TO_LINUX_EPOCH_CONVERSION: i64 = 2082844800;
+
+/// Converts a given Mac epoch time into an actual UTC timestamp
+pub fn get_timestamp_as_mac(mac_timestamp : u64) -> chrono::DateTime<chrono::Utc> {
+
+    return chrono::DateTime::<chrono::Utc>::from_utc( chrono::NaiveDateTime::from_timestamp_opt((mac_timestamp as i64) - MAC_TO_LINUX_EPOCH_CONVERSION, 0).unwrap(), chrono::offset::Utc);
+}
+
 
 // TODO: Add function to take in a raw number of bytes, and print it as either KB, or MB, depending on whichever is appropriate (leaving it between 1-10)
 

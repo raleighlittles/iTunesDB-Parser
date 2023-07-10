@@ -229,13 +229,11 @@ fn main() {
             // Parse Database Object
             if potential_section_heading == iTunesDB::DATABASE_OBJECT_KEY.as_bytes() {
 
-                let db_language_raw = &db_file_as_bytes[idx + iTunesDB::DATABASE_OBJECT_LANGUAGE_OFFSET .. idx + iTunesDB::DATABASE_OBJECT_LANGUAGE_OFFSET + iTunesDB::DATABASE_OBJECT_LANGUAGE_LEN];
+                let db_language_raw = get_slice_from_offset_with_len(idx, &db_file_as_bytes, iTunesDB::DATABASE_OBJECT_LANGUAGE_OFFSET, iTunesDB::DATABASE_OBJECT_LANGUAGE_LEN);
 
                 let db_language = std::str::from_utf8(&db_language_raw).expect("Can't parse database language string");
 
-                let db_version_raw = &db_file_as_bytes[idx + iTunesDB::DATABASE_OBJECT_VERSION_NUMBER_OFFSET .. idx + iTunesDB::DATABASE_OBJECT_VERSION_NUMBER_OFFSET + iTunesDB::DATABASE_OBJECT_VERSION_NUMBER_LEN];
-
-                println!("File {} is using language: {}, and has iTunes version: {}", itunesdb_filename, db_language, iTunesDB::parse_version_number(helpers::build_le_u32_from_bytes(db_version_raw)));
+                println!("File {} is using language: {}, and has iTunes version: {}", itunesdb_filename, db_language, iTunesDB::parse_version_number(get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::DATABASE_OBJECT_VERSION_NUMBER_OFFSET, iTunesDB::DATABASE_OBJECT_VERSION_NUMBER_LEN)));
 
                 idx += iTunesDB::DATABASE_OBJECT_LAST_OFFSET;
             }
@@ -244,7 +242,7 @@ fn main() {
             // Parse DataSet
             else if potential_section_heading == iTunesDB::DATASET_KEY.as_bytes() {
 
-                let dataset_type_raw = &db_file_as_bytes[idx + iTunesDB::DATASET_TYPE_OFFSET .. idx + iTunesDB::DATASET_TYPE_OFFSET + iTunesDB::DATASET_TYPE_LEN];
+                let dataset_type_raw = get_slice_from_offset_with_len(idx, &db_file_as_bytes, iTunesDB::DATASET_TYPE_OFFSET, iTunesDB::DATASET_TYPE_LEN);
                 
                 println!("Dataset Type: {}", iTunesDB::parse_dataset_type(dataset_type_raw[0] as u32));
 
@@ -254,7 +252,7 @@ fn main() {
             // Parse TrackList
             else if potential_section_heading == iTunesDB::TRACKLIST_KEY.as_bytes() {
 
-                let num_songs_in_db = helpers::build_le_u32_from_bytes(&db_file_as_bytes[idx + iTunesDB::TRACKLIST_NUM_SONGS_OFFSET .. idx + iTunesDB::TRACKLIST_NUM_SONGS_OFFSET + iTunesDB::TRACKLIST_NUM_SONGS_LEN]);
+                let num_songs_in_db = get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACKLIST_NUM_SONGS_OFFSET, iTunesDB::TRACKLIST_NUM_SONGS_LEN);
 
                 println!("{} songs total", num_songs_in_db);
                 
@@ -266,22 +264,16 @@ fn main() {
 
                 let mut track_item_info : String = String::new();
 
-                let track_number_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_NUMBER_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_NUMBER_OFFSET + iTunesDB::TRACK_ITEM_TRACK_NUMBER_LEN];
+                write!(track_item_info, "========== Track #{} of {} ", helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_NUMBER_OFFSET, iTunesDB::TRACK_ITEM_TRACK_NUMBER_LEN), helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_NUM_TRACKS_IN_ALBUM_OFFSET, iTunesDB::TRACK_ITEM_NUM_TRACKS_IN_ALBUM_LEN) ).unwrap();
 
-                let total_tracks_num = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_NUM_TRACKS_IN_ALBUM_OFFSET .. idx + iTunesDB::TRACK_ITEM_NUM_TRACKS_IN_ALBUM_OFFSET + iTunesDB::TRACK_ITEM_NUM_TRACKS_IN_ALBUM_LEN];
-
-                write!(track_item_info, "========== Track #{} of {} ", helpers::build_le_u32_from_bytes(track_number_raw), helpers::build_le_u32_from_bytes(total_tracks_num)).unwrap();
-
-                let num_discs_track_is_from = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_TOTAL_NUM_DISCS_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_TOTAL_NUM_DISCS_OFFSET + iTunesDB::TRACK_ITEM_TRACK_TOTAL_NUM_DISCS_LEN];
-
-                let num_discs = helpers::build_le_u32_from_bytes(num_discs_track_is_from);
+                let num_discs = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_TOTAL_NUM_DISCS_OFFSET, iTunesDB::TRACK_ITEM_TRACK_TOTAL_NUM_DISCS_LEN);
 
                 // Only print disc info if current song is part of multi-disc set
                 if num_discs > 0 {
 
-                    let tracks_current_disc_num = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_DISC_NUMBER_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_DISC_NUMBER_OFFSET + iTunesDB::TRACK_ITEM_TRACK_DISC_NUMBER_LEN];
+                    let tracks_current_disc_num = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_DISC_NUMBER_OFFSET, iTunesDB::TRACK_ITEM_TRACK_DISC_NUMBER_LEN);
 
-                    write!(track_item_info, " | 💿 #{} of {}", helpers::build_le_u32_from_bytes(tracks_current_disc_num), num_discs).unwrap();
+                    write!(track_item_info, " | 💿 #{} of {}", tracks_current_disc_num, num_discs).unwrap();
                 }
 
                 write!(track_item_info, "==========\n").unwrap();
@@ -290,8 +282,10 @@ fn main() {
 
                 // TODO: encapsulate this logic elsewhere
                 if helpers::build_le_u32_from_bytes(track_filetype_raw) == 0 {
+
                     println!("Track Item file type missing. Is this is a 1st - 4th gen iPod?");
                 } else {
+
                     let track_item_extension = iTunesDB::decode_track_item_filetype(track_filetype_raw);
                     write!(track_item_info, "Track extension: '{}' | ", track_item_extension).unwrap();
                 }
@@ -300,14 +294,11 @@ fn main() {
 
                 write!(track_item_info, "Media Type: {} | ", iTunesDB::decode_track_media_type(track_media_type_raw)).unwrap();
 
-                let track_advanced_audio_type_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_ADVANCED_TRACK_TYPE_OFFSET .. idx + iTunesDB::TRACK_ITEM_ADVANCED_TRACK_TYPE_OFFSET + iTunesDB::TRACK_ITEM_ADVANCED_TRACK_TYPE_LEN];
+                let track_advanced_audio_type = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_ADVANCED_TRACK_TYPE_OFFSET, iTunesDB::TRACK_ITEM_ADVANCED_TRACK_TYPE_LEN);
 
-                write!(track_item_info, "Experimental(!) advanced audio info: {} \n", iTunesDB::decode_track_audio_type(helpers::build_le_u32_from_bytes(track_advanced_audio_type_raw))).unwrap();
+                write!(track_item_info, "Experimental(!) advanced audio info: {} \n", iTunesDB::decode_track_audio_type(track_advanced_audio_type)).unwrap();
 
-
-                let apple_user_id_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_USER_ID_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_USER_ID_OFFSET + iTunesDB::TRACK_ITEM_TRACK_USER_ID_LEN];
-
-                let apple_user_id = helpers::build_le_u32_from_bytes(apple_user_id_raw);
+                let apple_user_id = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_USER_ID_OFFSET, iTunesDB::TRACK_ITEM_TRACK_USER_ID_LEN);
 
                 if apple_user_id != 0 {
                     write!(track_item_info, "Apple User ID: {} \n", apple_user_id).unwrap();
@@ -315,40 +306,67 @@ fn main() {
 
                 let track_bitrate_type_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_SETTING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_SETTING_OFFSET + iTunesDB::TRACK_ITEM_TRACK_BITRATE_SETTING_LEN];
 
-                let track_bitrate_raw =  &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_BITRATE_LEN];
+                // let track_bitrate_raw =  &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_BITRATE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_BITRATE_LEN];
 
-                let track_sample_rate_raw =  &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_SAMPLE_RATE_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_SAMPLE_RATE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_SAMPLE_RATE_LEN];
+                let track_bitrate = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_BITRATE_OFFSET, iTunesDB::TRACK_ITEM_TRACK_BITRATE_LEN);
 
-                let track_volume_setting_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_VOLUME_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_VOLUME_OFFSET + iTunesDB::TRACK_ITEM_TRACK_VOLUME_LEN];
+                // let track_sample_rate_raw =  &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_SAMPLE_RATE_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_SAMPLE_RATE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_SAMPLE_RATE_LEN];
 
-                let track_bpm = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_BPM_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_BPM_OFFSET + iTunesDB::TRACK_ITEM_TRACK_BPM_LEN];
+                let track_sample_rate_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_SAMPLE_RATE_OFFSET, iTunesDB::TRACK_ITEM_TRACK_SAMPLE_RATE_LEN);
 
-                write!(track_item_info, "[Audio info] {} kbps ({}) ~ {} | {} bpm |  🔈 adj. {} \n", helpers::build_le_u32_from_bytes(track_bitrate_raw), iTunesDB::decode_track_bitrate_type_setting(track_bitrate_type_raw), iTunesDB::decode_track_samplerate(helpers::build_le_u32_from_bytes(track_sample_rate_raw)), helpers::build_le_u32_from_bytes(track_bpm), helpers::build_le_u32_from_bytes(track_volume_setting_raw)).unwrap();
+                // let track_volume_setting_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_VOLUME_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_VOLUME_OFFSET + iTunesDB::TRACK_ITEM_TRACK_VOLUME_LEN];
 
-                let track_size_bytes = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_OFFSET + iTunesDB::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_LEN];
+                let track_volume_setting = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_VOLUME_OFFSET, iTunesDB::TRACK_ITEM_TRACK_VOLUME_LEN);
 
-                write!(track_item_info, "Track size: {} bytes | ", helpers::build_le_u32_from_bytes(track_size_bytes)).unwrap();
+                // let track_bpm = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_BPM_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_BPM_OFFSET + iTunesDB::TRACK_ITEM_TRACK_BPM_LEN];
 
-                let track_length_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_LENGTH_MILLISECONDS_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_LENGTH_MILLISECONDS_OFFSET + iTunesDB::TRACK_ITEM_TRACK_LENGTH_MILLISECONDS_LEN];
+                let track_bpm = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_BPM_OFFSET, iTunesDB::TRACK_ITEM_TRACK_BPM_LEN);
 
-                let track_start_time_offset = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_START_TIME_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_START_TIME_OFFSET + iTunesDB::TRACK_ITEM_TRACK_START_TIME_LEN];
+                write!(track_item_info, "[Audio info] {} kbps ({}) ~ {} | {} bpm |  🔈 adj. {} \n", track_bitrate, iTunesDB::decode_track_bitrate_type_setting(track_bitrate_type_raw), iTunesDB::decode_track_samplerate(track_sample_rate_raw), track_bpm, track_volume_setting).unwrap();
 
-                let track_stop_time_offset = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_STOP_TIME_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_STOP_TIME_OFFSET + iTunesDB::TRACK_ITEM_TRACK_STOP_TIME_LEN];
+                // let track_size_bytes = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_OFFSET + iTunesDB::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_LEN];
 
-                write!(track_item_info, "{} \n", iTunesDB::get_track_length_info(helpers::build_le_u32_from_bytes(track_length_raw), helpers::build_le_u32_from_bytes(track_start_time_offset), helpers::build_le_u32_from_bytes(track_stop_time_offset))).unwrap();
+                let track_size_bytes = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_OFFSET, iTunesDB::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_LEN);
 
+                write!(track_item_info, "Track size: {} bytes | ", track_size_bytes).unwrap();
 
-                let track_play_count = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_PLAY_COUNT_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_PLAY_COUNT_OFFSET + iTunesDB::TRACK_ITEM_TRACK_PLAY_COUNT_LEN];
+                // let track_length_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_LENGTH_MILLISECONDS_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_LENGTH_MILLISECONDS_OFFSET + iTunesDB::TRACK_ITEM_TRACK_LENGTH_MILLISECONDS_LEN];
 
-                let track_skipped_count = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_SKIPPED_COUNT_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_SKIPPED_COUNT_OFFSET + iTunesDB::TRACK_ITEM_TRACK_SKIPPED_COUNT_LEN];
+                let track_length_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_LENGTH_MILLISECONDS_OFFSET, iTunesDB::TRACK_ITEM_TRACK_LENGTH_MILLISECONDS_LEN);
 
-                let track_last_played_timestamp = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_OFFSET + iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_LEN];
+                //let track_start_time_offset = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_START_TIME_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_START_TIME_OFFSET + iTunesDB::TRACK_ITEM_TRACK_START_TIME_LEN];
 
-                let track_last_skipped_timestamp = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_OFFSET + iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_LEN];
+                let track_start_time_offset = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_START_TIME_OFFSET, iTunesDB::TRACK_ITEM_TRACK_START_TIME_LEN);
+
+                // let track_stop_time_offset = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_STOP_TIME_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_STOP_TIME_OFFSET + iTunesDB::TRACK_ITEM_TRACK_STOP_TIME_LEN];
+
+                let track_stop_time_offset = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_STOP_TIME_OFFSET, iTunesDB::TRACK_ITEM_TRACK_STOP_TIME_LEN);
+
+                write!(track_item_info, "{} \n", iTunesDB::get_track_length_info(track_length_raw, track_start_time_offset, track_stop_time_offset)).unwrap();
+
+                // let track_play_count = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_PLAY_COUNT_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_PLAY_COUNT_OFFSET + iTunesDB::TRACK_ITEM_TRACK_PLAY_COUNT_LEN];
+
+                let track_play_count = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_PLAY_COUNT_OFFSET, iTunesDB::TRACK_ITEM_TRACK_PLAY_COUNT_LEN);
+
+                // let track_skipped_count = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_SKIPPED_COUNT_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_SKIPPED_COUNT_OFFSET + iTunesDB::TRACK_ITEM_TRACK_SKIPPED_COUNT_LEN];
+
+                let track_skipped_count = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_SKIPPED_COUNT_OFFSET, iTunesDB::TRACK_ITEM_TRACK_SKIPPED_COUNT_LEN);
+
+                // let track_last_played_timestamp = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_OFFSET + iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_LEN];
+
+                // let track_last_played_timestamp = itunesdb_helpers::get_timestamp_as_mac(get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_OFFSET, iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_LEN) as u64);
+
+                let track_last_played_timestamp = get_slice_as_mac_timestamp(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_OFFSET, iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_LEN);
+
+                // let track_last_skipped_timestamp = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_OFFSET + iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_LEN];
+
+                // let track_last_skipped_timestamp = itunesdb_helpers::get_timestamp_as_mac(get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_OFFSET, iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_LEN) as u64);
+
+                let track_last_skipped_timestamp = get_slice_as_mac_timestamp(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_OFFSET, iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_LEN);
 
                 let track_skip_when_shuffle_setting = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET + iTunesDB::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_LEN];
 
-                write!(track_item_info, "Play/Skip statistics: # of plays: {} , Last played on: {} | # of skips: {}, Last skipped on: {} (Skip when shuffling? {}) ", helpers::build_le_u32_from_bytes(track_play_count), itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(track_last_played_timestamp) as u64), helpers::build_le_u32_from_bytes(track_skipped_count), itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(track_last_skipped_timestamp) as u64), track_skip_when_shuffle_setting[0] ).unwrap();
+                write!(track_item_info, "Play/Skip statistics: # of plays: {} , Last played on: {} | # of skips: {}, Last skipped on: {} (Skip when shuffling? {}) ", track_play_count, track_last_played_timestamp, track_skipped_count, track_last_skipped_timestamp, track_skip_when_shuffle_setting[0] ).unwrap();
 
                 let track_is_compilation_setting_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_IS_COMPILATION_SETTING_OFFSET .. idx + iTunesDB::TRACK_ITEM_IS_COMPILATION_SETTING_OFFSET + iTunesDB::TRACK_ITEM_IS_COMPILATION_SETTING_LEN];
 
@@ -356,25 +374,35 @@ fn main() {
 
                 write!(track_item_info, " \n Is part of compilation? {} , Has lyrics? {}", track_is_compilation_setting_raw[0], track_has_lyrics_setting_raw[0]).unwrap();
 
-                let track_rating = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_RATING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_RATING_OFFSET + iTunesDB::TRACK_ITEM_TRACK_RATING_LEN];
+                // let track_rating = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_RATING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_RATING_OFFSET + iTunesDB::TRACK_ITEM_TRACK_RATING_LEN];
 
-                let track_prev_rating = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_PREVIOUS_RATING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_PREVIOUS_RATING_OFFSET + iTunesDB::TRACK_ITEM_TRACK_PREVIOUS_RATING_LEN];
+                let track_rating = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_RATING_OFFSET, iTunesDB::TRACK_ITEM_TRACK_RATING_LEN);
 
-                write!(track_item_info, "\n Rating info: Current rating: {} | Previous rating: {} \n", itunesdb_helpers::decode_itunes_stars(helpers::build_le_u32_from_bytes(track_rating)), itunesdb_helpers::decode_itunes_stars(helpers::build_le_u32_from_bytes(track_prev_rating))).unwrap();
+                // let track_prev_rating = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_PREVIOUS_RATING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_PREVIOUS_RATING_OFFSET + iTunesDB::TRACK_ITEM_TRACK_PREVIOUS_RATING_LEN];
 
+                let track_prev_rating = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_PREVIOUS_RATING_OFFSET, iTunesDB::TRACK_ITEM_TRACK_PREVIOUS_RATING_LEN);
 
-                let gapless_playback_setting_for_track = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_OFFSET + iTunesDB::TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_LEN];
+                write!(track_item_info, "\n Rating info: Current rating: {} | Previous rating: {} \n", itunesdb_helpers::decode_itunes_stars(track_rating), itunesdb_helpers::decode_itunes_stars(track_prev_rating)).unwrap();
 
-                if helpers::build_le_u32_from_bytes(gapless_playback_setting_for_track) == 1 {
+                // let gapless_playback_setting_for_track = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_OFFSET + iTunesDB::TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_LEN];
 
-                    let num_beginning_silence_samples = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_OFFSET + iTunesDB::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_LEN];
+                let gapless_playback_setting_for_track = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_OFFSET, iTunesDB::TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_LEN);
 
-                    let num_ending_silence_samples = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_OFFSET + iTunesDB::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_LEN];
+                if gapless_playback_setting_for_track == 1 {
 
-                    let num_total_samples = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET + iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_LEN];
+                    // let num_beginning_silence_samples = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_OFFSET + iTunesDB::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_LEN];
 
+                    let num_beginning_silence_samples = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_OFFSET, iTunesDB::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_LEN);
 
-                    write!(track_item_info, "[Gapless playback info] # of silent samples ({} at start, {} at end)\n",  helpers::build_le_u32_from_bytes(num_beginning_silence_samples), helpers::build_le_u32_from_bytes(num_ending_silence_samples)).unwrap();
+                    // let num_ending_silence_samples = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_OFFSET + iTunesDB::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_LEN];
+
+                    let num_ending_silence_samples = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_OFFSET, iTunesDB::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_LEN);
+
+                    // let num_total_samples = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET + iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_LEN];
+
+                    let num_total_samples = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_LEN);
+
+                    write!(track_item_info, "[Gapless playback info] # of silent samples ({} at start, {} at end) - Total {}\n", num_beginning_silence_samples, num_ending_silence_samples, num_total_samples).unwrap();
                 }
 
                 let track_has_artwork_setting = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_OFFSET + iTunesDB::TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_LEN];
@@ -382,20 +410,30 @@ fn main() {
                 // TODO: Encapsulate this logic elsewhere
                 if track_has_artwork_setting[0] == 0x01 {
                     
-                    let track_associated_artwork_size = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_OFFSET + iTunesDB::TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_LEN];
+                    // let track_associated_artwork_size = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_OFFSET + iTunesDB::TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_LEN];
 
-                    write!(track_item_info, "🎨 artwork size: {} bytes \n", helpers::build_le_u32_from_bytes(track_associated_artwork_size)).unwrap();
+                    let track_associated_artwork_size = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_OFFSET, iTunesDB::TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_LEN);
+
+                    write!(track_item_info, "🎨 artwork size: {} bytes \n", track_associated_artwork_size).unwrap();
                 }
 
-                let track_year_released = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_YEAR_PUBLISHED_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_YEAR_PUBLISHED_OFFSET + iTunesDB::TRACK_ITEM_TRACK_YEAR_PUBLISHED_LEN];
+                // let track_year_released = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_YEAR_PUBLISHED_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_YEAR_PUBLISHED_OFFSET + iTunesDB::TRACK_ITEM_TRACK_YEAR_PUBLISHED_LEN];
 
-                let track_modified_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_MODIFIED_TIME_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_MODIFIED_TIME_OFFSET + iTunesDB::TRACK_ITEM_TRACK_MODIFIED_TIME_LEN];
+                let track_year_released = get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_YEAR_PUBLISHED_OFFSET, iTunesDB::TRACK_ITEM_TRACK_YEAR_PUBLISHED_LEN);
 
-                let track_added_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET + iTunesDB::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN];
+                // let track_modified_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_MODIFIED_TIME_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_MODIFIED_TIME_OFFSET + iTunesDB::TRACK_ITEM_TRACK_MODIFIED_TIME_LEN];
 
-                let track_published_to_store_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET + iTunesDB::TRACK_ITEM_TRACK_RELEASE_TIMESTAMP_LEN];
+                let track_modified_timestamp = get_slice_as_mac_timestamp(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_MODIFIED_TIME_OFFSET, iTunesDB::TRACK_ITEM_TRACK_MODIFIED_TIME_LEN);
 
-                write!(track_item_info, "\n 🗓️ | Track year (from title): {} | Published to iTunes on: {} | Added to library on: {} | Last modified: {} \n ", helpers::build_le_u32_from_bytes(track_year_released), itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(track_published_to_store_raw) as u64), itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(track_added_timestamp_raw) as u64), itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(track_modified_timestamp_raw) as u64)).unwrap(); 
+                // let track_added_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET + iTunesDB::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN];
+
+                let track_added_timestamp = get_slice_as_mac_timestamp(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET, iTunesDB::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN);
+
+                // let track_published_to_store_raw = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET + iTunesDB::TRACK_ITEM_TRACK_RELEASE_TIMESTAMP_LEN];
+
+                let track_published_to_store_timestamp: chrono::DateTime<chrono::Utc> = get_slice_as_mac_timestamp(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET, iTunesDB::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_LEN);
+
+                write!(track_item_info, "\n 🗓️ | Track year (from title): {} | Published to iTunes on: {} | Added to library on: {} | Last modified: {} \n ", track_year_released, track_published_to_store_timestamp, track_added_timestamp, track_modified_timestamp).unwrap();
 
                 println!("{} \n", track_item_info);
 
@@ -415,14 +453,17 @@ fn main() {
                 write!(playlist_info, "Playlist found!").unwrap();
                 
 
-                let playlist_created_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::PLAYLIST_CREATED_TIMESTAMP_OFFSET .. idx + iTunesDB::PLAYLIST_CREATED_TIMESTAMP_OFFSET + iTunesDB::PLAYLIST_CREATED_TIMESTAMP_LEN];
+                // let playlist_created_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::PLAYLIST_CREATED_TIMESTAMP_OFFSET .. idx + iTunesDB::PLAYLIST_CREATED_TIMESTAMP_OFFSET + iTunesDB::PLAYLIST_CREATED_TIMESTAMP_LEN];
 
-                write!(playlist_info, " | Playlist created at: {} ", itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(playlist_created_timestamp_raw) as u64)).unwrap();
+                let playlist_created_timestamp = helpers::get_slice_as_mac_timestamp(idx, &db_file_as_bytes, iTunesDB::PLAYLIST_CREATED_TIMESTAMP_OFFSET, iTunesDB::PLAYLIST_CREATED_TIMESTAMP_LEN);
 
-                let playlist_sort_order_raw = &db_file_as_bytes[idx + iTunesDB::PLAYLIST_PLAYLIST_SORT_ORDER_OFFSET .. idx + iTunesDB::PLAYLIST_PLAYLIST_SORT_ORDER_OFFSET + iTunesDB::PLAYLIST_PLAYLIST_SORT_ORDER_LEN];
+                write!(playlist_info, " | Playlist created at: {} ", playlist_created_timestamp).unwrap();
 
-                write!(playlist_info, "| {} \n", iTunesDB::decode_playlist_sort_order(helpers::build_le_u32_from_bytes(playlist_sort_order_raw))).unwrap();
+                // let playlist_sort_order_raw = &db_file_as_bytes[idx + iTunesDB::PLAYLIST_PLAYLIST_SORT_ORDER_OFFSET .. idx + iTunesDB::PLAYLIST_PLAYLIST_SORT_ORDER_OFFSET + iTunesDB::PLAYLIST_PLAYLIST_SORT_ORDER_LEN];
 
+                let playlist_sort_order = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::PLAYLIST_PLAYLIST_SORT_ORDER_OFFSET, iTunesDB::PLAYLIST_PLAYLIST_SORT_ORDER_LEN);
+
+                write!(playlist_info, "| {} \n", iTunesDB::decode_playlist_sort_order(playlist_sort_order)).unwrap();
 
                 println!("{} ====", playlist_info);
 
@@ -433,9 +474,11 @@ fn main() {
 
                 let mut playlist_item_info : String = "-----".to_string();
 
-                let playlist_item_added_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::PLAYLIST_ITEM_ADDED_TIMESTAMP_OFFSET .. idx + iTunesDB::PLAYLIST_ITEM_ADDED_TIMESTAMP_OFFSET + iTunesDB::PLAYLIST_ITEM_ADDED_TIMESTAMP_LEN];
+                // let playlist_item_added_timestamp_raw = &db_file_as_bytes[idx + iTunesDB::PLAYLIST_ITEM_ADDED_TIMESTAMP_OFFSET .. idx + iTunesDB::PLAYLIST_ITEM_ADDED_TIMESTAMP_OFFSET + iTunesDB::PLAYLIST_ITEM_ADDED_TIMESTAMP_LEN];
 
-                write!(playlist_item_info, " | Date added to playlist: {}", itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(playlist_item_added_timestamp_raw) as u64)).unwrap();
+                let playlist_item_added_timestamp = helpers::get_slice_as_mac_timestamp(idx, &db_file_as_bytes, iTunesDB::PLAYLIST_ITEM_ADDED_TIMESTAMP_OFFSET, iTunesDB::PLAYLIST_ITEM_ADDED_TIMESTAMP_LEN);
+
+                write!(playlist_item_info, " | Date added to playlist: {}", playlist_item_added_timestamp).unwrap();
 
                 println!("{}  -----\n", playlist_item_info);
 
@@ -446,9 +489,11 @@ fn main() {
 
                 let mut album_list_info : String = "~~~~~~~".to_string();
 
-                let album_item_total_num_songs = &db_file_as_bytes[idx + iTunesDB::ALBUM_LIST_TOTAL_NUM_SONGS_OFFSET .. idx + iTunesDB::ALBUM_LIST_TOTAL_NUM_SONGS_OFFSET + iTunesDB::ALBUM_LIST_TOTAL_NUM_SONGS_LEN];
+                // let album_item_total_num_songs = &db_file_as_bytes[idx + iTunesDB::ALBUM_LIST_TOTAL_NUM_SONGS_OFFSET .. idx + iTunesDB::ALBUM_LIST_TOTAL_NUM_SONGS_OFFSET + iTunesDB::ALBUM_LIST_TOTAL_NUM_SONGS_LEN];
 
-                write!(album_list_info, " Num songs in Album List: {}", helpers::build_le_u32_from_bytes(album_item_total_num_songs)).unwrap();
+                let album_item_total_num_songs = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::ALBUM_LIST_TOTAL_NUM_SONGS_OFFSET, iTunesDB::ALBUM_LIST_TOTAL_NUM_SONGS_LEN);
+
+                write!(album_list_info, " {} songs in Album List", album_item_total_num_songs).unwrap();
 
                 println!("{}  ~~~~~~~\n", album_list_info);
 
