@@ -10,6 +10,7 @@ use std::array;
 //       * endianness
 //       * radix
 pub fn build_le_u32_from_bytes(bytes: &[u8]) -> u32 {
+
     let mut number: u32 = 0;
     const RADIX: u32 = 256;
 
@@ -20,6 +21,23 @@ pub fn build_le_u32_from_bytes(bytes: &[u8]) -> u32 {
             as u32;
 
         number += (summand as u32) * (*item as u32);
+    }
+
+    return number;
+}
+
+// TODO: Use template function
+pub fn build_le_u64_from_bytes(bytes: &[u8]) -> u64 {
+
+    let mut number: u64 = 0;
+    const RADIX: u64 = 256;
+
+    for (idx, item) in bytes.iter().enumerate() {
+        let summand: u64 = RADIX
+            .checked_pow(idx as u32)
+            .unwrap_or_else(|| panic!("Can't raise {} to power {}", RADIX, idx));
+
+        number += (summand) * (*item as u64);
     }
 
     return number;
@@ -39,13 +57,23 @@ pub fn get_slice_as_le_u32(array_idx : usize, file_as_array: &[u8], file_offset 
     return build_le_u32_from_bytes(&get_slice_from_offset_with_len(array_idx, file_as_array, file_offset, slice_len));
 }
 
+pub fn get_slice_as_le_u64(array_idx : usize, file_as_array: &[u8], file_offset : usize, slice_len : usize) -> u64 {
+
+    if slice_len > 8 {
+        panic!("Can't create u64 out of this large of a slice");
+    }
+
+    return build_le_u64_from_bytes(&get_slice_from_offset_with_len(array_idx, file_as_array, file_offset, slice_len));
+}
+
 pub fn get_slice_as_mac_timestamp(array_idx : usize, file_as_array : &[u8], file_offset : usize, slice_len : usize) -> chrono::DateTime<chrono::Utc> {
 
 
     let epoch_time : u64 = get_slice_as_le_u32(array_idx, file_as_array, file_offset, slice_len) as u64;
 
     if epoch_time == 0 {
-        panic!("Error! Epoch time converted was 0. Check the slice starting at idx {} with len {}, actually contains a valid timestamp", array_idx, slice_len);
+        //panic!("Error! Epoch time converted was 0. Check the slice starting at idx {} with len {}, actually contains a valid timestamp", array_idx, slice_len);
+        eprintln!("Error! Epoch time converted was 0. Check the slice starting at idx {} with len {}, actually contains a valid timestamp", array_idx, slice_len);
     }
 
     return get_timestamp_as_mac(epoch_time);

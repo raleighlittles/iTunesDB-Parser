@@ -320,6 +320,8 @@ fn main() {
 
                 let track_skipped_count = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_SKIPPED_COUNT_OFFSET, iTunesDB::TRACK_ITEM_TRACK_SKIPPED_COUNT_LEN);
 
+                // TODO: WHy are the last played timestamps zero??
+
                 let track_last_played_timestamp = get_slice_as_mac_timestamp(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_OFFSET, iTunesDB::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_LEN);
 
                 let track_last_skipped_timestamp = get_slice_as_mac_timestamp(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_OFFSET, iTunesDB::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_LEN);
@@ -348,7 +350,9 @@ fn main() {
 
                     let num_ending_silence_samples = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_OFFSET, iTunesDB::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_LEN);
 
-                    let num_total_samples = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_LEN);
+                    // let num_total_samples = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_LEN);
+
+                    let num_total_samples = helpers::get_slice_as_le_u64(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_LEN);
 
                     write!(track_item_info, "[Gapless playback info] # of silent samples ({} at start, {} at end) - Total {}\n", num_beginning_silence_samples, num_ending_silence_samples, num_total_samples).unwrap();
                 }
@@ -448,9 +452,9 @@ fn main() {
 
                 let data_object_type_raw = helpers::get_slice_as_le_u32(idx,  &db_file_as_bytes, iTunesDB::DATA_OBJECT_TYPE_OFFSET, iTunesDB::DATA_OBJECT_TYPE_LEN);
 
-                write!(data_object_info, "Type (raw) = {} | ", data_object_type_raw).unwrap();
+                write!(data_object_info, "Type (raw) = {}, Decoded= '{}' | ", data_object_type_raw, iTunesDB::decode_data_object_type(data_object_type_raw)).unwrap();
 
-                if data_object_type_raw < 15 { // Means its a 'string' MHOD
+                if iTunesDB::is_data_object_type_string(data_object_type_raw) { // Means its a 'string' MHOD
         
                     let data_object_string_len = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::DATA_OBJECT_STRING_LENGTH_OFFSET, iTunesDB::DATA_OBJECT_STRING_LENGTH_LEN);
 
@@ -466,7 +470,6 @@ fn main() {
 
                 idx += iTunesDB::DATA_OBJECT_LAST_OFFSET;
             }
-
 
 
             idx += DEFAULT_SUBSTRUCTURE_SIZE;

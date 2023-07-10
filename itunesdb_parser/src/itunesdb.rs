@@ -767,24 +767,177 @@ pub mod iTunesDB {
 
     pub fn is_data_object_type_string(data_object_raw : u32) -> bool {
 
-        return data_object_raw > 15;
+        return data_object_raw < 15;
     }
 
-    pub fn decode_data_object_type(data_object_raw : usize) -> String {
+    pub fn decode_data_object_type(data_object_type_raw : u32) -> String {
 
-        let data_object : String;
+        let mut data_object_type : String = String::new();
 
-        if data_object_raw == 1 {
+        if data_object_type_raw == 1 {
 
-            data_object = "Song title".to_string();
+            data_object_type = "Song title".to_string();
         }
 
-        else if data_object_raw == 2 {
+        else if data_object_type_raw == 2 {
+            data_object_type = "Location (?)".to_string();
+        }
 
+        else if data_object_type_raw == 3 {
+            data_object_type = "Album".to_string();
+        }
+
+        else if data_object_type_raw == 4 {
+            data_object_type = "Artist".to_string();
+        }
+
+        else if data_object_type_raw == 5 {
+            data_object_type = "Genre".to_string();
+        }
+
+        else if data_object_type_raw == 6 {
+            data_object_type = "Filetype".to_string();
+        }
+
+        else if data_object_type_raw == 7 {
+            data_object_type = "EQ Setting".to_string();
+        }
+
+        else if data_object_type_raw == 8 {
+            data_object_type = "Comment".to_string();
+        }
+
+        else if data_object_type_raw == 9 {
+            data_object_type = "Podcast Category".to_string();
+        }
+
+        else if data_object_type_raw == 12 {
+            data_object_type = "Composer".to_string();
+        }
+
+        else if data_object_type_raw == 13 {
+            data_object_type = "Grouping".to_string();
+        }
+
+        else if data_object_type_raw == 14 {
+            data_object_type = "Description text (?)".to_string();
+        }
+
+        else if data_object_type_raw == 15 {
+            data_object_type = "Podcast Enclosure URL".to_string();
+        }
+
+        else if data_object_type_raw == 16 {
+            data_object_type = "Podcdast RSS URL".to_string();
+        }
+
+        else if data_object_type_raw == 17 {
+            data_object_type = "Chapter data (?)".to_string();
+        }
+
+        else if data_object_type_raw == 18 {
+            data_object_type = "Subtitle".to_string();
+        }
+
+        else if data_object_type_raw == 19 {
+            data_object_type = "Television Show".to_string();
+        }
+
+        else if data_object_type_raw == 20 {
+            data_object_type = "Episode #".to_string();
+        }
+
+        else if data_object_type_raw == 21 {
+            data_object_type = "TV Show network".to_string();
+        }
+
+        else if data_object_type_raw == 22 {
+            data_object_type = "Album Artist".to_string();
+        }
+
+        else if data_object_type_raw == 23 {
+            data_object_type = "Artist name".to_string();
+        }
+
+        else if data_object_type_raw == 24 {
+            data_object_type = "Track keywords (?)".to_string();
+        }
+
+        else if data_object_type_raw == 25 {
+            data_object_type = "TV Show locale".to_string();
+        }
+
+        else if data_object_type_raw == 27 {
+            data_object_type = "Title (for sorting)".to_string();
+        }
+
+        else if data_object_type_raw == 28 {
+            data_object_type = "Album (for sorting)".to_string();
+        }
+
+        else if data_object_type_raw == 29 {
+            data_object_type = "Album artist (for sorting)".to_string();
+        }
+
+        else if data_object_type_raw == 30 {
+            data_object_type = "Composer (for sorting)".to_string();
+        }
+
+        else if data_object_type_raw == 31 {
+            data_object_type = "Television Show (for sorting)".to_string();
+        }
+
+        else if data_object_type_raw == 32 {
+            data_object_type = format!("Unknown video track field (#{}), iTunes 7.1+", data_object_type_raw);
+        }
+
+        else if data_object_type_raw == 50 {
+            data_object_type = "Smart Playlist data".to_string();
+        }
+
+        else if data_object_type_raw == 51 {
+            data_object_type = "Smart Playlist rules".to_string();
+        }
+
+        else if data_object_type_raw == 52 {
+            data_object_type = "Library Playlist index".to_string();
+        }
+
+        else if data_object_type_raw == 53 {
+            data_object_type = format!("Unknown type (#{}), iTunes7.2+", data_object_type_raw);
+        }
+
+        else if data_object_type_raw == 100 {
+            data_object_type = format!("Indeterminate field (#{}), either column sizing or order indicator", data_object_type_raw);
+        }
+
+        else if data_object_type_raw == 200 {
+            data_object_type = "Album (from Album List, iTunes 7.1+ only)".to_string();
+        }
+
+        // TODO what is the difference between this and the next entry (202) ???
+        else if data_object_type_raw == 201 {
+            data_object_type = "Artist (in Album List, iTunes 7.1)".to_string();
+        }
+
+        else if data_object_type_raw == 202 {
+            data_object_type = "Artist (for sorting in Album List) - iTunes 7.1+ only".to_string();
+        }
+
+        else if data_object_type_raw == 203 {
+            data_object_type = "Podcast URL (in Album List, iTunes 7.1)".to_string();
+        }
+
+        else if data_object_type_raw == 204 {
+            data_object_type = "TV Show (in Album List)".to_string();
+        }
+
+        else {
+            eprintln!("Unable to decode data object with type #{}", data_object_type_raw);
         }
 
 
-        return data_object;
+        return data_object_type;
 
     }
 
