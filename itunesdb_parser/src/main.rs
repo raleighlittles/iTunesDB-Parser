@@ -1,3 +1,4 @@
+/// Top-level declaration of modules, see: https://stackoverflow.com/questions/46829539
 mod itunesdb;
 mod helpers;
 
@@ -13,7 +14,7 @@ fn main() {
         .nth(1)
         .expect("Missing parameter: iTunes DB filename");
 
-    let itunesdb_file_type : String = std::env::args().nth(2).expect("Missing parameter: iTunes DB file type. Values are: 'music', 'photo' ");
+    let itunesdb_file_type : String = std::env::args().nth(2).expect("Missing parameter: iTunes DB file type. Supported values are: 'music', 'photo'");
 
     let db_file_as_bytes: Vec<u8> = std::fs::read(&itunesdb_filename).unwrap();
 

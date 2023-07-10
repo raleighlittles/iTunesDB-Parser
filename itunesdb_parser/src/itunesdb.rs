@@ -13,9 +13,9 @@
 
 use std::fmt::Write;
 
-use chrono::{DateTime, NaiveDateTime, Utc};
+use crate::helpers;
 
-use self::itunesdb_helpers::get_timestamp_as_mac;
+use chrono::{DateTime, NaiveDateTime, Utc};
 
 pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
 
@@ -33,7 +33,7 @@ pub struct Image {
 /// at a different time
 impl Default for Image {
     fn default() -> Image {
-        return Image{filename: "".to_string(), file_size: 0, original_date_epoch: 0, original_date_ts: get_timestamp_as_mac(0), digitized_date_epoch : 0, digitized_date_ts : get_timestamp_as_mac(0)};
+        return Image{filename: "".to_string(), file_size: 0, original_date_epoch: 0, original_date_ts: helpers::get_timestamp_as_mac(0), digitized_date_epoch : 0, digitized_date_ts : helpers::get_timestamp_as_mac(0)};
     }
 }
 
@@ -42,14 +42,14 @@ impl Image {
     pub fn set_original_date(&mut self, orig_date_epoch : u64) { 
 
         self.original_date_epoch = orig_date_epoch;
-        self.original_date_ts = get_timestamp_as_mac(orig_date_epoch);
+        self.original_date_ts = helpers::get_timestamp_as_mac(orig_date_epoch);
     }
 
 
     pub fn set_digitized_date(&mut self, digitized_date_epoch : u64) {
 
         self.digitized_date_epoch = digitized_date_epoch;
-        self.digitized_date_ts = get_timestamp_as_mac(digitized_date_epoch);
+        self.digitized_date_ts = helpers::get_timestamp_as_mac(digitized_date_epoch);
     }
 }
 
