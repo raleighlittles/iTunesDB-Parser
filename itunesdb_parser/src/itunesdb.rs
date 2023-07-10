@@ -765,6 +765,29 @@ pub mod iTunesDB {
 
     pub const DATA_OBJECT_LAST_OFFSET : usize = 0x18; // 24d
 
+    pub fn is_data_object_type_string(data_object_raw : u32) -> bool {
+
+        return data_object_raw > 15;
+    }
+
+    pub fn decode_data_object_type(data_object_raw : usize) -> String {
+
+        let data_object : String;
+
+        if data_object_raw == 1 {
+
+            data_object = "Song title".to_string();
+        }
+
+        else if data_object_raw == 2 {
+
+        }
+
+
+        return data_object;
+
+    }
+
     // ----- ALBUM LIST ----- //
     pub const ALBUM_LIST_KEY : &str = "mhla";
 
