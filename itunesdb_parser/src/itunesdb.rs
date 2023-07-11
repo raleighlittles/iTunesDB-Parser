@@ -11,10 +11,6 @@
  */
 
 
-
-use std::fmt::{self, Debug, Display, Write};
-use chrono::{DateTime, NaiveDateTime, Utc};
-
 use crate::helpers;
 
 pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
@@ -185,6 +181,10 @@ pub mod photo_database {
 }
 
 pub mod iTunesDB {
+
+    pub struct Song {
+
+    }
 
     // ----- DATABASE OBJECT ----- //
     pub const DATABASE_OBJECT_KEY : &str = "mhbd";
@@ -387,8 +387,8 @@ pub mod iTunesDB {
     pub const TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET : usize = 104;
     pub const TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN : usize = 4;
 
-    pub const TRACK_ITEM_TRACK_BOOKMARK_TIME_MILLISECONDS_OFFSET : usize = 108;
-    pub const TRACK_ITEM_TRACK_BOOKMARK_TIME_MILLISECONDS_LEN : usize = 4;
+    // pub const TRACK_ITEM_TRACK_BOOKMARK_TIME_MILLISECONDS_OFFSET : usize = 108;
+    // pub const TRACK_ITEM_TRACK_BOOKMARK_TIME_MILLISECONDS_LEN : usize = 4;
 
     pub const TRACK_ITEM_TRACK_PREVIOUS_RATING_OFFSET : usize = 121;
     pub const TRACK_ITEM_TRACK_PREVIOUS_RATING_LEN : usize = 1;
@@ -418,8 +418,8 @@ pub mod iTunesDB {
     pub const TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET : usize = 165;
     pub const TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_LEN : usize = 1;
 
-    pub const TRACK_ITEM_TRACK_REMEMBER_PLAYBACK_POSITION_SETTING_OFSET : usize = 166;
-    pub const TRACK_ITEM_TRACK_REMEMBER_PLAYBACK_POSITION_SETTING_LEN : usize = 1;
+    // pub const TRACK_ITEM_TRACK_REMEMBER_PLAYBACK_POSITION_SETTING_OFSET : usize = 166;
+    // pub const TRACK_ITEM_TRACK_REMEMBER_PLAYBACK_POSITION_SETTING_LEN : usize = 1;
 
     pub const TRACK_ITEM_TRACK_LYRICS_AVAILABLE_SETTING_OFFSET : usize = 176;
     pub const TRACK_ITEM_TRACK_LYRICS_AVAILABLE_SETTING_LEN : usize = 1;
@@ -557,53 +557,66 @@ pub mod iTunesDB {
         return suspected_track_type;
     }
 
-    pub fn decode_track_media_type(track_media_type_raw : &[u8]) -> String {
+    pub enum MediaType {
+        
+        AUDIO_VISUAL = 1,
+        PODCAST = 2,
+        TELEVISION = 3
+    }
 
-        let media_type : String;
+    pub fn decode_track_media_type(track_media_type_raw : &[u8]) -> (String, MediaType) {
+
+        let media_type_name : String;
+        let mut media_type = MediaType::AUDIO_VISUAL;
 
         let conditional_byte = track_media_type_raw[0];
 
         if conditional_byte == 0x00 {
-            media_type = "Audio/Video".to_string();
+            media_type_name = "Audio/Video".to_string();
         }
 
         else if conditional_byte == 0x01 {
-            media_type = "Audio".to_string();
+            media_type_name = "Audio".to_string();
         }
 
         else if conditional_byte == 0x02 {
-            media_type = "Video".to_string();
+            media_type_name = "Video".to_string();
         }
 
         else if conditional_byte == 0x04 {
-            media_type = "Podcast".to_string();
+            media_type_name = "Podcast".to_string();
+            media_type = MediaType::PODCAST;
         }
 
         else if conditional_byte == 0x06 {
-            media_type = "Video Podcast".to_string();
+            media_type_name = "Video Podcast".to_string();
+            media_type = MediaType::PODCAST;
         }
 
         else if conditional_byte == 0x08 {
-            media_type = "Audiobook".to_string();
+            media_type_name = "Audiobook".to_string();
         }
 
         else if conditional_byte == 0x20 /* 32d */ {
-            media_type = "Music Video".to_string();
+            media_type_name = "Music Video".to_string();
         }
 
         else if conditional_byte == 0x40 /* 64d */ {
-            media_type = "TV Show (only!)".to_string();
+            media_type_name = "TV Show (only!)".to_string();
+            media_type = MediaType::TELEVISION;
         }
 
         else if conditional_byte == 0x60 /* 96d */ {
-            media_type = "TV show (hybrid w/ Music)".to_string();
+            media_type_name = "TV show (hybrid w/ Music)".to_string();
+            media_type = MediaType::TELEVISION;
         }
 
         else {
-            media_type = "N/A".to_string();
+            //media_type_name = "N/A".to_string();
+            media_type_name = format!("Unknown {}", conditional_byte);
         }
 
-        return media_type;
+        return (media_type_name, media_type);
     }
 
 
@@ -813,7 +826,7 @@ pub mod iTunesDB {
         }
 
         else if data_object_type_raw == 2 {
-            data_object_type = "Location (?)".to_string();
+            data_object_type = "File location".to_string();
         }
 
         else if data_object_type_raw == 3 {
@@ -984,9 +997,6 @@ pub mod iTunesDB {
 
     // ----- ALBUM ITEM ----- //
     pub const ALBUM_ITEM_KEY : &str = "mhia";
-
-    pub const ALBUM_ITEM_UNKNOWN_TIMESTAMP_OFFSET : usize = 20;
-    pub const ALBUM_ITEM_UNKNOWN_TIMESTAMP_LEN : usize = 8;
 
     pub const ALBUM_ITEM_LAST_OFFSET : usize = 32;
 }

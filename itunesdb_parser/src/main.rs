@@ -277,7 +277,21 @@ fn main() {
 
                 let track_media_type_raw =  &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_MEDIA_TYPE_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_MEDIA_TYPE_OFFSET + iTunesDB::TRACK_ITEM_TRACK_MEDIA_TYPE_LEN];
 
-                write!(track_item_info, "Media Type: {} | ", iTunesDB::decode_track_media_type(track_media_type_raw)).unwrap();
+                let track_movie_file_flag = get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_MOVIE_FLAG_SETTING_OFFSET, iTunesDB::TRACK_ITEM_TRACK_MOVIE_FLAG_SETTING_LEN);
+
+                let (track_media_type_name, track_media_type_enum) = iTunesDB::decode_track_media_type(track_media_type_raw);
+
+                write!(track_item_info, "Movie file flag: {} | Media Type: {} \n", (track_movie_file_flag == 1), track_media_type_name).unwrap();
+
+                //if track_media_type_enum == iTunesDB::MediaType::TELEVISION {
+                if matches!(track_media_type_enum, iTunesDB::MediaType::TELEVISION) {
+
+                    let season_number = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_SEASON_NUMBER_OFFSET, iTunesDB::TRACK_ITEM_TRACK_SEASON_NUMBER_LEN);
+
+                    let episode_number = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_EPISODE_NUMBER_OFFSET, iTunesDB::TRACK_ITEM_TRACK_EPISODE_NUMBER_LEN);
+
+                    write!(track_item_info, "Season #{} Episode #{}", season_number, episode_number).unwrap();
+                }
 
                 let track_advanced_audio_type = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_ADVANCED_TRACK_TYPE_OFFSET, iTunesDB::TRACK_ITEM_ADVANCED_TRACK_TYPE_LEN);
 
@@ -357,6 +371,10 @@ fn main() {
                     write!(track_item_info, "[Gapless playback info] # of silent samples ({} at start, {} at end) - Total {}\n", num_beginning_silence_samples, num_ending_silence_samples, num_total_samples).unwrap();
                 }
 
+                let track_crossfade_setting = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_CROSSFADING_SETTING_OFFSET , iTunesDB::TRACK_ITEM_TRACK_CROSSFADING_SETTING_LEN);
+
+                write!(track_item_info, "Crossfade: {} | ", (if track_crossfade_setting == 1 {"Enabled"} else {"Disabled"})).unwrap();
+
                 let track_has_artwork_setting = &db_file_as_bytes[idx + iTunesDB::TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_OFFSET .. idx + iTunesDB::TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_OFFSET + iTunesDB::TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_LEN];
 
                 // TODO: Encapsulate this logic elsewhere
@@ -434,17 +452,17 @@ fn main() {
 
             }
 
-            else if potential_section_heading == iTunesDB::ALBUM_ITEM_KEY.as_bytes() {
+            // else if potential_section_heading == iTunesDB::ALBUM_ITEM_KEY.as_bytes() {
 
-                let mut album_item_info : String = "######## Album item found! | ".to_string();
+            //     let album_item_info : String = "######## Album item found! | ".to_string();
 
-                // write!(album_item_info, " {} ########\n", itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(album_item_unknown_timestamp_raw) as u64)).unwrap();
+            //     // write!(album_item_info, " {} ########\n", itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(album_item_unknown_timestamp_raw) as u64)).unwrap();
 
-                println!("{} ########\n", album_item_info);
+            //     println!("{} ########\n", album_item_info);
 
-                idx += iTunesDB::ALBUM_ITEM_LAST_OFFSET;
+            //     idx += iTunesDB::ALBUM_ITEM_LAST_OFFSET;
 
-            }
+            // }
             
             else if potential_section_heading == iTunesDB::DATA_OBJECT_KEY.as_bytes() {
 
