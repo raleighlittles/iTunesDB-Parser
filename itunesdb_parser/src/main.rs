@@ -106,7 +106,8 @@ fn main() {
 
                 idx += photo_database::IMAGE_NAME_LAST_OFFSET;
 
-                curr_img.file_size = image_name_img_size as u64;
+                //curr_img.file_size_bytes = image_name_img_size as u64;
+                curr_img.set_filesize(image_name_img_size as u64);
             }
             // Parse Photo Album
             else if potential_photo_section_heading == photo_database::PHOTO_ALBUM_KEY.as_bytes()
@@ -141,26 +142,31 @@ fn main() {
                         // TODO: Figure out why I'm off by a width of 4 on the length.
                         // Same issue with UTF-16 encoding (below)
 
-                        let data_object_subcontainer_data = std::str::from_utf8(
-                            &db_file_as_bytes[idx + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET + 4
-                                ..idx
-                                    + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET
-                                    + data_object_subcontainer_str_len as usize
-                                    + 4],
-                        )
-                        .expect("Can't parse MHOD string");
+                        // let data_object_subcontainer_data = std::str::from_utf8(
+                        //     &db_file_as_bytes[idx + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET + 4
+                        //         ..idx
+                        //             + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET
+                        //             + data_object_subcontainer_str_len as usize
+                        //             + 4],
+                        // )
+                        // .expect("Can't parse MHOD string");
+
+                        let data_object_string_bytes = get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET, data_object_subcontainer_str_len as usize);
+
+                        let data_object_subcontainer_data = std::str::from_utf8(&data_object_string_bytes).expect("Can't convert UTF-8 array to MHOD string");
 
                         //println!("MHOD substring = {}", data_object_subcontainer_data);
 
-                        curr_img.filename = data_object_subcontainer_data.to_string();
+                        //curr_img.filename = data_object_subcontainer_data.to_string();
+                        curr_img.set_filename(data_object_subcontainer_data.to_string());
 
                     } else if data_object_subcontainer_encoding == 2 {
 
-                        let data_object_pairwise_combined = &helpers::return_utf16_from_utf8(&helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET + 4, (data_object_subcontainer_str_len + 4) as usize));
+                        let data_object_pairwise_combined = &helpers::return_utf16_from_utf8(&helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET, (data_object_subcontainer_str_len + 4) as usize));
 
                         let data_object_subcontainer_data =
                             String::from_utf16(&data_object_pairwise_combined)
-                                .expect("Can't convert UTF-16 array to string");
+                                .expect("Can't convert UTF-16 array to MHOD string");
 
                         //println!("MHOD substring = {}", data_object_subcontainer_data);
 
@@ -187,7 +193,7 @@ fn main() {
                 // Once you've parsed the data object, all properties for the "current" image have been set
                 // so store the current one, then 'reset' it
 
-                if (curr_img.filename.len() > 0) && (curr_img.file_size > 0) && (curr_img.original_date_epoch != 0) && (curr_img.digitized_date_epoch != 0) {
+                if (curr_img.filename.len() > 0) && (curr_img.file_size_bytes > 0) && (curr_img.original_date_epoch != 0) && (curr_img.digitized_date_epoch != 0) {
                     images_found.push(curr_img);
                     curr_img = itunesdb::Image::default();
                 }
@@ -200,7 +206,7 @@ fn main() {
         println!("{} images found", images_found.len());
 
         for image in images_found.iter() {
-            println!("Image name = {}, Image size = {}", image.filename, image.file_size);
+            println!("Image filename = {}, Image size (raw) = {}, Image size = {}", image.filename, image.file_size_bytes, image.file_size_human_readable);
         }
 
     } else if itunesdb_file_type == "music" {

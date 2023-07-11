@@ -3,6 +3,7 @@
  * File: helpers.rs
  *
  */
+use std::str;
 
 // TODO: Once Rust adds support for default arguments, add the following arguments:
 //       * endianness
@@ -104,6 +105,13 @@ pub fn get_timestamp_as_mac(mac_timestamp : u64) -> chrono::DateTime<chrono::Utc
 }
 
 
-// TODO: Add function to take in a raw number of bytes, and print it as either KB, or MB, depending on whichever is appropriate (leaving it between 1-10)
+// This doesn't seem to be explicitly mentioned in the iTunesDB wiki,
+// but the iTunesDB files use colons instead of forward slashes for directories
+// e.g. `home/user/dir1/file.txt` becomes `home:user:dir1:file.txt`
+pub fn get_canonical_path(itunesdb_format_path : String) -> String {
+
+    return str::replace(&itunesdb_format_path, ":", "/");
+}
+
 
 // TODO add function for converting time in seconds, to time in minutes and seconds

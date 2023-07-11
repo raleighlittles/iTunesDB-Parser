@@ -17,7 +17,8 @@ pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
 
 pub struct Image {
     pub filename : String,
-    pub file_size: u64,
+    pub file_size_bytes: u64,
+    pub file_size_human_readable : String,
     pub original_date_epoch: u64,
     original_date_ts : chrono::DateTime<chrono::Utc>,
     pub digitized_date_epoch : u64,
@@ -28,8 +29,10 @@ pub struct Image {
 /// since each property/field of the image struct will be populated
 /// at a different time
 impl Default for Image {
+
     fn default() -> Image {
-        return Image{filename: "".to_string(), file_size: 0, original_date_epoch: 0, original_date_ts: helpers::get_timestamp_as_mac(0), digitized_date_epoch : 0, digitized_date_ts : helpers::get_timestamp_as_mac(0)};
+
+        return Image{filename: "".to_string(), file_size_bytes: 0, file_size_human_readable: "".to_string(), original_date_epoch: 0, original_date_ts: helpers::get_timestamp_as_mac(0), digitized_date_epoch : 0, digitized_date_ts : helpers::get_timestamp_as_mac(0)};
     }
 }
 
@@ -41,11 +44,47 @@ impl Image {
         self.original_date_ts = helpers::get_timestamp_as_mac(orig_date_epoch);
     }
 
+    pub fn set_filesize(&mut self, filesize_in_bytes : u64) {
+
+        self.file_size_bytes = filesize_in_bytes;
+
+        const ONE_MB_AS_BYTES : f64 = 1000000_f64;
+        const ONE_KB_AS_BYTES : f64 = 1000_f64;
+
+        // Shows the size of the size of the image, in whatever the most
+        // appropriate is, specifically, chooses the largest possible unit
+        // that still results in a greater-than-1 value
+        // ie. "1245916" will be shown as "1.245 MB", because
+        // with KB, the value would be 1245.916 KB, but with GB
+        // it would be smaller than 1
+        let human_readable_size : String;
+
+        let size_in_kb = filesize_in_bytes as f64 / ONE_KB_AS_BYTES;
+        let size_in_mb = filesize_in_bytes as f64 / ONE_MB_AS_BYTES;
+
+        if size_in_mb < 1.0f64 {
+
+            // Megabytes was too small, choose the next smallest unit
+
+            human_readable_size = format!("{:.2} KB", size_in_kb);
+        } else {
+            human_readable_size = format!("{:.2} MB", size_in_mb);
+        }
+
+        self.file_size_human_readable = human_readable_size;
+
+    }
+
 
     pub fn set_digitized_date(&mut self, digitized_date_epoch : u64) {
 
         self.digitized_date_epoch = digitized_date_epoch;
         self.digitized_date_ts = helpers::get_timestamp_as_mac(digitized_date_epoch);
+    }
+
+    pub fn set_filename(&mut self, filename : String) {
+
+        self.filename = super::helpers::get_canonical_path(filename);
     }
 }
 
