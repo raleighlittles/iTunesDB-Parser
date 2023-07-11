@@ -11,11 +11,11 @@
  */
 
 
-use std::fmt::Write;
+
+use std::fmt::{self, Debug, Display, Write};
+use chrono::{DateTime, NaiveDateTime, Utc};
 
 use crate::helpers;
-
-use chrono::{DateTime, NaiveDateTime, Utc};
 
 pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
 
@@ -139,6 +139,16 @@ pub mod photo_database {
         FILE_NAME = 3,
         CONTAINER = 5
     }
+
+    // impl std::fmt::Display for MhodType {
+
+    //     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    //         write!(f, "{:?}", self);
+    //         // or, alternatively:
+    //         //std::fmt::Debug::fmt(self, f);
+    //     }
+
+    // }
 
     /// See "MHOD types" table in Photos Database section
     pub fn decode_mhod_type(mhod_type : u16) -> String {
@@ -498,7 +508,7 @@ pub mod iTunesDB {
             formatted_track_length_info.push_str(&format!(" | w/ offset: {} seconds (Start ~ {}s, Stop ~{}s)", played_track_length_ms / 1000, start_time_offset_ms / 1000, stop_time_offset_ms / 1000).to_owned());
         }
 
-        return formatted_track_length_info 
+        return formatted_track_length_info;
         
     }
 
@@ -765,9 +775,32 @@ pub mod iTunesDB {
 
     pub const DATA_OBJECT_LAST_OFFSET : usize = 0x18; // 24d
 
+    pub enum HandleableDataObjectType {
+
+        PODCAST_ENCLOSURE_URL = 15,
+        PODCAST_RSS_URL = 16
+    }
+
     pub fn is_data_object_type_string(data_object_raw : u32) -> bool {
 
         return data_object_raw < 15;
+    }
+
+    pub fn decode_podcast_urls(mhod_start_idx : usize, file_as_bytes : &[u8]) -> String {
+        
+        //let mut podcast_url : String;
+
+        let header_len_offset = 4;
+        let total_length_offset = 8;
+        let element_header_length = super::helpers::get_slice_as_le_u32(mhod_start_idx, file_as_bytes, header_len_offset, super::DEFAULT_SUBSTRUCTURE_SIZE);
+        let total_length = super::helpers::get_slice_as_le_u32(mhod_start_idx, file_as_bytes, total_length_offset, super::DEFAULT_SUBSTRUCTURE_SIZE);
+
+        let podcast_url_length = total_length - element_header_length;
+        let podcast_url_offset : usize = 24;
+
+        let podcast_url = std::str::from_utf8(&file_as_bytes[mhod_start_idx + podcast_url_offset .. mhod_start_idx + podcast_url_offset + podcast_url_length as usize]).expect("Can't decode podcast URL");
+
+        return podcast_url.to_string();
     }
 
     pub fn decode_data_object_type(data_object_type_raw : u32) -> String {

@@ -1,8 +1,8 @@
-/// Top-level declaration of modules, see: https://stackoverflow.com/questions/46829539
-mod itunesdb;
-mod helpers;
-
 use std::fmt::Write;
+
+/// Top-level declaration of modules, see: https://stackoverflow.com/questions/46829539
+mod helpers;
+mod itunesdb;
 
 //use csv::Writer;
 
@@ -464,6 +464,16 @@ fn main() {
                     let data_object_str = String::from_utf16(&helpers::return_utf16_from_utf8(&data_object_str_bytes)).expect("Can't decode string to UTF-16");
 
                     write!(data_object_info, "Length= {} | Value: '{}'", data_object_string_len, data_object_str).unwrap();
+                }
+
+                else {
+
+                    if (data_object_type_raw == iTunesDB::HandleableDataObjectType::PODCAST_ENCLOSURE_URL as u32) || (data_object_type_raw == iTunesDB::HandleableDataObjectType::PODCAST_RSS_URL as u32) {
+
+                        let podcast_url = iTunesDB::decode_podcast_urls(idx, &db_file_as_bytes);
+
+                        write!(data_object_info, "Podcast discovered, with URL: {}", podcast_url).unwrap();
+                    }
                 }
 
                 println!("{} %%%%%%% \r\n", data_object_info);
