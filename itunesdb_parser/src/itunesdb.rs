@@ -1,21 +1,12 @@
 /**
  * File: itunesdb.rs
  *
- * Provides the iTunesDB constants, and associated functionality. See itunesdb-doc for more info.
- * Constants are split into "sections", ie 'Image List', 'Image Item'. Each section has a header,
- * and within that header are fields, which have two values associated with them:
- * (1) an offset -- where it is found in the header structure
- * (2) a length.
- *
- * Each section of constants has a "last offset" value that indicates the offset of the last item in the header.
+ * Provides functionality for working with the iTunesDB file. See itunesdb-doc for more info,
+ * or: http://www.ipodlinux.org/ITunesDB/#iTunesDB_file
+ * 
  */
 
-
-use crate::helpers;
-
-
-
-pub mod iTunesDB {
+pub mod itunesdb {
 
     pub struct Song {
         pub file_extension : String,

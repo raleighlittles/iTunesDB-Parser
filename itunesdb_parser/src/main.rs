@@ -1,11 +1,16 @@
 use std::fmt::Write;
 
+// use crate::photo_database_constants::photo_database_constants::*;
+// use crate::itunesdb_constants::itunesdb_constants::*;
+
 /// Top-level declaration of modules, see: https://stackoverflow.com/questions/46829539
 mod helpers;
+mod itunesdb_constants;
 mod itunesdb;
+mod photo_database_constants;
+mod photo_database;
 
-use crate::itunesdb::*;
-use crate::helpers::*;
+use crate::itunesdb_constants::*;
 
 fn main() {
     let itunesdb_filename: String = std::env::args()
@@ -30,19 +35,19 @@ fn main() {
         // Setup CSV file
         let mut csv_writer = csv::Writer::from_path(itunesdb_filename.clone() + ".csv").expect(&format!("Can't initialize CSV file for output of '{}'", itunesdb_file_type));
 
-        let mut images_found : Vec<itunesdb::Image> = Vec::new();
+        let mut images_found : Vec<photo_database::Image> = Vec::new();
 
-        let mut curr_img = itunesdb::Image::default();
+        let mut curr_img = photo_database::Image::default();
 
         let mut idx = 0;
 
         while idx < db_file_as_bytes.len() {
 
-            let potential_photo_section_heading = &db_file_as_bytes[idx .. idx + DEFAULT_SUBSTRUCTURE_SIZE];
+            let potential_photo_section_heading = &db_file_as_bytes[idx .. idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
 
-            if potential_photo_section_heading == photo_database::IMAGE_LIST_KEY.as_bytes()
+            if potential_photo_section_heading == photo_database_constants::IMAGE_LIST_KEY.as_bytes()
             {
-                let image_list_num_images = get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_LIST_NUM_IMAGES_OFFSET, photo_database::IMAGE_LIST_NUM_IMAGES_LEN);
+                let image_list_num_images = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database_constants::IMAGE_LIST_NUM_IMAGES_OFFSET, photo_database_constants::IMAGE_LIST_NUM_IMAGES_LEN);
 
                 println!(
                     "{} images found in file {}", image_list_num_images, itunesdb_filename
@@ -51,15 +56,15 @@ fn main() {
                 num_image_lists += 1;
 
                 // Done parsing the header, move the index forward up to the end of it
-                idx += photo_database::IMAGE_LIST_LAST_OFFSET;
+                idx += photo_database_constants::IMAGE_LIST_LAST_OFFSET;
             }
             // Parse Image Item
-            else if potential_photo_section_heading == photo_database::IMAGE_ITEM_KEY.as_bytes()
+            else if potential_photo_section_heading == photo_database_constants::IMAGE_ITEM_KEY.as_bytes()
             {
 
-                let image_item_rating = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_RATING_OFFSET, photo_database::IMAGE_ITEM_RATING_LEN);
+                let image_item_rating = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database_constants::IMAGE_ITEM_RATING_OFFSET, photo_database_constants::IMAGE_ITEM_RATING_LEN);
 
-                let image_item_orig_date_timestamp_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET, photo_database::IMAGE_ITEM_ORIG_DATE_LEN);
+                let image_item_orig_date_timestamp_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database_constants::IMAGE_ITEM_ORIG_DATE_OFFSET, photo_database_constants::IMAGE_ITEM_ORIG_DATE_LEN);
 
 
                 let image_item_digitized_timestamp_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_DIGITIZED_DATE_OFFSET, photo_database::IMAGE_ITEM_DIGITIZED_DATE_LEN);
@@ -210,7 +215,7 @@ fn main() {
             let potential_section_heading = &db_file_as_bytes[idx .. idx + DEFAULT_SUBSTRUCTURE_SIZE];
 
             // Parse Database Object
-            if potential_section_heading == iTunesDB::DATABASE_OBJECT_KEY.as_bytes() {
+            if potential_section_heading == itunesdb_constants::itunesdb_constants::DATABASE_OBJECT_KEY.as_bytes() {
 
                 let db_language_raw = get_slice_from_offset_with_len(idx, &db_file_as_bytes, iTunesDB::DATABASE_OBJECT_LANGUAGE_OFFSET, iTunesDB::DATABASE_OBJECT_LANGUAGE_LEN);
 

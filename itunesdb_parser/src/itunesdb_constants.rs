@@ -1,3 +1,16 @@
+/**
+ * File: itunesdb_constants.rs
+ * 
+ * Provides the different constants needed to index info inside of the iTunesDB file.
+ * 
+ * Constants are split into "sections", ie 'Image List', 'Image Item'. Each section has a header,
+ * and within that header are fields, which have two values associated with them:
+ * (1) an offset -- where it is found in the header structure
+ * (2) a length.
+ *
+ * Each section of constants has a "last offset" value that indicates the offset of the last item in the header.
+ */
+
 pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
 
 pub mod itunesdb_constants {
@@ -177,42 +190,43 @@ pub mod itunesdb_constants {
 
     pub const PLAYLIST_LAST_OFFSET: usize = 48;
 
-        // ----- PLAYLIST ITEM ----- //
-        pub const PLAYLIST_ITEM_KEY : &str = "mhip";
-    
-        pub const PLAYLIST_ITEM_ADDED_TIMESTAMP_OFFSET : usize = 28;
-        pub const PLAYLIST_ITEM_ADDED_TIMESTAMP_LEN : usize = 4;
-    
-        pub const PLAYLIST_ITEM_LAST_OFFSET : usize = 36;
-    
-        // ----- DATA OBJECT ----- //
-    
-        pub const DATA_OBJECT_KEY : &str = "mhod";
-    
-        // Must parse this first, to decide how to handle the rest of the object
-    
-        pub const DATA_OBJECT_TYPE_OFFSET : usize = 12;
-        pub const DATA_OBJECT_TYPE_LEN : usize = 4;
-    
-        pub const DATA_OBJECT_STRING_LENGTH_OFFSET : usize = 28;
-        pub const DATA_OBJECT_STRING_LENGTH_LEN : usize = 4;
-    
-        // This is where the actual string (for string mhod-types only! is held)
-        // Use the length you derived above to index it
-        pub const DATA_OBJECT_STRING_LOCATION_OFFSET : usize = 40;
-    
-        pub const DATA_OBJECT_LAST_OFFSET : usize = 0x18; // 24d
+    // ----- PLAYLIST ITEM ----- //
+    pub const PLAYLIST_ITEM_KEY: &str = "mhip";
 
-            // ----- ALBUM LIST ----- //
-    pub const ALBUM_LIST_KEY : &str = "mhla";
+    pub const PLAYLIST_ITEM_ADDED_TIMESTAMP_OFFSET: usize = 28;
+    pub const PLAYLIST_ITEM_ADDED_TIMESTAMP_LEN: usize = 4;
 
-    pub const ALBUM_LIST_TOTAL_NUM_SONGS_OFFSET : usize = 8;
-    pub const ALBUM_LIST_TOTAL_NUM_SONGS_LEN : usize = 4;
+    pub const PLAYLIST_ITEM_LAST_OFFSET: usize = 36;
 
-    pub const ALBUM_LIST_LAST_OFFSET : usize = 12;
+    // ----- DATA OBJECT ----- //
+
+    pub const DATA_OBJECT_KEY: &str = "mhod";
+
+    // Must parse this first, to decide how to handle the rest of the object
+
+    pub const DATA_OBJECT_TYPE_OFFSET: usize = 12;
+    pub const DATA_OBJECT_TYPE_LEN: usize = 4;
+
+    pub const DATA_OBJECT_STRING_LENGTH_OFFSET: usize = 28;
+    pub const DATA_OBJECT_STRING_LENGTH_LEN: usize = 4;
+
+    // This is where the actual string (for string mhod-types only! is held)
+    // Use the length you derived above to index it
+    pub const DATA_OBJECT_STRING_LOCATION_OFFSET: usize = 40;
+
+    pub const DATA_OBJECT_LAST_OFFSET: usize = 0x18; // 24d
+
+    // ----- ALBUM LIST ----- //
+    pub const ALBUM_LIST_KEY: &str = "mhla";
+
+    pub const ALBUM_LIST_TOTAL_NUM_SONGS_OFFSET: usize = 8;
+    pub const ALBUM_LIST_TOTAL_NUM_SONGS_LEN: usize = 4;
+
+    pub const ALBUM_LIST_LAST_OFFSET: usize = 12;
 
     // ----- ALBUM ITEM ----- //
-    pub const ALBUM_ITEM_KEY : &str = "mhia";
+    pub const ALBUM_ITEM_KEY: &str = "mhia";
 
-    pub const ALBUM_ITEM_LAST_OFFSET : usize = 32;
+    pub const ALBUM_ITEM_LAST_OFFSET: usize = 32;
+
 }

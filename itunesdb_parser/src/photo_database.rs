@@ -23,7 +23,7 @@ impl Default for Image {
 
     fn default() -> Image {
 
-        return Image{filename: "".to_string(), file_size_bytes: 0, file_size_human_readable: "".to_string(), original_date_epoch: 0, original_date_ts: helpers::get_timestamp_as_mac(0), digitized_date_epoch : 0, digitized_date_ts : helpers::get_timestamp_as_mac(0)};
+        return Image{filename: "".to_string(), file_size_bytes: 0, file_size_human_readable: "".to_string(), original_date_epoch: 0, original_date_ts: get_timestamp_as_mac(0), digitized_date_epoch : 0, digitized_date_ts : helpers::get_timestamp_as_mac(0)};
     }
 }
 
