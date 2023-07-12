@@ -74,9 +74,7 @@ fn main() {
                 idx += photo_database::IMAGE_ITEM_LAST_OFFSET;
 
                 // Populate existing image with properties
-                //curr_img.original_date_epoch = image_item_orig_date_timestamp_raw as u64;
                 curr_img.set_original_date(image_item_orig_date_timestamp_raw as u64);
-                //curr_img.digitized_date_epoch = image_item_digitized_timestamp_raw as u64;
                 curr_img.set_digitized_date(image_item_digitized_timestamp_raw as u64);
             }
             // Parse Image Name
@@ -139,22 +137,12 @@ fn main() {
                         // TODO: Figure out why I'm off by a width of 4 on the length.
                         // Same issue with UTF-16 encoding (below)
 
-                        // let data_object_subcontainer_data = std::str::from_utf8(
-                        //     &db_file_as_bytes[idx + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET + 4
-                        //         ..idx
-                        //             + photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET
-                        //             + data_object_subcontainer_str_len as usize
-                        //             + 4],
-                        // )
-                        // .expect("Can't parse MHOD string");
-
                         let data_object_string_bytes = get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET, data_object_subcontainer_str_len as usize);
 
                         let data_object_subcontainer_data = std::str::from_utf8(&data_object_string_bytes).expect("Can't convert UTF-8 array to MHOD string");
 
                         //println!("MHOD substring = {}", data_object_subcontainer_data);
 
-                        //curr_img.filename = data_object_subcontainer_data.to_string();
                         curr_img.set_filename(data_object_subcontainer_data.to_string());
 
                     } else if data_object_subcontainer_encoding == 2 {
@@ -165,7 +153,7 @@ fn main() {
                             String::from_utf16(&data_object_pairwise_combined)
                                 .expect("Can't convert UTF-16 array to MHOD string");
 
-                        //println!("MHOD substring = {}", data_object_subcontainer_data);
+                        // println!("MHOD substring = {}", data_object_subcontainer_data);
 
                         curr_img.set_filename(data_object_subcontainer_data.to_string());
                     }
