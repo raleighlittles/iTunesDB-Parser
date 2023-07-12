@@ -107,10 +107,13 @@ pub fn get_timestamp_as_mac(mac_timestamp : u64) -> chrono::DateTime<chrono::Utc
 
 // This doesn't seem to be explicitly mentioned in the iTunesDB wiki,
 // but the iTunesDB files use colons instead of forward slashes for directories
-// e.g. `home/user/dir1/file.txt` becomes `home:user:dir1:file.txt`
+// e.g. "E::DCIM:129CANON:IMG_2470.JPG" actually represents "E::DCIM/129CANON/IMG_2470.jpg"
+// The first set of double colons is the disk letter (in this case 'E'), like in Windows,
+// so we skip the drive letter and the double colons, only printing the actual path
+// (e.g. starting with 'DCIM/...')
 pub fn get_canonical_path(itunesdb_format_path : String) -> String {
 
-    return str::replace(&itunesdb_format_path, ":", "/");
+    return str::replace(&itunesdb_format_path[3..], ":", "/");
 }
 
 

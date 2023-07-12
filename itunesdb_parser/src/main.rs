@@ -4,8 +4,6 @@ use std::fmt::Write;
 mod helpers;
 mod itunesdb;
 
-//use csv::Writer;
-
 use crate::itunesdb::*;
 use crate::helpers::*;
 
@@ -30,7 +28,7 @@ fn main() {
         println!("Parsing photo file: {}", itunesdb_filename);
 
         // Setup CSV file
-        let mut csv_writer = csv::Writer::from_path(itunesdb_filename.clone() + ".csv");
+        let mut csv_writer = csv::Writer::from_path(itunesdb_filename.clone() + ".csv").expect(&format!("Can't initialize CSV file for output of '{}'", itunesdb_file_type));
 
         let mut images_found : Vec<itunesdb::Image> = Vec::new();
 
@@ -60,7 +58,6 @@ fn main() {
             {
 
                 let image_item_rating = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_RATING_OFFSET, photo_database::IMAGE_ITEM_RATING_LEN);
-
 
                 let image_item_orig_date_timestamp_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database::IMAGE_ITEM_ORIG_DATE_OFFSET, photo_database::IMAGE_ITEM_ORIG_DATE_LEN);
 
@@ -162,7 +159,7 @@ fn main() {
 
                     } else if data_object_subcontainer_encoding == 2 {
 
-                        let data_object_pairwise_combined = &helpers::return_utf16_from_utf8(&helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET, (data_object_subcontainer_str_len + 4) as usize));
+                        let data_object_pairwise_combined = &helpers::return_utf16_from_utf8(&helpers::get_slice_from_offset_with_len(idx, &db_file_as_bytes, photo_database::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET + 4, (data_object_subcontainer_str_len) as usize));
 
                         let data_object_subcontainer_data =
                             String::from_utf16(&data_object_pairwise_combined)
@@ -170,7 +167,7 @@ fn main() {
 
                         //println!("MHOD substring = {}", data_object_subcontainer_data);
 
-                        curr_img.filename = data_object_subcontainer_data;
+                        curr_img.set_filename(data_object_subcontainer_data.to_string());
                     }
 
                     // println!(
@@ -192,8 +189,8 @@ fn main() {
 
                 // Once you've parsed the data object, all properties for the "current" image have been set
                 // so store the current one, then 'reset' it
+                if (curr_img.filename.len() > 0) && (curr_img.file_size_bytes > 0) && (curr_img.are_dates_valid()) {
 
-                if (curr_img.filename.len() > 0) && (curr_img.file_size_bytes > 0) && (curr_img.original_date_epoch != 0) && (curr_img.digitized_date_epoch != 0) {
                     images_found.push(curr_img);
                     curr_img = itunesdb::Image::default();
                 }
@@ -203,11 +200,18 @@ fn main() {
 
         } // end while
 
-        println!("{} images found", images_found.len());
+        // println!("{} images found", images_found.len());
+
+        // Setup columns of CSV file
+        // TODO see if there's a way to get the struct field names as strings?
+        csv_writer.write_record(&["Filename", "File size (bytes)", "File size", "Original Date (Mac epoch)", "Original Date", "Digitized Date (Mac epoch)", "Digitized Date"]).expect("Can't create CSV headers");
 
         for image in images_found.iter() {
-            println!("Image filename = {}, Image size (raw) = {}, Image size = {}", image.filename, image.file_size_bytes, image.file_size_human_readable);
-        }
+            //println!("Image filename = {}, Image size (raw) = {}, Image size = {}", image.filename, image.file_size_bytes, image.file_size_human_readable);
+            
+            // Need quotes around filename in case there's spaces in it
+            csv_writer.write_record(&[format!("'{}'", image.filename.to_string()), image.file_size_bytes.to_string(), image.file_size_human_readable.to_string(), image.original_date_epoch.to_string(), image.original_date_ts.to_string(), image.digitized_date_epoch.to_string(), image.digitized_date_ts.to_string()]).expect("Can't write row");
+         }
 
     } else if itunesdb_file_type == "music" {
 

@@ -20,9 +20,9 @@ pub struct Image {
     pub file_size_bytes: u64,
     pub file_size_human_readable : String,
     pub original_date_epoch: u64,
-    original_date_ts : chrono::DateTime<chrono::Utc>,
+    pub original_date_ts : chrono::DateTime<chrono::Utc>,
     pub digitized_date_epoch : u64,
-    digitized_date_ts : chrono::DateTime<chrono::Utc>
+    pub digitized_date_ts : chrono::DateTime<chrono::Utc>
 }
 
 /// Allows instantiation of a "default" Image,
@@ -85,6 +85,11 @@ impl Image {
     pub fn set_filename(&mut self, filename : String) {
 
         self.filename = super::helpers::get_canonical_path(filename);
+    }
+
+    pub fn are_dates_valid(&mut self) -> bool {
+
+        return (self.original_date_epoch > 0) && (self.digitized_date_epoch > 0);
     }
 }
 
