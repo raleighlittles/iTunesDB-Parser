@@ -4,6 +4,9 @@
  *
  */
 
+
+use std::fmt::Write;
+
 // TODO: Once Rust adds support for default arguments, add the following arguments:
 //       * endianness
 //       * radix
@@ -104,4 +107,61 @@ pub fn get_timestamp_as_mac(mac_timestamp : u64) -> chrono::DateTime<chrono::Utc
 }
 
 
-// TODO add function for converting time in seconds, to time in minutes and seconds
+/// Converts an integer seconds into a string representing that time in hours, minutes, and seconds
+/// only showing the time units appropriately (ie not showing "hours" if the time is less than 1 hour)
+/// and with correct pluralization (ie "1 second" vs "2 seconds")
+/// e.g. 787 -> "13 minutes, 7 seconds"
+/// Linear rewrite of this algorithm: https://github.com/raleighlittles/SMS-backup-and-restore-extractor/blob/a0d940a7aaac7add3c090b8341285b5eb2a162b0/call_log_generator.py#L6
+pub fn convert_seconds_to_human_readable_duration(duration_in_s : u64) -> String {
+
+    let mut formatted_duration_str : String = String::new();
+
+    const TIME_DIVISOR : usize = 60;
+
+    let mut minutes = duration_in_s / TIME_DIVISOR as u64;
+    let seconds = duration_in_s % (TIME_DIVISOR as u64);
+
+    let hours = minutes / TIME_DIVISOR as u64;
+    minutes = minutes % (TIME_DIVISOR as u64);
+
+    if hours > 0 {
+        write!(formatted_duration_str, "{} hour", hours).unwrap();
+
+        if hours > 1 {
+            write!(formatted_duration_str, "s").unwrap();
+        }
+    }
+
+    if minutes > 0 {
+        
+        if !formatted_duration_str.is_empty() {
+
+            write!(formatted_duration_str, ", ").unwrap();
+        }
+
+        write!(formatted_duration_str, "{} minute", minutes).unwrap();
+
+        if minutes > 1 {
+
+            write!(formatted_duration_str, "s").unwrap();
+        }
+    }
+
+    if (seconds > 0) || ((seconds == 0) && formatted_duration_str.is_empty()) {
+
+        
+        if !formatted_duration_str.is_empty() {
+
+            write!(formatted_duration_str, ", ").unwrap();
+        }
+
+        write!(formatted_duration_str, "{} second", seconds).unwrap();
+
+        if seconds > 1 {
+
+            write!(formatted_duration_str, "s").unwrap();
+        }
+    }
+
+    return formatted_duration_str;
+}

@@ -13,7 +13,6 @@
 
 pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
 
-pub mod itunesdb_constants {
 
     // ----- DATABASE OBJECT ----- //
     pub const DATABASE_OBJECT_KEY: &str = "mhbd";
@@ -229,4 +228,3 @@ pub mod itunesdb_constants {
 
     pub const ALBUM_ITEM_LAST_OFFSET: usize = 32;
 
-}

@@ -5,6 +5,7 @@
  * http://www.ipodlinux.org/ITunesDB/#Photo_Database
  */
 
+use crate::helpers::*;
 
 pub struct Image {
     pub filename : String,
@@ -23,7 +24,7 @@ impl Default for Image {
 
     fn default() -> Image {
 
-        return Image{filename: "".to_string(), file_size_bytes: 0, file_size_human_readable: "".to_string(), original_date_epoch: 0, original_date_ts: get_timestamp_as_mac(0), digitized_date_epoch : 0, digitized_date_ts : helpers::get_timestamp_as_mac(0)};
+        return Image{filename: "".to_string(), file_size_bytes: 0, file_size_human_readable: "".to_string(), original_date_epoch: 0, original_date_ts: get_timestamp_as_mac(0), digitized_date_epoch : 0, digitized_date_ts : super::helpers::get_timestamp_as_mac(0)};
     }
 }
 
@@ -32,7 +33,7 @@ impl Image {
     pub fn set_original_date(&mut self, orig_date_epoch : u64) { 
 
         self.original_date_epoch = orig_date_epoch;
-        self.original_date_ts = helpers::get_timestamp_as_mac(orig_date_epoch);
+        self.original_date_ts = super::helpers::get_timestamp_as_mac(orig_date_epoch);
     }
 
     pub fn set_filesize(&mut self, filesize_in_bytes : u64) {
@@ -70,12 +71,12 @@ impl Image {
     pub fn set_digitized_date(&mut self, digitized_date_epoch : u64) {
 
         self.digitized_date_epoch = digitized_date_epoch;
-        self.digitized_date_ts = helpers::get_timestamp_as_mac(digitized_date_epoch);
+        self.digitized_date_ts = super::helpers::get_timestamp_as_mac(digitized_date_epoch);
     }
 
     pub fn set_filename(&mut self, filename : String) {
 
-        self.filename = super::helpers::get_canonical_path(filename);
+        self.filename = super::itunesdb_helpers::get_canonical_path(filename);
     }
 
     pub fn are_dates_valid(&mut self) -> bool {
@@ -83,8 +84,6 @@ impl Image {
         return (self.original_date_epoch > 0) && (self.digitized_date_epoch > 0);
     }
 }
-
-pub mod photo_database {
 
     pub enum MhodType {
         ALBUM_NAME = 1,
@@ -135,4 +134,3 @@ pub mod photo_database {
         return mhod_type_name;
     }
 
-}

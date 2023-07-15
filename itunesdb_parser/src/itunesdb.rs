@@ -6,7 +6,6 @@
  * 
  */
 
-pub mod itunesdb {
 
     pub struct Song {
         pub file_extension : String,
@@ -237,17 +236,18 @@ pub mod itunesdb {
         return suspected_track_type;
     }
 
-    pub enum MediaType {
+    pub enum HandleableMediaType {
         
-        AUDIO_VISUAL = 1,
+        SONG_LIKE = 1,
         PODCAST = 2,
-        TELEVISION = 3
+        TELEVISION = 3,
+        UNKNOWN = 4
     }
 
-    pub fn decode_track_media_type(track_media_type_raw : &[u8]) -> (String, MediaType) {
+    pub fn decode_track_media_type(track_media_type_raw : &[u8]) -> (String, HandleableMediaType) {
 
         let media_type_name : String;
-        let mut media_type = MediaType::AUDIO_VISUAL;
+        let mut media_type = HandleableMediaType::UNKNOWN;
 
         let conditional_byte = track_media_type_raw[0];
 
@@ -257,6 +257,7 @@ pub mod itunesdb {
 
         else if conditional_byte == 0x01 {
             media_type_name = "Audio".to_string();
+            media_type = HandleableMediaType::SONG_LIKE;
         }
 
         else if conditional_byte == 0x02 {
@@ -265,16 +266,17 @@ pub mod itunesdb {
 
         else if conditional_byte == 0x04 {
             media_type_name = "Podcast".to_string();
-            media_type = MediaType::PODCAST;
+            media_type = HandleableMediaType::PODCAST;
         }
 
         else if conditional_byte == 0x06 {
             media_type_name = "Video Podcast".to_string();
-            media_type = MediaType::PODCAST;
+            media_type = HandleableMediaType::PODCAST;
         }
 
         else if conditional_byte == 0x08 {
             media_type_name = "Audiobook".to_string();
+            media_type = HandleableMediaType::SONG_LIKE;
         }
 
         else if conditional_byte == 0x20 /* 32d */ {
@@ -283,12 +285,12 @@ pub mod itunesdb {
 
         else if conditional_byte == 0x40 /* 64d */ {
             media_type_name = "TV Show (only!)".to_string();
-            media_type = MediaType::TELEVISION;
+            media_type = HandleableMediaType::TELEVISION;
         }
 
         else if conditional_byte == 0x60 /* 96d */ {
             media_type_name = "TV show (hybrid w/ Music)".to_string();
-            media_type = MediaType::TELEVISION;
+            media_type = HandleableMediaType::TELEVISION;
         }
 
         else {
@@ -625,4 +627,3 @@ pub mod itunesdb {
         return data_object_type;
 
     }
-}
