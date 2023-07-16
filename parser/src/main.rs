@@ -39,6 +39,7 @@ fn main() {
         ));
 
     if itunesdb_file_type == "photo" {
+
         println!("Parsing photo file: {}", itunesdb_filename);
 
         let mut images_found: Vec<photo_database::Image> = Vec::new();
@@ -243,9 +244,11 @@ fn main() {
                     // );
                 }
 
+                let mhod_type = photo_database::decode_mhod_type(data_object_type as u16);
+
                 // println!(
                 //     "DataObject#{} info : Type={}",
-                //     num_photo_data_objects, &photo_database::decode_mhod_type(data_object_type as u16)
+                //     num_photo_data_objects, mhod_type
                 // );
                 // println!("==========");
 
@@ -258,8 +261,7 @@ fn main() {
                 // if (curr_img.filename.len() > 0)
                 //     && (curr_img.file_size_bytes > 0)
                 //     && (curr_img.are_dates_valid())
-                if curr_img.are_enough_fields_valid()
-                {
+                if curr_img.are_enough_fields_valid() {
                     images_found.push(curr_img);
                     curr_img = photo_database::Image::default();
                 }
@@ -304,9 +306,7 @@ fn main() {
                 .expect("Can't write row");
         }
     } else if itunesdb_file_type == "music" {
-
-
-        let mut songs_found : Vec<itunesdb::Song> = Vec::new();
+        let mut songs_found: Vec<itunesdb::Song> = Vec::new();
 
         let mut curr_song = itunesdb::Song::default();
 
@@ -343,6 +343,7 @@ fn main() {
             }
             // Parse DataSet
             else if potential_section_heading == itunesdb_constants::DATASET_KEY.as_bytes() {
+
                 let dataset_type_raw = helpers::get_slice_from_offset_with_len(
                     idx,
                     &db_file_as_bytes,
@@ -350,10 +351,12 @@ fn main() {
                     itunesdb_constants::DATASET_TYPE_LEN,
                 );
 
-                println!(
-                    "Dataset Type: {}",
-                    itunesdb::parse_dataset_type(dataset_type_raw[0] as u32)
-                );
+                let dataset_type_parsed = itunesdb::parse_dataset_type(dataset_type_raw[0] as u32);
+
+                // println!(
+                //     "Dataset Type: {}",
+                //     dataset_type_parsed
+                // );
 
                 idx += itunesdb_constants::DATASET_LAST_OFFSET;
             }
@@ -366,7 +369,7 @@ fn main() {
                     itunesdb_constants::TRACKLIST_NUM_SONGS_LEN,
                 );
 
-                println!("{} songs total", num_songs_in_db);
+                println!("{} songs in tracklist", num_songs_in_db);
 
                 idx += itunesdb_constants::TRACKLIST_LAST_OFFSET;
             } else if potential_section_heading == itunesdb_constants::TRACK_ITEM_KEY.as_bytes() {
@@ -535,7 +538,8 @@ fn main() {
                         itunesdb_constants::TRACK_ITEM_TRACK_SAMPLE_RATE_LEN,
                     );
 
-                    let track_sample_rate_hz = itunesdb::decode_track_samplerate_to_hz(track_sample_rate_raw);
+                    let track_sample_rate_hz =
+                        itunesdb::decode_track_samplerate_to_hz(track_sample_rate_raw);
 
                     let track_volume_setting = helpers::get_slice_as_le_u32(
                         idx,
@@ -564,7 +568,6 @@ fn main() {
 
                     curr_song.bitrate_kbps = track_bitrate;
                     curr_song.sample_rate_hz = track_sample_rate_hz;
-
 
                     let track_size_bytes = helpers::get_slice_as_le_u32(
                         idx,
@@ -689,7 +692,6 @@ fn main() {
 
                     if track_rating > 0 {
                         curr_song.song_rating_raw = track_rating as u8;
-                    
 
                         let track_prev_rating = helpers::get_slice_as_le_u32(
                             idx,
@@ -705,7 +707,6 @@ fn main() {
                             itunesdb_helpers::decode_itunes_stars(track_prev_rating as u8)
                         )
                         .unwrap();
-
                     }
 
                     let gapless_playback_setting_for_track = helpers::get_slice_as_le_u32(
@@ -762,7 +763,7 @@ fn main() {
                             + itunesdb_constants::TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_LEN];
 
                     // TODO: Encapsulate this logic elsewhere
-                    if track_has_artwork_setting[0] == 0x01 {
+                    if itunesdb::track_has_artwork(track_has_artwork_setting) {
                         let track_associated_artwork_size = helpers::get_slice_as_le_u32(
                             idx,
                             &db_file_as_bytes,
@@ -788,13 +789,15 @@ fn main() {
                     write!(track_item_info, "\n 🗓️  ").unwrap();
 
                     if track_year_released != 0 {
-
-                        write!(track_item_info, "Track year (from title): {} ", track_year_released).unwrap();
+                        write!(
+                            track_item_info,
+                            "Track year (from title): {} ",
+                            track_year_released
+                        )
+                        .unwrap();
 
                         curr_song.song_year = track_year_released as u16;
                     }
-
-
 
                     // let track_added_timestamp = helpers::get_slice_as_mac_timestamp(
                     //     idx,
@@ -803,16 +806,25 @@ fn main() {
                     //     itunesdb_constants::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN,
                     // );
 
-                    let track_added_epoch = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, itunesdb_constants::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET, itunesdb_constants::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN);
+                    let track_added_epoch = helpers::get_slice_as_le_u32(
+                        idx,
+                        &db_file_as_bytes,
+                        itunesdb_constants::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET,
+                        itunesdb_constants::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN,
+                    );
 
                     if track_added_epoch > 0 {
-
-                        let track_added_timestamp = helpers::get_timestamp_as_mac(track_added_epoch as u64);
+                        let track_added_timestamp =
+                            helpers::get_timestamp_as_mac(track_added_epoch as u64);
 
                         curr_song.set_song_added_timestamp(track_added_epoch as u64);
 
-                        write!(track_item_info, "Added to library on: {} ", track_added_timestamp).unwrap();
-
+                        write!(
+                            track_item_info,
+                            "Added to library on: {} ",
+                            track_added_timestamp
+                        )
+                        .unwrap();
                     }
 
                     let track_modified_timestamp = helpers::get_slice_as_mac_timestamp(
@@ -822,22 +834,26 @@ fn main() {
                         itunesdb_constants::TRACK_ITEM_TRACK_MODIFIED_TIME_LEN,
                     );
 
-                    let track_published_to_store_timestamp: chrono::DateTime<chrono::Utc> = helpers::get_slice_as_mac_timestamp(
-                        idx,
-                        &db_file_as_bytes,
-                        itunesdb_constants::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET,
-                        itunesdb_constants::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_LEN,
-                    );
+                    let track_published_to_store_timestamp: chrono::DateTime<chrono::Utc> =
+                        helpers::get_slice_as_mac_timestamp(
+                            idx,
+                            &db_file_as_bytes,
+                            itunesdb_constants::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET,
+                            itunesdb_constants::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_LEN,
+                        );
 
-                    write!(track_item_info, "Last modified: {} Published to iTunes store: {}", track_modified_timestamp, track_published_to_store_timestamp).unwrap();
+                    write!(
+                        track_item_info,
+                        "Last modified: {} Published to iTunes store: {}",
+                        track_modified_timestamp, track_published_to_store_timestamp
+                    )
+                    .unwrap();
 
-                    println!("{} \n", track_item_info);
+                    //println!("{} \n", track_item_info);
                 }
 
                 idx += itunesdb_constants::TRACK_ITEM_LAST_OFFSET;
-            } 
-            
-            else if potential_section_heading == itunesdb_constants::PLAYLIST_KEY.as_bytes() {
+            } else if potential_section_heading == itunesdb_constants::PLAYLIST_KEY.as_bytes() {
                 let mut playlist_info: String = "==== ".to_string();
 
                 let is_master_playlist_setting = &db_file_as_bytes[idx
@@ -880,12 +896,10 @@ fn main() {
                 )
                 .unwrap();
 
-                println!("{} ====", playlist_info);
+                //println!("{} ====", playlist_info);
 
                 idx += itunesdb_constants::PLAYLIST_LAST_OFFSET;
-            }
-            
-            else if potential_section_heading == itunesdb_constants::PLAYLIST_ITEM_KEY.as_bytes()
+            } else if potential_section_heading == itunesdb_constants::PLAYLIST_ITEM_KEY.as_bytes()
             {
                 let mut playlist_item_info: String = "-----".to_string();
 
@@ -903,12 +917,10 @@ fn main() {
                 )
                 .unwrap();
 
-                println!("{}  -----\n", playlist_item_info);
+                //println!("{}  -----\n", playlist_item_info);
 
                 idx += itunesdb_constants::PLAYLIST_ITEM_LAST_OFFSET;
-            }
-            
-            else if potential_section_heading == itunesdb_constants::ALBUM_LIST_KEY.as_bytes() {
+            } else if potential_section_heading == itunesdb_constants::ALBUM_LIST_KEY.as_bytes() {
                 let mut album_list_info: String = "~~~~~~~".to_string();
 
                 let album_item_total_num_songs = helpers::get_slice_as_le_u32(
@@ -925,7 +937,7 @@ fn main() {
                 )
                 .unwrap();
 
-                println!("{}  ~~~~~~~\n", album_list_info);
+                //println!("{}  ~~~~~~~\n", album_list_info);
 
                 idx += itunesdb_constants::ALBUM_LIST_LAST_OFFSET;
             }
@@ -941,7 +953,6 @@ fn main() {
 
             // }
             else if potential_section_heading == itunesdb_constants::DATA_OBJECT_KEY.as_bytes() {
-
                 let mut data_object_info: String = "%%%%%%% Data Object found!\n".to_string();
 
                 let data_object_type_raw = helpers::get_slice_as_le_u32(
@@ -989,51 +1000,42 @@ fn main() {
 
                     // Store the now-decoded string in the appropriate struct field
 
-                    if data_object_type_raw == itunesdb::HandleableDataObjectType::SONG_TITLE as u32 {
-
+                    if data_object_type_raw == itunesdb::HandleableDataObjectType::SONG_TITLE as u32
+                    {
                         curr_song.song_title = data_object_str;
-                    }
-
-                    else if data_object_type_raw == itunesdb::HandleableDataObjectType::SONG_ALBUM as u32 {
-                        
+                    } else if data_object_type_raw
+                        == itunesdb::HandleableDataObjectType::SONG_ALBUM as u32
+                    {
                         curr_song.song_album = data_object_str;
-                    }
-
-                    else if data_object_type_raw == itunesdb::HandleableDataObjectType::SONG_ARTIST as u32 {
-
+                    } else if data_object_type_raw
+                        == itunesdb::HandleableDataObjectType::SONG_ARTIST as u32
+                    {
                         curr_song.song_artist = data_object_str;
-                    }
-
-                    else if data_object_type_raw == itunesdb::HandleableDataObjectType::SONG_GENRE as u32 {
-
+                    } else if data_object_type_raw
+                        == itunesdb::HandleableDataObjectType::SONG_GENRE as u32
+                    {
                         curr_song.song_genre = data_object_str;
-                    }
-
-                    else if data_object_type_raw == itunesdb::HandleableDataObjectType::SONG_COMMENT as u32 {
-                        
+                    } else if data_object_type_raw
+                        == itunesdb::HandleableDataObjectType::SONG_COMMENT as u32
+                    {
                         curr_song.song_comment = data_object_str;
-                    }
-
-                    else if data_object_type_raw == itunesdb::HandleableDataObjectType::SONG_COMPOSER as u32 {
-                        
+                    } else if data_object_type_raw
+                        == itunesdb::HandleableDataObjectType::SONG_COMPOSER as u32
+                    {
                         curr_song.song_composer = data_object_str;
-                    }
-
-                    else if data_object_type_raw == itunesdb::HandleableDataObjectType::FILE_LOCATION as u32 {
-
+                    } else if data_object_type_raw
+                        == itunesdb::HandleableDataObjectType::FILE_LOCATION as u32
+                    {
                         curr_song.set_song_filename(data_object_str);
 
                         if curr_song.are_enough_fields_valid() {
-
                             songs_found.push(curr_song);
                             curr_song = itunesdb::Song::default();
-                        } else {
-                            println!("Current song is not valid! Size(b)={}, Title={}, Filename={}", curr_song.file_size_bytes, curr_song.song_title, curr_song.song_filename);
-                        }
 
+                        } // why wouldn't current song be valid?
                     }
-
-                } // Non-string MHODs
+                }
+                // Non-string MHODs
                 else {
                     if (data_object_type_raw
                         == itunesdb::HandleableDataObjectType::PODCAST_ENCLOSURE_URL as u32)
@@ -1050,7 +1052,8 @@ fn main() {
                         .unwrap();
                     }
                 }
-                println!("{} %%%%%%% \r\n", data_object_info);
+
+                //println!("{} %%%%%%% \r\n", data_object_info);
 
                 idx += itunesdb_constants::DATA_OBJECT_LAST_OFFSET;
             }
@@ -1058,58 +1061,62 @@ fn main() {
             idx += DEFAULT_SUBSTRUCTURE_SIZE;
         }
 
-
         println!("{} songs found", songs_found.len());
 
         // Setup columns of CSV file
 
-        csv_writer.write_record(&["Song Title",
-         "Artist",
-          "Album",
-           "Year released",
-            "File size", 
-            "Song Duration",
-             "Filename",
-              "Genre", 
-              "File extension", 
-              "Bitrate (kbps)", 
-              "Sample Rate (Hz)", 
-              "File size (bytes)",
-               "Song duration (seconds)",
-                "Play count", 
-                "Rating", 
+        csv_writer
+            .write_record(&[
+                "Song Title",
+                "Artist",
+                "Album",
+                "Year released",
+                "File size",
+                "Song Duration",
+                "Filename",
+                "Genre",
+                "File extension",
+                "Bitrate (kbps)",
+                "Sample Rate (Hz)",
+                "File size (bytes)",
+                "Song duration (seconds)",
+                "Play count",
+                "Rating",
                 "Added to library on (timestamp)",
-                 "Added to library on (epoch)",
-                  "Composer", 
-                  "Comment"]).expect("Can't create CSV headers");
+                "Added to library on (epoch)",
+                "Composer",
+                "Comment",
+            ])
+            .expect("Can't create CSV headers");
 
         for song in songs_found.iter() {
-
             // the duplicate `to_string()` calls are to avoid this error:
             // cannot move out of `song.song_title` which is behind a shared reference
             // move occurs because `song.song_title` has type `String`, which does not implement the `Copy` trait
 
-            csv_writer.write_record(&[song.song_title.to_string(),
-             song.song_artist.to_string(), 
-             song.song_album.to_string(),
-              song.song_year.to_string(),
-               song.file_size_friendly.to_string(),
-                song.song_duration_friendly.to_string(),
-                 song.song_filename.to_string(),
-                  song.song_genre.to_string(), 
-                  song.file_extension.to_string(), 
-                  song.bitrate_kbps.to_string(),
-                   song.sample_rate_hz.to_string(), 
-                   song.file_size_bytes.to_string(), 
-                   song.song_duration_s.to_string(), 
-                   song.num_plays.to_string(),
-                   itunesdb_helpers::decode_itunes_stars(song.song_rating_raw), 
-                   song.song_added_to_library_ts.to_string(), 
-                   song.song_added_to_library_epoch.to_string(), 
-                   song.song_composer.to_string(), 
-                   song.song_comment.to_string()]).expect("Can't write row to CSV");
+            csv_writer
+                .write_record(&[
+                    song.song_title.to_string(),
+                    song.song_artist.to_string(),
+                    song.song_album.to_string(),
+                    song.song_year.to_string(),
+                    song.file_size_friendly.to_string(),
+                    song.song_duration_friendly.to_string(),
+                    song.song_filename.to_string(),
+                    song.song_genre.to_string(),
+                    song.file_extension.to_string(),
+                    song.bitrate_kbps.to_string(),
+                    song.sample_rate_hz.to_string(),
+                    song.file_size_bytes.to_string(),
+                    song.song_duration_s.to_string(),
+                    song.num_plays.to_string(),
+                    itunesdb_helpers::decode_itunes_stars(song.song_rating_raw),
+                    song.song_added_to_library_ts.to_string(),
+                    song.song_added_to_library_epoch.to_string(),
+                    song.song_composer.to_string(),
+                    song.song_comment.to_string(),
+                ])
+                .expect("Can't write row to CSV");
         }
-
-
     } // End music parser
 }

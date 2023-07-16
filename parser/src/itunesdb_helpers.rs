@@ -1,13 +1,9 @@
 /// Code that is shared across the different iTunesDB file types
 
-/// The default string for null data is "N/A" (len 3)
-pub const MIN_VALID_STR_LEN : usize = 4;
-
 // Shows how many "stars" a song had in iTunes, based on the raw rating value.
 // The formula is: rating / 20 = stars
 // and the max rating is 100, so stars are out of 5
 pub fn decode_itunes_stars(users_rating_raw: u8) -> String {
-
     let num_stars = users_rating_raw / 20;
 
     let rating: String;
