@@ -24,4 +24,4 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Build
-        run: cargo build --manifest-path itunesdb_parser/Cargo.toml
+        run: cargo build --manifest-path parser/Cargo.toml
