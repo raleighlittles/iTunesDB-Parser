@@ -9,11 +9,16 @@
 
     pub struct Song {
         pub file_extension : String,
-        pub bitrate_kbps : String,
-        pub sample_rate_hz : u64,
+        pub bitrate_kbps : u32,
+        pub sample_rate_hz : u32,
         pub file_size_bytes : u32, // iPod file systems use FAT
-        pub song_length_s : u64,
-        pub song_length : String,
+        pub file_size_friendly : String,
+        pub song_duration_s : u32,
+        pub song_duration_friendly : String,
+        pub num_plays : u32,
+        pub song_rating_raw : u8,
+        pub song_added_to_library_epoch : u64,
+        pub song_added_to_library_ts : chrono::DateTime<chrono::Utc>,
         pub song_year : u16,
         pub song_title : String,
         pub song_artist : String,
@@ -24,6 +29,81 @@
         /// As far as I can tell from looking at the output, this field
         /// is always the last one to get populated
         pub song_filename : String
+    }
+
+    impl Default for Song {
+
+        fn default() -> Song {
+
+            // This won't work (more than once!) as you'll get this error
+            // error[E0382]: use of moved value: `invalid_str`
+            // move occurs because `invalid_str` has type `String`, which does not implement the `Copy` trait
+            //let invalid_str : String = "N/A".to_string();
+
+            return Song{file_extension: "".to_string(),
+                bitrate_kbps : 0,
+                sample_rate_hz : 0,
+                file_size_bytes: 0,
+                file_size_friendly : "".to_string(),
+                song_duration_s : 0,
+                song_duration_friendly : "".to_string(),
+                num_plays : 0,
+                song_rating_raw : 0,
+                song_added_to_library_epoch : 0,
+                song_added_to_library_ts : super::helpers::get_timestamp_as_mac(0),
+                song_year: 0,
+                song_title : "".to_string(),
+                song_artist : "".to_string(),
+                song_composer : "".to_string(),
+                song_album : "".to_string(),
+                song_genre : "".to_string(),
+                song_comment : "".to_string(),
+                song_filename : "".to_string(),
+            };
+        }
+    }
+
+    impl Song {
+
+        // TODO once support for other types of media (podcasts?) is added, these functions will have to be moved into a shared area
+        
+        pub fn set_song_duration(&mut self, song_duration_raw : u32) {
+
+            self.song_duration_s = super::itunesdb::decode_raw_track_length_to_s(song_duration_raw);
+            self.song_duration_friendly = super::helpers::convert_seconds_to_human_readable_duration(self.song_duration_s);
+        }
+
+        pub fn set_song_filesize(&mut self, file_size_bytes : u32) {
+
+            self.file_size_bytes = file_size_bytes;
+            self.file_size_friendly = super::helpers::convert_bytes_to_human_readable_size(file_size_bytes as u64);
+        }
+
+        pub fn set_song_added_timestamp(&mut self, added_to_library_epoch : u64) {
+
+            self.song_added_to_library_epoch = added_to_library_epoch;
+            self.song_added_to_library_ts = super::helpers::get_timestamp_as_mac(added_to_library_epoch);
+        }
+
+        pub fn set_song_filename(&mut self, song_filename_raw : String) {
+
+            self.song_filename = super::itunesdb_helpers::get_canonical_path(song_filename_raw)
+        }
+
+        /// This function determines whether there's enough metadata for the song to be added.
+        /// Because an iPod can have songs from different sources (eg you can upload your own MP3 songs to your device)
+        /// the level of metadata present can vary. At a minimum, a song is considered valid if it has:
+        /// (1) a title, (2) a file size, (3) a file location
+        pub fn are_enough_fields_valid(&mut self) -> bool {
+            
+            if (self.file_size_bytes > 0) && (!self.song_title.is_empty()) && (!self.song_filename.is_empty()) {
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
     }
 
     pub fn parse_version_number(version_number : u32) -> String {
@@ -171,31 +251,33 @@
     /// (2) a 'end' time, which is where the song starts playing
     /// This function shows both the "experimental" song duration (which takes into account the difference above) 
     /// and the "theoretical" song duration
-    pub fn get_track_length_info(track_length_ms : u32, start_time_offset_ms : u32, stop_time_offset_ms : u32) -> String {
+    pub fn get_track_length_info(track_length_raw : u32, start_time_offset_raw : u32, stop_time_offset_raw : u32) -> String {
 
         let mut formatted_track_length_info : String = String::new();
 
-        // // Track length is stored in milliseconds, but we want seconds
-        let track_length_s = track_length_ms / 1000;
+        //formatted_track_length_info.push_str(&format!("Track length: {} seconds", track_length_s).to_owned());
 
-        formatted_track_length_info.push_str(&format!("Track length: {} seconds", track_length_s).to_owned());
+        let played_track_length_ms = stop_time_offset_raw - start_time_offset_raw;
 
-        let played_track_length_ms = stop_time_offset_ms - start_time_offset_ms;
+        if (played_track_length_ms != track_length_raw) && ((start_time_offset_raw != 0) || (stop_time_offset_raw != 0)) {
 
-        if (played_track_length_ms != track_length_ms) && ((start_time_offset_ms != 0) || (stop_time_offset_ms != 0)) {
-
-            formatted_track_length_info.push_str(&format!(" | w/ offset: {} seconds (Start ~ {}s, Stop ~{}s)", played_track_length_ms / 1000, start_time_offset_ms / 1000, stop_time_offset_ms / 1000).to_owned());
+            formatted_track_length_info.push_str(&format!(" | w/ offset: {} seconds (Start ~ {}s, Stop ~{}s)", played_track_length_ms / 1000, start_time_offset_raw / 1000, stop_time_offset_raw / 1000).to_owned());
         }
 
         return formatted_track_length_info;
-        
     }
 
-    pub fn decode_track_samplerate(track_samplerate_raw : u32) -> String {
+    pub fn decode_raw_track_length_to_s(track_length_raw : u32) -> u32 {
+
+        return track_length_raw / 100;
+    }
+
+    pub fn decode_track_samplerate_to_hz(track_samplerate_raw : u32) -> u32 {
 
         // Divide by 0x10000 (65536d) to get the actual sample rate
 
-        return format!("{} Hz", track_samplerate_raw / 65536 );
+        //return format!("{} Hz", track_samplerate_raw / 65536 );
+        return track_samplerate_raw / 65536;
     }
 
     pub fn decode_track_audio_type(track_type_unk14_1 : u32) -> String {
@@ -429,8 +511,17 @@
         return playlist_sort_order;
     }
 
+    /// The "Handleable" in this case means it represents a special case that gets handled differently
     pub enum HandleableDataObjectType {
 
+        SONG_TITLE = 1,
+        /// The last data object is the file location
+        FILE_LOCATION = 2,
+        SONG_ALBUM = 3,
+        SONG_ARTIST = 4,
+        SONG_GENRE = 5,
+        SONG_COMMENT = 8,
+        SONG_COMPOSER = 12,
         PODCAST_ENCLOSURE_URL = 15,
         PODCAST_RSS_URL = 16
     }
@@ -442,8 +533,6 @@
 
     pub fn decode_podcast_urls(mhod_start_idx : usize, file_as_bytes : &[u8]) -> String {
         
-        //let mut podcast_url : String;
-
         let header_len_offset = 4;
         let total_length_offset = 8;
         let element_header_length = super::helpers::get_slice_as_le_u32(mhod_start_idx, file_as_bytes, header_len_offset, super::DEFAULT_SUBSTRUCTURE_SIZE);

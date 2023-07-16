@@ -112,17 +112,17 @@ pub fn get_timestamp_as_mac(mac_timestamp : u64) -> chrono::DateTime<chrono::Utc
 /// and with correct pluralization (ie "1 second" vs "2 seconds")
 /// e.g. 787 -> "13 minutes, 7 seconds"
 /// Linear rewrite of this algorithm: https://github.com/raleighlittles/SMS-backup-and-restore-extractor/blob/a0d940a7aaac7add3c090b8341285b5eb2a162b0/call_log_generator.py#L6
-pub fn convert_seconds_to_human_readable_duration(duration_in_s : u64) -> String {
+pub fn convert_seconds_to_human_readable_duration(duration_in_s : u32) -> String {
 
     let mut formatted_duration_str : String = String::new();
 
     const TIME_DIVISOR : usize = 60;
 
-    let mut minutes = duration_in_s / TIME_DIVISOR as u64;
-    let seconds = duration_in_s % (TIME_DIVISOR as u64);
+    let mut minutes = duration_in_s / TIME_DIVISOR as u32;
+    let seconds = duration_in_s % (TIME_DIVISOR as u32);
 
-    let hours = minutes / TIME_DIVISOR as u64;
-    minutes = minutes % (TIME_DIVISOR as u64);
+    let hours = minutes / TIME_DIVISOR as u32;
+    minutes = minutes % (TIME_DIVISOR as u32);
 
     if hours > 0 {
         write!(formatted_duration_str, "{} hour", hours).unwrap();
@@ -164,4 +164,33 @@ pub fn convert_seconds_to_human_readable_duration(duration_in_s : u64) -> String
     }
 
     return formatted_duration_str;
+}
+
+
+/// Shows the size of the size of the image, in whatever the most
+/// appropriate is, specifically, chooses the largest possible unit
+/// that still results in a greater-than-1 value
+/// ie. "1245916" will be shown as "1.245 MB", because
+/// with KB, the value would be 1245.916 KB, but with GB
+/// it would be smaller than 1
+pub fn convert_bytes_to_human_readable_size(num_bytes : u64) -> String {
+
+        let human_readable_size : String;
+
+        const ONE_MB_AS_BYTES : f64 = 1000000_f64;
+        const ONE_KB_AS_BYTES : f64 = 1000_f64;
+
+        let size_in_kb = num_bytes as f64 / ONE_KB_AS_BYTES;
+        let size_in_mb = num_bytes as f64 / ONE_MB_AS_BYTES;
+
+        if size_in_mb < 1.0f64 {
+
+            // Megabytes was too small, choose the next smallest unit
+
+            human_readable_size = format!("{:.2} KB", size_in_kb);
+        } else {
+            human_readable_size = format!("{:.2} MB", size_in_mb);
+        }
+
+        return human_readable_size;
 }

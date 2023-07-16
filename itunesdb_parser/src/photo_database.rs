@@ -9,7 +9,8 @@ use crate::helpers::*;
 
 pub struct Image {
     pub filename : String,
-    pub file_size_bytes: u64,
+    /// iPod's filesystem is FAT
+    pub file_size_bytes: u32,
     pub file_size_human_readable : String,
     pub original_date_epoch: u64,
     pub original_date_ts : chrono::DateTime<chrono::Utc>,
@@ -36,37 +37,13 @@ impl Image {
         self.original_date_ts = super::helpers::get_timestamp_as_mac(orig_date_epoch);
     }
 
-    pub fn set_filesize(&mut self, filesize_in_bytes : u64) {
+    pub fn set_filesize(&mut self, filesize_in_bytes : u32) {
 
         self.file_size_bytes = filesize_in_bytes;
 
-        const ONE_MB_AS_BYTES : f64 = 1000000_f64;
-        const ONE_KB_AS_BYTES : f64 = 1000_f64;
-
-        // Shows the size of the size of the image, in whatever the most
-        // appropriate is, specifically, chooses the largest possible unit
-        // that still results in a greater-than-1 value
-        // ie. "1245916" will be shown as "1.245 MB", because
-        // with KB, the value would be 1245.916 KB, but with GB
-        // it would be smaller than 1
-        let human_readable_size : String;
-
-        let size_in_kb = filesize_in_bytes as f64 / ONE_KB_AS_BYTES;
-        let size_in_mb = filesize_in_bytes as f64 / ONE_MB_AS_BYTES;
-
-        if size_in_mb < 1.0f64 {
-
-            // Megabytes was too small, choose the next smallest unit
-
-            human_readable_size = format!("{:.2} KB", size_in_kb);
-        } else {
-            human_readable_size = format!("{:.2} MB", size_in_mb);
-        }
-
-        self.file_size_human_readable = human_readable_size;
+        self.file_size_human_readable = super::helpers::convert_bytes_to_human_readable_size(filesize_in_bytes as u64);
 
     }
-
 
     pub fn set_digitized_date(&mut self, digitized_date_epoch : u64) {
 
@@ -79,9 +56,14 @@ impl Image {
         self.filename = super::itunesdb_helpers::get_canonical_path(filename);
     }
 
-    pub fn are_dates_valid(&mut self) -> bool {
+    fn are_dates_valid(&self) -> bool {
 
         return (self.original_date_epoch > 0) && (self.digitized_date_epoch > 0);
+    }
+
+    pub fn are_enough_fields_valid(&self) -> bool {
+
+        return (!self.filename.is_empty()) && (self.file_size_bytes > 0) && (self.are_dates_valid());
     }
 }
 
