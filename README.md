@@ -51,7 +51,7 @@ $ /target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
 
 Running this tool will create a CSV file with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs mentioned in the iTunesDB file.
 
-![CSV music screenshot](./docs/20230715_music-csv.png)
+![CSV music screenshot](./docs/20230716_music-csv.png)
 
 If you run it on a Photo Database file, you'll see the list of all images stored on that iPod.
 
