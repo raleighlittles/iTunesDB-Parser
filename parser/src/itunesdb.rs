@@ -65,7 +65,9 @@ impl Song {
     // TODO once support for other types of media (podcasts?) is added, these functions will have to be moved into a shared area
 
     pub fn set_song_duration(&mut self, song_duration_raw: u32) {
+
         self.song_duration_s = super::itunesdb::decode_raw_track_length_to_s(song_duration_raw);
+        
         self.song_duration_friendly =
             super::helpers::convert_seconds_to_human_readable_duration(self.song_duration_s);
     }
@@ -229,8 +231,10 @@ pub fn get_track_length_info(
     return formatted_track_length_info;
 }
 
+/// iTunesDB files store time in milliseconds
 pub fn decode_raw_track_length_to_s(track_length_raw: u32) -> u32 {
-    return track_length_raw / 100;
+
+    return track_length_raw / 1000;
 }
 
 pub fn decode_track_samplerate_to_hz(track_samplerate_raw: u32) -> u32 {

@@ -593,7 +593,9 @@ fn main() {
 
                     let track_length_s = itunesdb::decode_raw_track_length_to_s(track_length_raw);
 
-                    curr_song.set_song_duration(track_length_s);
+                    //println!("Raw track length (ms): {} | in seconds: {}", track_length_raw, track_length_s);
+
+                    curr_song.set_song_duration(track_length_raw);
 
                     write!(
                         track_item_info,

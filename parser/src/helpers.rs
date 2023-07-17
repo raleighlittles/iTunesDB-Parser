@@ -140,10 +140,10 @@ pub fn convert_seconds_to_human_readable_duration(duration_in_s: u32) -> String 
 
     const TIME_DIVISOR: usize = 60;
 
-    let mut minutes = duration_in_s / TIME_DIVISOR as u32;
+    let mut minutes = duration_in_s / (TIME_DIVISOR as u32);
     let seconds = duration_in_s % (TIME_DIVISOR as u32);
 
-    let hours = minutes / TIME_DIVISOR as u32;
+    let hours = minutes / (TIME_DIVISOR as u32);
     minutes = minutes % (TIME_DIVISOR as u32);
 
     if hours > 0 {
