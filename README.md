@@ -22,7 +22,7 @@ Currently, two types of iTunesDB files are supported:
 | On The Go Playlist   | :negative_squared_cross_mark: Not yet supported                  |
 | iTunesSD             | :negative_squared_cross_mark: Not yet supported                  |
 | iTunesStats          | :negative_squared_cross_mark: Not yet supported                  |
-| iTunesPrefs          | :negative_squared_cross_mark: Not yet supported                  |
+| iTunesPrefs          | :heavy_check_mark:                                               |
 | winPrefs             | :negative_squared_cross_mark: Not yet supported                  |
 | DeviceInfo           | :negative_squared_cross_mark: Not yet supported                  |
 | iEKInfo              | :negative_squared_cross_mark: Not yet supported                  |
