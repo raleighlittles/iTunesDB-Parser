@@ -277,9 +277,9 @@ pub fn decode_track_audio_type(track_type_unk14_1: u32) -> String {
 }
 
 pub enum HandleableMediaType {
-    SONG_LIKE = 1,
-    PODCAST = 2,
-    TELEVISION = 3,
+    SongLike = 1,
+    Podcast = 2,
+    Television = 3,
     UNKNOWN = 4,
 }
 
@@ -293,18 +293,18 @@ pub fn decode_track_media_type(track_media_type_raw: &[u8]) -> (String, Handleab
         media_type_name = "Audio/Video".to_string();
     } else if conditional_byte == 0x01 {
         media_type_name = "Audio".to_string();
-        media_type = HandleableMediaType::SONG_LIKE;
+        media_type = HandleableMediaType::SongLike;
     } else if conditional_byte == 0x02 {
         media_type_name = "Video".to_string();
     } else if conditional_byte == 0x04 {
         media_type_name = "Podcast".to_string();
-        media_type = HandleableMediaType::PODCAST;
+        media_type = HandleableMediaType::Podcast;
     } else if conditional_byte == 0x06 {
         media_type_name = "Video Podcast".to_string();
-        media_type = HandleableMediaType::PODCAST;
+        media_type = HandleableMediaType::Podcast;
     } else if conditional_byte == 0x08 {
         media_type_name = "Audiobook".to_string();
-        media_type = HandleableMediaType::SONG_LIKE;
+        media_type = HandleableMediaType::SongLike;
     } else if conditional_byte == 0x20
     /* 32d */
     {
@@ -313,12 +313,12 @@ pub fn decode_track_media_type(track_media_type_raw: &[u8]) -> (String, Handleab
     /* 64d */
     {
         media_type_name = "TV Show (only!)".to_string();
-        media_type = HandleableMediaType::TELEVISION;
+        media_type = HandleableMediaType::Television;
     } else if conditional_byte == 0x60
     /* 96d */
     {
         media_type_name = "TV show (hybrid w/ Music)".to_string();
-        media_type = HandleableMediaType::TELEVISION;
+        media_type = HandleableMediaType::Television;
     } else {
         //media_type_name = "N/A".to_string();
         media_type_name = format!("Unknown {}", conditional_byte);
@@ -396,17 +396,18 @@ pub fn decode_playlist_sort_order(playlist_sort_order_raw: u32) -> String {
 }
 
 /// The "Handleable" in this case means it represents a special case that gets handled differently
+#[allow(non_camel_case_types)]
 pub enum HandleableDataObjectType {
-    SONG_TITLE = 1,
+    SongTitle = 1,
     /// The last data object is the file location
-    FILE_LOCATION = 2,
-    SONG_ALBUM = 3,
-    SONG_ARTIST = 4,
-    SONG_GENRE = 5,
-    SONG_COMMENT = 8,
-    SONG_COMPOSER = 12,
-    PODCAST_ENCLOSURE_URL = 15,
-    PODCAST_RSS_URL = 16,
+    FileLocation = 2,
+    SongAlbum = 3,
+    SongArtist = 4,
+    SongGenre = 5,
+    SongComment = 8,
+    SongComposer = 12,
+    PodcastEnclosureURL = 15,
+    Podcast_RSS_URL = 16,
 }
 
 pub fn is_data_object_type_string(data_object_raw: u32) -> bool {

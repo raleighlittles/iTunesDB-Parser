@@ -68,10 +68,10 @@ impl Image {
 }
 
 pub enum MhodType {
-    ALBUM_NAME = 1,
-    THUMBNAIL_IMAGE = 2,
-    FILE_NAME = 3,
-    CONTAINER = 5,
+    AlbumName = 1,
+    ThumbNailImage = 2,
+    FileName = 3,
+    Container = 5,
 }
 
 /// See "MHOD types" table in Photos Database section
