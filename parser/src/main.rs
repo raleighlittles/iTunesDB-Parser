@@ -15,6 +15,23 @@ mod itunesprefs;
 
 use crate::itunesdb_constants::*;
 
+fn init_csv_writer(filename : &str) -> csv::Writer<std::fs::File> {
+
+    // let mut csv_writer =
+    //     csv::Writer::from_path(itunesdb_filename.clone() + ".csv").expect(&format!(
+    //         "Can't initialize CSV file for output of '{}'",
+    //         itunesdb_file_type
+    //     ));
+
+    let csv_writer =
+    csv::Writer::from_path(filename).expect(&format!(
+        "Can't initialize CSV file '{}'",
+        &filename
+    ));
+
+    return csv_writer;
+}
+
 fn main() {
     let itunesdb_filename: String = std::env::args()
         .nth(1)
@@ -34,13 +51,13 @@ fn main() {
     let mut num_photo_data_objects = 0;
 
     // Setup CSV file
-    let mut csv_writer =
-        csv::Writer::from_path(itunesdb_filename.clone() + ".csv").expect(&format!(
-            "Can't initialize CSV file for output of '{}'",
-            itunesdb_file_type
-        ));
+
+    let desired_csv_filename = itunesdb_filename.to_string() + ".csv";
+    
 
     if itunesdb_file_type == "photo" {
+
+        let mut photos_csv_writer = init_csv_writer(&desired_csv_filename);
 
         println!("Parsing photo file: {}", itunesdb_filename);
 
@@ -273,7 +290,7 @@ fn main() {
 
         // Setup columns of CSV file
         // TODO see if there's a way to get the struct field names as strings?
-        csv_writer
+        photos_csv_writer
             .write_record(&[
                 "Filename",
                 "File size (bytes)",
@@ -289,7 +306,7 @@ fn main() {
             //println!("Image filename = {}, Image size (raw) = {}, Image size = {}", image.filename, image.file_size_bytes, image.file_size_human_readable);
 
             // Need quotes around filename in case there's spaces in it
-            csv_writer
+            photos_csv_writer
                 .write_record(&[
                     format!("'{}'", image.filename),
                     image.file_size_bytes.to_string(),
@@ -305,6 +322,9 @@ fn main() {
                 .expect("Can't write row");
         }
     } else if itunesdb_file_type == "music" {
+
+        let mut music_csv_writer = init_csv_writer(&desired_csv_filename);
+
         let mut songs_found: Vec<itunesdb::Song> = Vec::new();
 
         let mut curr_song = itunesdb::Song::default();
@@ -1066,7 +1086,7 @@ fn main() {
 
         // Setup columns of CSV file
 
-        csv_writer
+        music_csv_writer
             .write_record(&[
                 "Song Title",
                 "Artist",
@@ -1095,7 +1115,7 @@ fn main() {
             // cannot move out of `song.song_title` which is behind a shared reference
             // move occurs because `song.song_title` has type `String`, which does not implement the `Copy` trait
 
-            csv_writer
+            music_csv_writer
                 .write_record(&[
                     song.song_title.to_string(),
                     song.song_artist.to_string(),
