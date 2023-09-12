@@ -120,7 +120,7 @@ const MAC_TO_LINUX_EPOCH_CONVERSION: i64 = 2082844800;
 
 /// Converts a given Mac epoch time into an actual UTC timestamp
 pub fn get_timestamp_as_mac(mac_timestamp: u64) -> chrono::DateTime<chrono::Utc> {
-    return chrono::DateTime::<chrono::Utc>::from_utc(
+    return chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
         chrono::NaiveDateTime::from_timestamp_opt(
             (mac_timestamp as i64) - MAC_TO_LINUX_EPOCH_CONVERSION,
             0,

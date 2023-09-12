@@ -10,17 +10,36 @@ mod itunesdb_constants;
 mod itunesdb_helpers;
 mod photo_database;
 mod photo_database_constants;
+mod itunesprefs_constants;
+mod itunesprefs;
 
 use crate::itunesdb_constants::*;
+
+fn init_csv_writer(filename : &str) -> csv::Writer<std::fs::File> {
+
+    // let mut csv_writer =
+    //     csv::Writer::from_path(itunesdb_filename.clone() + ".csv").expect(&format!(
+    //         "Can't initialize CSV file for output of '{}'",
+    //         itunesdb_file_type
+    //     ));
+
+    let csv_writer =
+    csv::Writer::from_path(filename).expect(&format!(
+        "Can't initialize CSV file '{}'",
+        &filename
+    ));
+
+    return csv_writer;
+}
 
 fn main() {
     let itunesdb_filename: String = std::env::args()
         .nth(1)
-        .expect("Missing parameter: iTunes DB filename");
+        .expect("Missing first parameter: iTunes DB filename");
 
     let itunesdb_file_type: String = std::env::args()
         .nth(2)
-        .expect("Missing parameter: iTunes DB file type. Supported values are: 'music', 'photo'");
+        .expect("Missing second parameter: iTunes DB file type. Supported values are: 'music', 'photo', 'itprefs'");
 
     let db_file_as_bytes: Vec<u8> = std::fs::read(&itunesdb_filename).unwrap();
 
@@ -32,13 +51,13 @@ fn main() {
     let mut num_photo_data_objects = 0;
 
     // Setup CSV file
-    let mut csv_writer =
-        csv::Writer::from_path(itunesdb_filename.clone() + ".csv").expect(&format!(
-            "Can't initialize CSV file for output of '{}'",
-            itunesdb_file_type
-        ));
+
+    let desired_csv_filename = itunesdb_filename.to_string() + ".csv";
+    
 
     if itunesdb_file_type == "photo" {
+
+        let mut photos_csv_writer = init_csv_writer(&desired_csv_filename);
 
         println!("Parsing photo file: {}", itunesdb_filename);
 
@@ -48,7 +67,7 @@ fn main() {
 
         let mut idx = 0;
 
-        while idx < db_file_as_bytes.len() {
+        while idx < (db_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
             let potential_photo_section_heading =
                 &db_file_as_bytes[idx..idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
 
@@ -189,8 +208,8 @@ fn main() {
                     photo_database_constants::DATA_OBJECT_TYPE_LEN,
                 );
 
-                if data_object_type == (photo_database::MhodType::ALBUM_NAME as u32)
-                    || data_object_type == (photo_database::MhodType::FILE_NAME as u32)
+                if data_object_type == (photo_database::MhodType::AlbumName as u32)
+                    || data_object_type == (photo_database::MhodType::FileName as u32)
                 {
                     let data_object_subcontainer_str_len = helpers::get_slice_as_le_u32(
                         idx,
@@ -258,9 +277,6 @@ fn main() {
 
                 // Once you've parsed the data object, all properties for the "current" image have been set
                 // so store the current one, then 'reset' it
-                // if (curr_img.filename.len() > 0)
-                //     && (curr_img.file_size_bytes > 0)
-                //     && (curr_img.are_dates_valid())
                 if curr_img.are_enough_fields_valid() {
                     images_found.push(curr_img);
                     curr_img = photo_database::Image::default();
@@ -274,7 +290,7 @@ fn main() {
 
         // Setup columns of CSV file
         // TODO see if there's a way to get the struct field names as strings?
-        csv_writer
+        photos_csv_writer
             .write_record(&[
                 "Filename",
                 "File size (bytes)",
@@ -290,7 +306,7 @@ fn main() {
             //println!("Image filename = {}, Image size (raw) = {}, Image size = {}", image.filename, image.file_size_bytes, image.file_size_human_readable);
 
             // Need quotes around filename in case there's spaces in it
-            csv_writer
+            photos_csv_writer
                 .write_record(&[
                     format!("'{}'", image.filename),
                     image.file_size_bytes.to_string(),
@@ -306,13 +322,16 @@ fn main() {
                 .expect("Can't write row");
         }
     } else if itunesdb_file_type == "music" {
+
+        let mut music_csv_writer = init_csv_writer(&desired_csv_filename);
+
         let mut songs_found: Vec<itunesdb::Song> = Vec::new();
 
         let mut curr_song = itunesdb::Song::default();
 
         let mut idx = 0;
 
-        while idx < db_file_as_bytes.len() {
+        while idx < (db_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
             let potential_section_heading = &db_file_as_bytes[idx..idx + DEFAULT_SUBSTRUCTURE_SIZE];
 
             // Parse Database Object
@@ -467,7 +486,7 @@ fn main() {
 
                 if matches!(
                     track_media_type_enum,
-                    itunesdb::HandleableMediaType::TELEVISION
+                    itunesdb::HandleableMediaType::Television
                 ) {
                     let season_number = helpers::get_slice_as_le_u32(
                         idx,
@@ -491,7 +510,7 @@ fn main() {
                     .unwrap();
                 } else if matches!(
                     track_media_type_enum,
-                    itunesdb::HandleableMediaType::SONG_LIKE
+                    itunesdb::HandleableMediaType::SongLike
                 ) {
                     let track_advanced_audio_type = helpers::get_slice_as_le_u32(
                         idx,
@@ -646,7 +665,7 @@ fn main() {
                         itunesdb_constants::TRACK_ITEM_TRACK_SKIPPED_COUNT_LEN,
                     );
 
-                    // TODO: WHy are the last played timestamps zero??
+                    // TODO: WHy are the last played timestamps zero sometimes?
 
                     let track_last_played_timestamp = helpers::get_slice_as_mac_timestamp(
                         idx,
@@ -1002,31 +1021,31 @@ fn main() {
 
                     // Store the now-decoded string in the appropriate struct field
 
-                    if data_object_type_raw == itunesdb::HandleableDataObjectType::SONG_TITLE as u32
+                    if data_object_type_raw == itunesdb::HandleableDataObjectType::SongTitle as u32
                     {
                         curr_song.song_title = data_object_str;
                     } else if data_object_type_raw
-                        == itunesdb::HandleableDataObjectType::SONG_ALBUM as u32
+                        == itunesdb::HandleableDataObjectType::SongAlbum as u32
                     {
                         curr_song.song_album = data_object_str;
                     } else if data_object_type_raw
-                        == itunesdb::HandleableDataObjectType::SONG_ARTIST as u32
+                        == itunesdb::HandleableDataObjectType::SongArtist as u32
                     {
                         curr_song.song_artist = data_object_str;
                     } else if data_object_type_raw
-                        == itunesdb::HandleableDataObjectType::SONG_GENRE as u32
+                        == itunesdb::HandleableDataObjectType::SongGenre as u32
                     {
                         curr_song.song_genre = data_object_str;
                     } else if data_object_type_raw
-                        == itunesdb::HandleableDataObjectType::SONG_COMMENT as u32
+                        == itunesdb::HandleableDataObjectType::SongComment as u32
                     {
                         curr_song.song_comment = data_object_str;
                     } else if data_object_type_raw
-                        == itunesdb::HandleableDataObjectType::SONG_COMPOSER as u32
+                        == itunesdb::HandleableDataObjectType::SongComposer as u32
                     {
                         curr_song.song_composer = data_object_str;
                     } else if data_object_type_raw
-                        == itunesdb::HandleableDataObjectType::FILE_LOCATION as u32
+                        == itunesdb::HandleableDataObjectType::FileLocation as u32
                     {
                         curr_song.set_song_filename(data_object_str);
 
@@ -1040,9 +1059,9 @@ fn main() {
                 // Non-string MHODs
                 else {
                     if (data_object_type_raw
-                        == itunesdb::HandleableDataObjectType::PODCAST_ENCLOSURE_URL as u32)
+                        == itunesdb::HandleableDataObjectType::PodcastEnclosureURL as u32)
                         || (data_object_type_raw
-                            == itunesdb::HandleableDataObjectType::PODCAST_RSS_URL as u32)
+                            == itunesdb::HandleableDataObjectType::Podcast_RSS_URL as u32)
                     {
                         let podcast_url = itunesdb::decode_podcast_urls(idx, &db_file_as_bytes);
 
@@ -1067,7 +1086,7 @@ fn main() {
 
         // Setup columns of CSV file
 
-        csv_writer
+        music_csv_writer
             .write_record(&[
                 "Song Title",
                 "Artist",
@@ -1096,7 +1115,7 @@ fn main() {
             // cannot move out of `song.song_title` which is behind a shared reference
             // move occurs because `song.song_title` has type `String`, which does not implement the `Copy` trait
 
-            csv_writer
+            music_csv_writer
                 .write_record(&[
                     song.song_title.to_string(),
                     song.song_artist.to_string(),
@@ -1121,4 +1140,58 @@ fn main() {
                 .expect("Can't write row to CSV");
         }
     } // End music parser
+
+    if itunesdb_file_type == "itprefs" {
+
+        println!("Parsing iTunesPrefs file: {}", itunesdb_filename);
+
+        let mut idx : usize = 0;
+
+        while idx < (db_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
+
+            let itunespref_file_heading : &[u8] = &db_file_as_bytes[idx .. idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
+
+            if itunespref_file_heading == itunesprefs_constants::ITUNESPREF_OBJECT_KEY.as_bytes() {
+
+                let ipod_is_setup : bool = itunesprefs::has_ipod_been_initialized(helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, itunesprefs_constants::IPOD_SET_UP_YET_SETTING_OFFSET, itunesprefs_constants::IPOD_SET_UP_YET_SETTING_LEN));
+
+                println!("iPod {} been setup yet", if ipod_is_setup {"has"} else { "has NOT" });
+
+                let auto_open_itunes_setting : bool = itunesprefs::auto_open_itunes_enabled(helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, itunesprefs_constants::AUTO_OPEN_ITUNES_SETTING_OFFSET, itunesprefs_constants::AUTO_OPEN_ITUNES_SETTING_LEN));
+
+                println!("Automatically open iTunes when iPod is plugged in? {}", if auto_open_itunes_setting {" Yes "} else { "No" });
+
+                let song_sync_type : String = itunesprefs::decode_sync_automation_level(helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, itunesprefs_constants::SONG_SYNC_AUTOMATION_LEVEL_SETTING_OFFSET, itunesprefs_constants::SONG_SYNC_AUTOMATION_LEVEL_SETTING_LEN));
+
+                let podcast_sync_type : String = itunesprefs::decode_sync_automation_level(helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, itunesprefs_constants::PODCAST_SYNC_AUTOMATION_LEVEL_SETTING_OFFSET, itunesprefs_constants::PODCAST_SYNC_AUTOMATION_LEVEL_SETTING_LEN));
+
+                print!("Podcast sync type: {} | Song sync type: {} ", podcast_sync_type, song_sync_type);
+
+                let only_update_checked_songs_setting_raw : u32 = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, itunesprefs_constants::ONLY_UPDATE_CHECKED_SONGS_SETTING_OFFSET, itunesprefs_constants::ONLY_UPDATE_CHECKED_SONGS_SETTING_LEN);
+
+                if only_update_checked_songs_setting_raw == 1 {
+                    println!("(Warning: only updating checked songs!)");
+                } else {
+                    print!("\n");
+                }
+
+                let sync_selection_setting : String = itunesprefs::decode_sync_selection(helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, itunesprefs_constants::SYNC_SELECTION_SETTING_OFFSET, itunesprefs_constants::SYNC_SELECTION_SETTING_LEN));
+
+                println!("Sync Selection setting: {}", sync_selection_setting);
+
+                let disk_use_setting : bool = itunesprefs::disk_use_enabled(helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, itunesprefs_constants::ENABLE_DISK_USE_SETTING_OFFSET, itunesprefs_constants::ENABLE_DISK_USE_SETTING_LEN));
+
+                println!("Allow disk use? {}", if disk_use_setting {" Yes "} else { "No" });
+
+                let show_artwork_setting = itunesprefs::should_show_artwork(helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, itunesprefs_constants::SHOW_ARTWORK_SETTING_OFFSET, itunesprefs_constants::SHOW_ARTWORK_SETTING_LEN));
+
+                println!("Show album artwork? {}", if show_artwork_setting { "Yes" } else { "No" });
+
+                idx += itunesprefs_constants::ITUNESPREFS_OBJECT_LAST_OFFSET;
+                
+            }
+
+            idx += itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE;
+        }
+    }
 }

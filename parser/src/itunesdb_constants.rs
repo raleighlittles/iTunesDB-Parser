@@ -223,8 +223,11 @@ pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
 
     pub const ALBUM_LIST_LAST_OFFSET: usize = 12;
 
-    // ----- ALBUM ITEM ----- //
-    pub const ALBUM_ITEM_KEY: &str = "mhia";
 
-    pub const ALBUM_ITEM_LAST_OFFSET: usize = 32;
+    // TODO: The iTunesDB file I was provided didn't have anything in this section, even though this is documented in the iTunesDB wiki.
+     
+    // ----- ALBUM ITEM ----- //
+    // pub const ALBUM_ITEM_KEY: &str = "mhia";
+
+    // pub const ALBUM_ITEM_LAST_OFFSET: usize = 32;
 
