@@ -1,8 +1,5 @@
 use std::fmt::Write;
 
-// use crate::photo_database_constants::photo_database_constants::*;
-// use crate::itunesdb_constants::itunesdb_constants::*;
-
 /// Top-level declaration of modules, see: https://stackoverflow.com/questions/46829539
 mod helpers;
 mod itunesdb;
@@ -12,6 +9,7 @@ mod photo_database;
 mod photo_database_constants;
 mod itunesprefs_constants;
 mod itunesprefs;
+mod playcounts_constants;
 
 use crate::itunesdb_constants::*;
 
@@ -1141,7 +1139,7 @@ fn main() {
         }
     } // End music parser
 
-    if itunesdb_file_type == "itprefs" {
+    else if itunesdb_file_type == "itprefs" {
 
         println!("Parsing iTunesPrefs file: {}", itunesdb_filename);
 
@@ -1193,5 +1191,43 @@ fn main() {
 
             idx += itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE;
         }
+    }
+
+    else if itunesdb_file_type == "playcounts" {
+        
+        println!("Parsing PlayCounts file: {}", itunesdb_filename);
+
+        let mut idx = 0;
+
+        while idx < (db_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
+
+            let playcount_file_heading : &[u8] = &db_file_as_bytes[idx .. idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
+
+            if playcount_file_heading == playcounts_constants::PLAYCOUNTS_OBJECT_KEY.as_bytes() {
+
+                let pc_entry_len = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, playcounts_constants::PLAYCOUNTS_ENTRY_LENGTH_OFFSET, playcounts_constants::PLAYCOUNTS_ENTRY_LENGTH_LEN);
+
+                let num_entries = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, playcounts_constants::PLAYCOUNTS_NUM_ENTRIES_OFFSET, playcounts_constants::PLAYCOUNTS_NUM_ENTRIES_LEN);
+
+                println!("Playcounts file has {} songs, and each entry has length {}", num_entries, pc_entry_len);
+
+                println!("===========");
+
+                for track_idx in 0 .. (num_entries as usize) {
+
+                    let pc_starting_idx = (track_idx * pc_entry_len as usize) + playcounts_constants::PLAYCOUNTS_FILE_HEADER_LENGTH;
+
+                    // Use the PC_ENTRY__????? fields here
+
+                    let num_plays = helpers::get_slice_as_le_u32(idx + pc_starting_idx, &db_file_as_bytes, playcounts_constants::PC_ENTRY_NUM_PLAYS_OFFSET, playcounts_constants::PC_ENTRY_NUM_PLAYS_LEN);
+                }
+
+                
+
+            }
+
+            idx += itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE;
+        }
+
     }
 }
