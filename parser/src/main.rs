@@ -10,6 +10,7 @@ mod photo_database_constants;
 mod itunesprefs_constants;
 mod itunesprefs;
 mod playcounts_constants;
+mod photofolderalbums_constants;
 
 use crate::itunesdb_constants::*;
 
@@ -1256,6 +1257,28 @@ fn main() {
             idx += itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE;
         }
 
+    }
+    else if itunesdb_file_type == "pfalbums" {
+
+        println!("Parsing PhotoFolderAlbums file: {}", itunesdb_filename);
+
+        let mut idx : usize = 0;
+
+        while idx < (db_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
+
+            let photofolderalbums_file_heading : &[u8] = &db_file_as_bytes[idx .. idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
+
+            if photofolderalbums_file_heading == photofolderalbums_constants::PHOTOFOLDERALBUMS_OBJECT_KEY.as_bytes() {
+
+                let num_folders = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photofolderalbums_constants::PFA_NUM_FOLDERS_OFFSET, photofolderalbums_constants::PFA_NUM_FOLDERS_LEN);
+
+                println!("'{}' photo folders found", num_folders);
+
+                idx += photofolderalbums_constants::PHOTOFOLDERALBUMS_LAST_HEADER_OFFSET;
+            }
+
+            idx += itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE;
+        }
     }
     else {
         println!("'{}' is not a supported iTunesDB file type!", itunesdb_file_type);
