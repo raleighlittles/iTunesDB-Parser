@@ -1230,8 +1230,6 @@ fn main() {
 
                     let pc_starting_idx = (track_idx * pc_entry_len as usize) + playcounts_constants::PLAYCOUNTS_FILE_HEADER_LENGTH;
 
-                    // Use the PC_ENTRY__????? fields here
-
                     let num_plays = helpers::get_slice_as_le_u32(idx + pc_starting_idx, &db_file_as_bytes, playcounts_constants::PC_ENTRY_NUM_PLAYS_OFFSET, playcounts_constants::PC_ENTRY_NUM_PLAYS_LEN);
 
                     let num_skips : u32 = helpers::get_slice_as_le_u32(idx + pc_starting_idx, &db_file_as_bytes, playcounts_constants::PC_ENTRY_NUM_SKIPS_OFFSET, playcounts_constants::PC_ENTRY_NUM_SKIPS_LEN);
@@ -1253,9 +1251,6 @@ fn main() {
                             last_played_timestamp.to_string(),
                             audio_bookmark_ms.to_string()]).expect("Unable to write row");
                 }
-
-                
-
             }
 
             idx += itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE;
