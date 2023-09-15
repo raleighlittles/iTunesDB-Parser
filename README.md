@@ -18,7 +18,7 @@ Currently, two types of iTunesDB files are supported:
 |----------------------|------------------------------------------------------------------|
 | iTunesDB             | Partial - songs/audio only (no podcasts, movies, etc.)           |
 | Photo Database       | :heavy_check_mark: Can extract all associated metadata of images |
-| Play Counts          | :negative_squared_cross_mark: Not yet supported                  |
+| Play Counts          | :heavy_check_mark:                                               |
 | On The Go Playlist   | :negative_squared_cross_mark: Not yet supported                  |
 | iTunesSD             | :negative_squared_cross_mark: Not yet supported                  |
 | iTunesStats          | :negative_squared_cross_mark: Not yet supported                  |
