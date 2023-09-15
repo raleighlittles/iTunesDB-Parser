@@ -533,7 +533,7 @@ pub fn decode_data_object_type(data_object_type_raw: u32) -> String {
         data_object_type = "TV Show (in Album List)".to_string();
     } else {
         eprintln!(
-            "Unable to decode data object with type #{}",
+            "Unable to decode Data Object with type #{}",
             data_object_type_raw
         );
     }
