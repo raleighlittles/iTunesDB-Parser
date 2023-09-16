@@ -11,6 +11,8 @@ mod itunesprefs_constants;
 mod itunesprefs;
 mod playcounts_constants;
 mod photofolderalbums_constants;
+mod preferences_constants;
+mod preferences;
 
 use crate::itunesdb_constants::*;
 
@@ -1279,6 +1281,40 @@ fn main() {
 
             idx += itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE;
         }
+    }
+    else if itunesdb_file_type == "preferences" {
+
+        println!("Parsing Preferences file: {}", itunesdb_filename);
+
+        let idx : usize = 0;
+
+        if idx < (db_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
+
+            let dst_setting_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, preferences_constants::DST_SETTING_OFFSET, preferences_constants::DST_SETTING_LEN);
+
+            println!("DST enabled?: {}", preferences::is_dst_enabled(dst_setting_raw as u8));
+
+            let language_selection_idx = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, preferences_constants::LANGUAGE_SELECTION_OFFSET, preferences_constants::LANGUAGE_SELECTION_LEN);
+
+            println!("Selected language idx: {}", language_selection_idx);
+
+            let tz_info_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, preferences_constants::TIMEZONE_INFO_OFFSET, preferences_constants::TIMEZONE_INFO_LEN);
+
+            println!("Raw timezone value: {} | Calculated timezone : GMT+'{}'", tz_info_raw, preferences::decode_timezone(tz_info_raw as u8));
+
+            let volume_limit = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, preferences_constants::VOLUME_LIMIT_OFFSET, preferences_constants::VOLUME_LIMIT_LEN);
+            
+            if volume_limit != 0 {
+                println!("Volume limit (if enabled): {} ", volume_limit);
+            }
+
+            let region_info = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, preferences_constants::REGION_OFFSET, preferences_constants::REGION_LEN);
+
+            println!("Raw region info: '{}'", region_info);
+
+        }
+
+
     }
     else {
         println!("'{}' is not a supported iTunesDB file type!", itunesdb_file_type);
