@@ -2,11 +2,12 @@
  * 
  * File: preferences.rs
  * 
+ * Provides functionality for working with the Preferences file
  */
 
 use std::num::Wrapping;
 
-pub fn is_dst_enabled(raw_dst_setting : u8) -> bool {
+pub fn is_daylight_savings_enabled(raw_dst_setting : u8) -> bool {
 
     let dst_enabled_val : u8 = 0x3C; // 60d
 

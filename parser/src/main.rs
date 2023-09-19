@@ -1292,7 +1292,7 @@ fn main() {
 
             let dst_setting_raw = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, preferences_constants::DST_SETTING_OFFSET, preferences_constants::DST_SETTING_LEN);
 
-            println!("DST enabled?: {}", preferences::is_dst_enabled(dst_setting_raw as u8));
+            println!("DST enabled?: {}", preferences::is_daylight_savings_enabled(dst_setting_raw as u8));
 
             let language_selection_idx = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, preferences_constants::LANGUAGE_SELECTION_OFFSET, preferences_constants::LANGUAGE_SELECTION_LEN);
 
@@ -1311,10 +1311,7 @@ fn main() {
             let region_info = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, preferences_constants::REGION_OFFSET, preferences_constants::REGION_LEN);
 
             println!("Raw region info: '{}'", region_info);
-
         }
-
-
     }
     else {
         println!("'{}' is not a supported iTunesDB file type!", itunesdb_file_type);

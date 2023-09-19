@@ -16,25 +16,27 @@ Currently, two types of iTunesDB files are supported:
 
 | File type            | Supported?                                                       |
 |----------------------|------------------------------------------------------------------|
-| iTunesDB             | Partial - songs/audio only (no podcasts, movies, etc.)           |
-| Photo Database       | :heavy_check_mark: Can extract all associated metadata of images |
-| Play Counts          | :heavy_check_mark:                                               |
+| Artwork DB           | :negative_squared_cross_mark: Not yet supported                  |
+| DeviceInfo           | :negative_squared_cross_mark: Not yet supported                  |
+| Equalizer Presets    | :negative_squared_cross_mark: Not yet supported                  |
 | On The Go Playlist   | :negative_squared_cross_mark: Not yet supported                  |
+| Photo Database       | :heavy_check_mark: Can extract all associated metadata of images |
+| PhotoFolderAlbums    | Partial - only can detect the # of photo albums                  |
+| PhotoFolderPrefs     | :negative_squared_cross_mark: Not yet supported                  |
+| PhotosFolderName     | :negative_squared_cross_mark: Not yet supported                  |
+| Play Counts          | :heavy_check_mark:                                               |
+| Preferences          | :heavy_check_mark:                                               |
+| WABContactsGroup     | :negative_squared_cross_mark: Not yet supported                  |
+| iEKInfo              | :negative_squared_cross_mark: Not yet supported                  |
+| iTunesDB             | Partial - songs/audio only (no podcasts, movies, etc.)           |
+| iTunesPState         | :negative_squared_cross_mark: Not yet supported                  |
+| iTunesPlaylists      | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPlaylists) |
+| iTunesPodcasts       | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPodcasts) |
+| iTunesPrefs          | :heavy_check_mark:                                               |
 | iTunesSD             | :negative_squared_cross_mark: Not yet supported                  |
 | iTunesStats          | :negative_squared_cross_mark: Not yet supported                  |
-| iTunesPrefs          | :heavy_check_mark:                                               |
-| winPrefs             | :negative_squared_cross_mark: Not yet supported                  |
-| DeviceInfo           | :negative_squared_cross_mark: Not yet supported                  |
-| iEKInfo              | :negative_squared_cross_mark: Not yet supported                  |
-| WABContactsGroup     | :negative_squared_cross_mark: Not yet supported                  |
-| iTunesLock           | :negative_squared_cross_mark: Not yet supported                  |
-| PhotosFolderName     | :negative_squared_cross_mark: Not yet supported                  |
-| PhotoFolderPrefs     | :negative_squared_cross_mark: Not yet supported                  |
-| PhotoFolderAlbums    | :negative_squared_cross_mark: Not yet supported                  |
-| iTunesPlaylists      | :negative_squared_cross_mark: Not yet supported                  |
-| iTunesPodcasts       | :negative_squared_cross_mark: Not yet supported                  |
-| iTunesVideoPlaylists | :negative_squared_cross_mark: Not yet supported                  |
-| Preferences          | :negative_squared_cross_mark: Not yet supported                  |
+| iTunesVideoPlaylists | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesVideoPlaylists) |
+| winPrefs             | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#winPrefs_File) |
 
 
 The source code for the parser is in the `itunesdb_parser` directory.
