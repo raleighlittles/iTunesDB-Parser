@@ -34,6 +34,9 @@ pub const IMAGE_ITEM_LAST_OFFSET: usize = 52; // 4 * 13
 // ----- IMAGE NAME ----- //
 pub const IMAGE_NAME_KEY: &str = "mhni";
 
+pub const IMAGE_NAME_ITHMB_OFFSET_OFFSET : usize = 16;
+pub const IMAGE_NAME_ITHMB_OFFSET_LEN : usize = 4;
+
 // TODO #1 ~ There's 2 size fields in this key list, and I don't understand what the difference between the two is.
 // There's also another image size field in the "Image Item" key list. I don't know the difference between this
 // and that one either.
@@ -45,8 +48,7 @@ pub const IMAGE_NAME_IMG_SIZE_LEN: usize = 4;
 pub const IMAGE_NAME_IMG_HEIGHT_OFFSET: usize = 32; // 4 * 8
 pub const IMAGE_NAME_IMG_HEIGHT_LEN: usize = 2;
 
-pub const IMAGE_NAME_IMG_WIDTH_OFFSET: usize =
-    IMAGE_NAME_IMG_HEIGHT_OFFSET + IMAGE_NAME_IMG_HEIGHT_LEN;
+pub const IMAGE_NAME_IMG_WIDTH_OFFSET: usize = 34;
 pub const IMAGE_NAME_IMG_WIDTH_LEN: usize = IMAGE_NAME_IMG_HEIGHT_LEN;
 
 pub const IMAGE_NAME_LAST_OFFSET: usize = 44; // 4 * 11

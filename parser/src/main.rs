@@ -124,9 +124,9 @@ fn main() {
                     photo_database_constants::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN,
                 );
 
-                // println!("ImageItem#{} : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, itunesdb_helpers::decode_itunes_stars(image_item_rating), image_item_source_img_size, itunesdb_helpers::get_timestamp_as_mac(image_item_orig_date_timestamp_raw as u64), itunesdb_helpers::get_timestamp_as_mac(image_item_digitized_timestamp_raw as u64));
+                println!("ImageItem#{} : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, itunesdb_helpers::decode_itunes_stars(image_item_rating as u8), image_item_source_img_size, helpers::get_timestamp_as_mac(image_item_orig_date_timestamp_raw as u64), helpers::get_timestamp_as_mac(image_item_digitized_timestamp_raw as u64));
 
-                //println!("==========");
+                println!("==========");
                 num_image_items += 1;
 
                 idx += photo_database_constants::IMAGE_ITEM_LAST_OFFSET;
@@ -139,6 +139,9 @@ fn main() {
             else if potential_photo_section_heading
                 == photo_database_constants::IMAGE_NAME_KEY.as_bytes()
             {
+
+                let ithmb_offset = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, photo_database_constants::IMAGE_NAME_ITHMB_OFFSET_OFFSET, photo_database_constants::IMAGE_NAME_ITHMB_OFFSET_LEN);
+
                 let image_name_img_size = helpers::get_slice_as_le_u32(
                     idx,
                     &db_file_as_bytes,
@@ -162,11 +165,12 @@ fn main() {
                 );
 
                 // println!(
-                //     "ImageName#{} : Size= {} bytes, Height={} , Width={}",
+                //     "ImageName#{} : Size= {} bytes, Height={} , Width={} | thumbnail offset {}",
                 //     num_image_names,
                 //     image_name_img_size,
                 //     image_name_img_height,
-                //     image_name_img_width
+                //     image_name_img_width,
+                //     ithmb_offset
                 // );
                 // println!("==========");
 
@@ -322,7 +326,7 @@ fn main() {
                 ])
                 .expect("Can't write row");
         }
-    } else if itunesdb_file_type == "music" {
+    } else if itunesdb_file_type == "itunes" {
 
         let mut music_csv_writer = init_csv_writer(&desired_csv_filename);
 
@@ -871,8 +875,14 @@ fn main() {
                     )
                     .unwrap();
 
-                    //println!("{} \n", track_item_info);
+                    println!("{} \n", track_item_info);
                 }
+
+                else if matches!(
+                    track_media_type_enum,
+                    itunesdb::HandleableMediaType::Podcast) {
+                        println!("TrackItem: Podcast found");
+                    }
 
                 idx += itunesdb_constants::TRACK_ITEM_LAST_OFFSET;
             } else if potential_section_heading == itunesdb_constants::PLAYLIST_KEY.as_bytes() {
@@ -1075,7 +1085,7 @@ fn main() {
                     }
                 }
 
-                //println!("{} %%%%%%% \r\n", data_object_info);
+                println!("{} %%%%%%% \r\n", data_object_info);
 
                 idx += itunesdb_constants::DATA_OBJECT_LAST_OFFSET;
             }
