@@ -6,6 +6,8 @@
  *
  */
 
+ use crate::itunesdb_constants;
+
 pub struct Song {
     pub file_extension: String,
     pub bitrate_kbps: u32,
@@ -421,13 +423,13 @@ pub fn decode_podcast_urls(mhod_start_idx: usize, file_as_bytes: &[u8]) -> Strin
         mhod_start_idx,
         file_as_bytes,
         header_len_offset,
-        super::DEFAULT_SUBSTRUCTURE_SIZE,
+        itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE,
     );
     let total_length = super::helpers::get_slice_as_le_u32(
         mhod_start_idx,
         file_as_bytes,
         total_length_offset,
-        super::DEFAULT_SUBSTRUCTURE_SIZE,
+        itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE,
     );
 
     let podcast_url_length = total_length - element_header_length;
