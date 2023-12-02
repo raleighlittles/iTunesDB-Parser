@@ -1,24 +1,34 @@
 use std::fmt::Write;
 
-/// Top-level declaration of modules, see: https://stackoverflow.com/questions/46829539
-mod helpers;
-mod itunesdb;
-mod itunesdb_constants;
-mod itunesdb_helpers;
-mod itunesprefs;
-mod itunesprefs_constants;
-mod photo_database;
-mod photo_database_constants;
-mod photofolderalbums_constants;
-mod playcounts_constants;
-mod preferences;
-mod preferences_constants;
+/// Top-level declaration of modules, see:
+/// https://stackoverflow.com/questions/46829539
+/// https://stackoverflow.com/questions/58935890
 
-// Parsers
-mod itunesdb_parser;
-mod photo_type_parser;
-mod playcounts_parser;
-mod preferences_parser;
+mod constants {
+    pub mod itunesdb_constants;
+    pub mod itunesprefs_constants;
+    pub mod photo_database_constants;
+    pub mod photofolderalbums_constants;
+    pub mod playcounts_constants;
+    pub mod preferences_constants;
+}
+
+mod helpers {
+    pub mod helpers;
+    pub mod itunesdb_helpers;
+}
+
+mod parsers {
+    pub mod itunesdb_parser;
+    pub mod photo_type_parser;
+    pub mod playcounts_parser;
+    pub mod preferences_parser;
+}
+
+mod itunesdb;
+mod itunesprefs;
+mod photo_database;
+mod preferences;
 
 fn init_csv_writer(filename: &str) -> csv::Writer<std::fs::File> {
     let csv_writer = csv::Writer::from_path(filename)
@@ -43,29 +53,29 @@ fn main() {
     if itunesdb_file_type == "photo" {
 
         let photos_csv_writer = init_csv_writer(&desired_csv_filename);
-        photo_type_parser::parse_photo_type_file(itunesdb_filename, photos_csv_writer);
+        parsers::photo_type_parser::parse_photo_type_file(itunesdb_filename, photos_csv_writer);
 
     } else if itunesdb_file_type == "itunes" {
 
         let itunesdb_csv_writer = init_csv_writer(&desired_csv_filename);
-        itunesdb_parser::parse_itunesdb_file(itunesdb_filename, itunesdb_csv_writer);
+        parsers::itunesdb_parser::parse_itunesdb_file(itunesdb_filename, itunesdb_csv_writer);
 
     } else if itunesdb_file_type == "itprefs" {
 
-        preferences_parser::parse_itunes_prefs_file(itunesdb_filename);
+        parsers::preferences_parser::parse_itunes_prefs_file(itunesdb_filename);
 
     } else if itunesdb_file_type == "playcounts" {
 
         let playcounts_csv_writer = init_csv_writer(&desired_csv_filename);
-        playcounts_parser::parse_playcounts(itunesdb_filename, playcounts_csv_writer);
+        parsers::playcounts_parser::parse_playcounts(itunesdb_filename, playcounts_csv_writer);
 
     } else if itunesdb_file_type == "pfalbums" {
 
-        photo_type_parser::parse_photofolder_albums_file(itunesdb_filename);
+        parsers::photo_type_parser::parse_photofolder_albums_file(itunesdb_filename);
 
     } else if itunesdb_file_type == "preferences" {
 
-        preferences_parser::parse_preferences_file(itunesdb_filename);
+        parsers::preferences_parser::parse_preferences_file(itunesdb_filename);
 
     } else {
         println!(

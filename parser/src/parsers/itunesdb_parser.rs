@@ -1,10 +1,10 @@
 use std::fmt::Write;
 
-use crate::itunesdb_constants;
+use crate::constants::itunesdb_constants;
 use crate::itunesdb;
 
-use crate::helpers;
-use crate::itunesdb_helpers;
+use crate::helpers::helpers;
+use crate::helpers::itunesdb_helpers;
 
 pub fn parse_itunesdb_file(itunesdb_filename : String, mut csv_writer_obj : csv::Writer<std::fs::File>) {
 
