@@ -1,12 +1,12 @@
 
-use crate::itunesprefs_constants;
-use crate::preferences_constants;
-use crate::itunesdb_constants;
+use crate::constants::itunesprefs_constants;
+use crate::constants::preferences_constants;
+use crate::constants::itunesdb_constants;
 
 use crate::itunesprefs;
 use crate::preferences;
 
-use crate::helpers;
+use crate::helpers::helpers;
 
 pub fn parse_itunes_prefs_file(itunesdb_filename : String) {
 

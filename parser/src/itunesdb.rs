@@ -6,7 +6,19 @@
  *
  */
 
- use crate::itunesdb_constants;
+ use crate::constants::itunesdb_constants;
+
+ use crate::helpers::helpers;
+ use crate::helpers::itunesdb_helpers;
+
+ pub struct Podcast {
+    pub podcast_title : String,
+    pub podcast_publisher : String,
+    pub podcast_genre : String,
+    pub podcast_file_type : String,
+    pub podcast_subtitle : String,
+    pub podcast_description : String
+ }
 
 pub struct Song {
     pub file_extension: String,
@@ -50,7 +62,7 @@ impl Default for Song {
             num_plays: 0,
             song_rating_raw: 0,
             song_added_to_library_epoch: 0,
-            song_added_to_library_ts: super::helpers::get_timestamp_as_mac(0),
+            song_added_to_library_ts: helpers::get_timestamp_as_mac(0),
             song_year: 0,
             song_title: "".to_string(),
             song_artist: "".to_string(),
@@ -64,30 +76,29 @@ impl Default for Song {
 }
 
 impl Song {
-    // TODO once support for other types of media (podcasts?) is added, these functions will have to be moved into a shared area
 
     pub fn set_song_duration(&mut self, song_duration_raw: u32) {
 
         self.song_duration_s = super::itunesdb::decode_raw_track_length_to_s(song_duration_raw);
         
         self.song_duration_friendly =
-            super::helpers::convert_seconds_to_human_readable_duration(self.song_duration_s);
+            helpers::convert_seconds_to_human_readable_duration(self.song_duration_s);
     }
 
     pub fn set_song_filesize(&mut self, file_size_bytes: u32) {
         self.file_size_bytes = file_size_bytes;
         self.file_size_friendly =
-            super::helpers::convert_bytes_to_human_readable_size(file_size_bytes as u64);
+            helpers::convert_bytes_to_human_readable_size(file_size_bytes as u64);
     }
 
     pub fn set_song_added_timestamp(&mut self, added_to_library_epoch: u64) {
         self.song_added_to_library_epoch = added_to_library_epoch;
         self.song_added_to_library_ts =
-            super::helpers::get_timestamp_as_mac(added_to_library_epoch);
+            helpers::get_timestamp_as_mac(added_to_library_epoch);
     }
 
     pub fn set_song_filename(&mut self, song_filename_raw: String) {
-        self.song_filename = super::itunesdb_helpers::get_canonical_path(song_filename_raw)
+        self.song_filename = itunesdb_helpers::get_canonical_path(song_filename_raw)
     }
 
     /// This function determines whether there's enough metadata for the song to be added.
@@ -105,6 +116,8 @@ impl Song {
         }
     }
 }
+
+
 
 pub fn parse_version_number(version_number: u32) -> String {
     let itunes_version: String;
@@ -419,13 +432,13 @@ pub fn is_data_object_type_string(data_object_raw: u32) -> bool {
 pub fn decode_podcast_urls(mhod_start_idx: usize, file_as_bytes: &[u8]) -> String {
     let header_len_offset = 4;
     let total_length_offset = 8;
-    let element_header_length = super::helpers::get_slice_as_le_u32(
+    let element_header_length = helpers::get_slice_as_le_u32(
         mhod_start_idx,
         file_as_bytes,
         header_len_offset,
         itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE,
     );
-    let total_length = super::helpers::get_slice_as_le_u32(
+    let total_length = helpers::get_slice_as_le_u32(
         mhod_start_idx,
         file_as_bytes,
         total_length_offset,

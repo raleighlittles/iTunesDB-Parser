@@ -1,10 +1,10 @@
 
-use crate::helpers;
 
-use crate::playcounts_constants;
-use crate::itunesdb_constants;
+use crate::constants::playcounts_constants;
+use crate::constants::itunesdb_constants;
 
-use crate::itunesdb_helpers;
+use crate::helpers::itunesdb_helpers;
+use crate::helpers::helpers;
 
 pub fn parse_playcounts(itunesdb_filename : String, mut csv_writer_obj : csv::Writer<std::fs::File>) {
 

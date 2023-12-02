@@ -1,4 +1,3 @@
-use std::fmt::Write;
 
 /// Top-level declaration of modules, see:
 /// https://stackoverflow.com/questions/46829539
@@ -30,12 +29,7 @@ mod itunesprefs;
 mod photo_database;
 mod preferences;
 
-fn init_csv_writer(filename: &str) -> csv::Writer<std::fs::File> {
-    let csv_writer = csv::Writer::from_path(filename)
-        .expect(&format!("Can't initialize CSV file '{}'", &filename));
 
-    return csv_writer;
-}
 
 fn main() {
     let itunesdb_filename: String = std::env::args()
@@ -52,13 +46,14 @@ fn main() {
 
     if itunesdb_file_type == "photo" {
 
-        let photos_csv_writer = init_csv_writer(&desired_csv_filename);
+        let photos_csv_writer = helpers::helpers::init_csv_writer(&desired_csv_filename);
         parsers::photo_type_parser::parse_photo_type_file(itunesdb_filename, photos_csv_writer);
 
     } else if itunesdb_file_type == "itunes" {
 
-        let itunesdb_csv_writer = init_csv_writer(&desired_csv_filename);
-        parsers::itunesdb_parser::parse_itunesdb_file(itunesdb_filename, itunesdb_csv_writer);
+        //let itunesdb_csv_writer = init_csv_writer(&desired_csv_filename);
+        //parsers::itunesdb_parser::parse_itunesdb_file(itunesdb_filename, itunesdb_csv_writer);
+        parsers::itunesdb_parser::parse_itunesdb_file(itunesdb_filename, desired_csv_filename);
 
     } else if itunesdb_file_type == "itprefs" {
 
@@ -66,7 +61,7 @@ fn main() {
 
     } else if itunesdb_file_type == "playcounts" {
 
-        let playcounts_csv_writer = init_csv_writer(&desired_csv_filename);
+        let playcounts_csv_writer = helpers::helpers::init_csv_writer(&desired_csv_filename);
         parsers::playcounts_parser::parse_playcounts(itunesdb_filename, playcounts_csv_writer);
 
     } else if itunesdb_file_type == "pfalbums" {

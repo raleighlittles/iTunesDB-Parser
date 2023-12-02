@@ -6,7 +6,10 @@ use crate::itunesdb;
 use crate::helpers::helpers;
 use crate::helpers::itunesdb_helpers;
 
-pub fn parse_itunesdb_file(itunesdb_filename : String, mut csv_writer_obj : csv::Writer<std::fs::File>) {
+
+pub fn parse_itunesdb_file(itunesdb_filename : String, /*mut csv_writer_obj : csv::Writer<std::fs::File> */ desired_csv_filename : String) {
+
+    let mut csv_writer_obj = helpers::init_csv_writer(&desired_csv_filename);
 
     let db_file_as_bytes: Vec<u8> = std::fs::read(&itunesdb_filename).unwrap();
 

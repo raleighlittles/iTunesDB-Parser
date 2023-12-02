@@ -4,7 +4,8 @@
  * Provides functionality around working with the Photo Database internals file. Photo analogue of 'itunesdb.rs'
  * http://www.ipodlinux.org/ITunesDB/#Photo_Database
  */
-use crate::helpers::*;
+use crate::helpers::helpers;
+use crate::helpers::itunesdb_helpers;
 
 pub struct Image {
     pub filename: String,
@@ -27,9 +28,9 @@ impl Default for Image {
             file_size_bytes: 0,
             file_size_human_readable: "".to_string(),
             original_date_epoch: 0,
-            original_date_ts: get_timestamp_as_mac(0),
+            original_date_ts: helpers::get_timestamp_as_mac(0),
             digitized_date_epoch: 0,
-            digitized_date_ts: super::helpers::get_timestamp_as_mac(0),
+            digitized_date_ts: helpers::get_timestamp_as_mac(0),
         };
     }
 }
@@ -37,23 +38,23 @@ impl Default for Image {
 impl Image {
     pub fn set_original_date(&mut self, orig_date_epoch: u64) {
         self.original_date_epoch = orig_date_epoch;
-        self.original_date_ts = super::helpers::get_timestamp_as_mac(orig_date_epoch);
+        self.original_date_ts = helpers::get_timestamp_as_mac(orig_date_epoch);
     }
 
     pub fn set_filesize(&mut self, filesize_in_bytes: u32) {
         self.file_size_bytes = filesize_in_bytes;
 
         self.file_size_human_readable =
-            super::helpers::convert_bytes_to_human_readable_size(filesize_in_bytes as u64);
+            helpers::convert_bytes_to_human_readable_size(filesize_in_bytes as u64);
     }
 
     pub fn set_digitized_date(&mut self, digitized_date_epoch: u64) {
         self.digitized_date_epoch = digitized_date_epoch;
-        self.digitized_date_ts = super::helpers::get_timestamp_as_mac(digitized_date_epoch);
+        self.digitized_date_ts = helpers::get_timestamp_as_mac(digitized_date_epoch);
     }
 
     pub fn set_filename(&mut self, filename: String) {
-        self.filename = super::itunesdb_helpers::get_canonical_path(filename);
+        self.filename = itunesdb_helpers::get_canonical_path(filename);
     }
 
     fn are_dates_valid(&self) -> bool {

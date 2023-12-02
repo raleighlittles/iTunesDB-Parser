@@ -3,14 +3,14 @@
 use std::fmt::Write;
 
 
-use crate::helpers;
-use crate::itunesdb_helpers;
+use crate::helpers::helpers;
+use crate::helpers::itunesdb_helpers;
 
 use crate::photo_database;
 
-use crate::itunesdb_constants;
-use crate::photo_database_constants;
-use crate::photofolderalbums_constants;
+use crate::constants::itunesdb_constants;
+use crate::constants::photo_database_constants;
+use crate::constants::photofolderalbums_constants;
 
 pub fn parse_photofolder_albums_file(itunesdb_filename : String) {
 

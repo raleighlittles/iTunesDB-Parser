@@ -208,3 +208,11 @@ pub fn convert_bytes_to_human_readable_size(num_bytes: u64) -> String {
 
     return human_readable_size;
 }
+
+/// Initialize an object to write to a CSV file, given a CSV filename
+pub fn init_csv_writer(filename: &str) -> csv::Writer<std::fs::File> {
+    let csv_writer = csv::Writer::from_path(filename)
+        .expect(&format!("Can't initialize CSV file '{}'", &filename));
+
+    return csv_writer;
+}
