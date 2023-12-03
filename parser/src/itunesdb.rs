@@ -20,6 +20,21 @@
     pub podcast_description : String
  }
 
+ impl Default for Podcast {
+
+    fn default() -> Podcast {
+
+        return Podcast {
+            podcast_title: "".to_string(),
+            podcast_publisher : "".to_string(),
+            podcast_genre: "".to_string(),
+            podcast_file_type: "".to_string(),
+            podcast_subtitle: "".to_string(),
+            podcast_description: "".to_string()
+        };
+    }
+ }
+
 pub struct Song {
     pub file_extension: String,
     pub bitrate_kbps: u32,
@@ -291,6 +306,7 @@ pub fn decode_track_audio_type(track_type_unk14_1: u32) -> String {
     return suspected_track_type;
 }
 
+#[derive(PartialEq)]
 pub enum HandleableMediaType {
     SongLike = 1,
     Podcast = 2,
@@ -410,17 +426,20 @@ pub fn decode_playlist_sort_order(playlist_sort_order_raw: u32) -> String {
     return playlist_sort_order;
 }
 
-/// The "Handleable" in this case means it represents a special case that gets handled differently
+/// The "Handleable" in this case means it represents a field that will get logged or is particularly important.
+/// Not all Data Object fields will be present and even of those that are, not all are relevant.
 #[allow(non_camel_case_types)]
 pub enum HandleableDataObjectType {
-    SongTitle = 1,
+    Title = 1,
     /// The last data object is the file location
     FileLocation = 2,
-    SongAlbum = 3,
-    SongArtist = 4,
-    SongGenre = 5,
-    SongComment = 8,
-    SongComposer = 12,
+    Album = 3,
+    Artist = 4,
+    Genre = 5,
+    FileType = 6,
+    Comment = 8,
+    Composer = 12,
+    PodcastDescription = 14,
     PodcastEnclosureURL = 15,
     Podcast_RSS_URL = 16,
 }
