@@ -12,7 +12,7 @@ The format for iTunesDB files was reverse-engineered by the [iPod Linux](https:/
 
 This repository contains a parser/extractor for iTunesDB files, written in Rust.
 
-Currently, two types of iTunesDB files are supported:
+The table below shows which iTunesDB files are supported.
 
 | File type            | Supported?                                                       |
 |----------------------|------------------------------------------------------------------|
@@ -28,7 +28,7 @@ Currently, two types of iTunesDB files are supported:
 | Preferences          | :heavy_check_mark:                                               |
 | WABContactsGroup     | :negative_squared_cross_mark: Not yet supported                  |
 | iEKInfo              | :negative_squared_cross_mark: Not yet supported                  |
-| iTunesDB             | Partial - songs/audio only (no podcasts, movies, etc.)           |
+| iTunesDB             | Partial - Songs and Podcasts only. No television or movies       |
 | iTunesPState         | :negative_squared_cross_mark: Not yet supported                  |
 | iTunesPlaylists      | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPlaylists) |
 | iTunesPodcasts       | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPodcasts) |
@@ -41,7 +41,7 @@ Currently, two types of iTunesDB files are supported:
 
 The source code for the parser is in the `itunesdb_parser` directory.
 
-Because iPodLinux isn't maintained anymore, I was worried that the website (and thus the iTunesDB wiki) would be taken down at some point, so I downloaded the documentation. Both the original website HTML, and a markdown-formatted version are in the `itunesdb-doc` folder: [Link](./itunesdb-doc/README.md)
+Because iPodLinux isn't maintained anymore, I was worried that the website (and thus the iTunesDB wiki) would be taken down at some point, so I downloaded the documentation. Both the original website, and a markdown-formatted version are in the `itunesdb-doc` folder: [Link](./itunesdb-doc/README.md)
 
 # Code
 
@@ -51,15 +51,23 @@ The parser is written in Rust. You can build it by running `cargo build`. It req
 $ /target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
 ```
 
-Running this tool will create a CSV file with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs mentioned in the iTunesDB file.
+Running this tool will create a CSV file with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs and podcasts mentioned in the iTunesDB file.
 
 ![CSV music screenshot](./docs/20230716_music-csv.png)
+
+![CSV podcast screenshot](./docs/2023122_podcasts-csv.png)
 
 If you run it on a Photo Database file, you'll see the list of all images stored on that iPod.
 
 ![CSV photo screenshot](./docs/20230715_photodatabase-csv.png)
 
-# Future roadmap & contributing
+# Future roadma
 
-This project is a very early work-in-progress. At some point, I'd like to add support for the other database types. I don't have an iPod anymore, or any other files from it besides the Photos Database ones. If you have any iTunesDB files from the unsupported list and are willing to share, please open an issue. Special thanks to @AZProductions for providing an iTunesDB file.
+This project is a very early work-in-progress. The next major feature to come is iThumb file decoding.
 
+
+# Interested in contributing?
+
+I don't have an iPod anymore, or any other files from it besides the Photos Database ones. If you have any iTunesDB files from the unsupported list and are willing to share, please contact me.
+
+Special thanks to @AZProductions for providing an iTunesDB file.
