@@ -34,13 +34,14 @@ pub fn parse_photofolder_albums_file(itunesdb_filename : String) {
 }
 
 
-pub fn parse_photo_type_file(itunesdb_filename : String, mut csv_writer_obj : csv::Writer<std::fs::File>) {
+//pub fn parse_photo_type_file(itunesdb_filename : String, mut csv_writer_obj : csv::Writer<std::fs::File>) {
+pub fn parse_photo_type_file(itunesdb_filename : &std::path::Path, mut csv_writer_obj : csv::Writer<std::fs::File>) {
 
     let db_file_as_bytes: Vec<u8> = std::fs::read(&itunesdb_filename).unwrap();
 
-    if db_file_as_bytes.len() < 1 {
-        panic!("Provided file '{}' was empty", itunesdb_filename);
-    }
+    // if db_file_as_bytes.len() < 1 {
+    //     panic!("Provided file '{}' was empty", itunesdb_filename);
+    // }
 
     // Photo Database counters
     let mut num_image_lists = 0;
@@ -49,7 +50,7 @@ pub fn parse_photo_type_file(itunesdb_filename : String, mut csv_writer_obj : cs
     let mut num_photo_albums = 0;
     let mut num_photo_data_objects = 0;
 
-    println!("Parsing photo file: {}", itunesdb_filename);
+    println!("Parsing photo file: {}", itunesdb_filename.display());
 
     let mut images_found: Vec<photo_database::Image> = Vec::new();
 
@@ -73,7 +74,7 @@ pub fn parse_photo_type_file(itunesdb_filename : String, mut csv_writer_obj : cs
 
             println!(
                 "{} images found in file {}",
-                image_list_num_images, itunesdb_filename
+                image_list_num_images, itunesdb_filename.display()
             );
             println!("==========");
             num_image_lists += 1;
@@ -138,7 +139,7 @@ pub fn parse_photo_type_file(itunesdb_filename : String, mut csv_writer_obj : cs
                 photo_database_constants::IMAGE_NAME_IMG_SIZE_LEN,
             );
 
-            // TODO: Figure out why the Image Height and Image Width are both 0
+            // TODO: Figure out why the Image Height and Image Width are both zero
             let image_name_img_height = helpers::get_slice_as_le_u32(
                 idx,
                 &db_file_as_bytes,
@@ -153,15 +154,15 @@ pub fn parse_photo_type_file(itunesdb_filename : String, mut csv_writer_obj : cs
                 photo_database_constants::IMAGE_NAME_IMG_WIDTH_LEN,
             );
 
-            // println!(
-            //     "ImageName#{} : Size= {} bytes, Height={} , Width={} | thumbnail offset {}",
-            //     num_image_names,
-            //     image_name_img_size,
-            //     image_name_img_height,
-            //     image_name_img_width,
-            //     ithmb_offset
-            // );
-            // println!("==========");
+            println!(
+                "ImageName#{} : Size= {} bytes, Height={} , Width={} | thumbnail offset {}",
+                num_image_names,
+                image_name_img_size,
+                image_name_img_height,
+                image_name_img_width,
+                ithmb_offset
+            );
+            println!("==========");
 
             num_image_names += 1;
 

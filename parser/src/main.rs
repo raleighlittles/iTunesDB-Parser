@@ -37,9 +37,16 @@ fn main() {
         .expect("Missing first parameter: iTunes DB filename");
 
 
-    if !std::path::Path::new(&itunesdb_filename).exists() {
-        panic!("No itunesDB file with that name '{}' exists", itunesdb_filename);
+    let itunesdb_file = std::path::Path::new(&itunesdb_filename);
+
+
+    if itunesdb_file.exists() || itunesdb_file.metadata().unwrap().len() < 1 {
+        panic!("No itunesDB file with that name '{}' exists, or the file is empty", itunesdb_filename);
     }
+
+    // if !std::path::Path::new(&itunesdb_filename).exists() {
+    //     panic!("No itunesDB file with that name '{}' exists", itunesdb_filename);
+    // }
 
     let itunesdb_file_type: String = std::env::args()
         .nth(2)
@@ -51,7 +58,7 @@ fn main() {
     if itunesdb_file_type == "photo" {
 
         let photos_csv_writer = helpers::helpers::init_csv_writer(&desired_report_csv_filename);
-        parsers::photo_type_parser::parse_photo_type_file(itunesdb_filename, photos_csv_writer);
+        parsers::photo_type_parser::parse_photo_type_file(itunesdb_file, photos_csv_writer);
 
     } else if itunesdb_file_type == "itunes" {
 
