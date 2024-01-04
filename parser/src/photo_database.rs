@@ -16,6 +16,7 @@ pub struct Image {
     pub original_date_ts: chrono::DateTime<chrono::Utc>,
     pub digitized_date_epoch: u64,
     pub digitized_date_ts: chrono::DateTime<chrono::Utc>,
+    pub ithmb_offset: u32
 }
 
 /// Allows instantiation of a "default" Image,
@@ -31,6 +32,7 @@ impl Default for Image {
             original_date_ts: helpers::get_timestamp_as_mac(0),
             digitized_date_epoch: 0,
             digitized_date_ts: helpers::get_timestamp_as_mac(0),
+            ithmb_offset : 0
         };
     }
 }

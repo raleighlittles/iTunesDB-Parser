@@ -53,7 +53,7 @@ pub struct Song {
     pub song_composer: String,
     pub song_album: String,
     pub song_genre: String,
-    pub song_comment: String,
+    pub song_comment: String, 
     /// As far as I can tell from looking at the output, this field
     /// is always the last one to get populated
     pub song_filename: String,

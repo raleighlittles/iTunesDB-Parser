@@ -165,6 +165,8 @@ pub fn parse_photo_type_file(itunesdb_filename : String, mut csv_writer_obj : cs
 
             //curr_img.file_size_bytes = image_name_img_size as u64;
             curr_img.set_filesize(image_name_img_size);
+
+            curr_img.ithmb_offset = ithmb_offset;
         }
         // Parse Photo Album
         else if potential_photo_section_heading
@@ -289,6 +291,7 @@ pub fn parse_photo_type_file(itunesdb_filename : String, mut csv_writer_obj : cs
             "Original Date",
             "Digitized Date (Mac epoch)",
             "Digitized Date",
+            "iThmb Offset"
         ])
         .expect("Can't create CSV headers"); // TODO better log message
 
@@ -308,6 +311,7 @@ pub fn parse_photo_type_file(itunesdb_filename : String, mut csv_writer_obj : cs
                 image.original_date_ts.to_string(),
                 image.digitized_date_epoch.to_string(),
                 image.digitized_date_ts.to_string(),
+                image.ithmb_offset.to_string()
             ])
             .expect("Can't write row");
     }
