@@ -29,7 +29,7 @@ mod itunesprefs;
 mod photo_database;
 mod preferences;
 
-
+use std::{thread, time::Duration};
 
 fn main() {
     let itunesdb_filename: String = std::env::args()
@@ -39,9 +39,14 @@ fn main() {
 
     let itunesdb_file = std::path::Path::new(&itunesdb_filename);
 
+    if !itunesdb_file.exists() {
+        panic!("No itunesDB file with that name '{}' exists", itunesdb_filename);
+    }
 
-    if itunesdb_file.exists() || itunesdb_file.metadata().unwrap().len() < 1 {
-        panic!("No itunesDB file with that name '{}' exists, or the file is empty", itunesdb_filename);
+    let itunesdb_file_length = itunesdb_file.metadata().unwrap().len();
+
+    if  itunesdb_file_length < 1 {
+        panic!("iTunesDB file '{}' has insufficient length ({})", itunesdb_filename, itunesdb_file_length);
     }
 
     // if !std::path::Path::new(&itunesdb_filename).exists() {
