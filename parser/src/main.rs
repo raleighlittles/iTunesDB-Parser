@@ -36,6 +36,11 @@ fn main() {
         .nth(1)
         .expect("Missing first parameter: iTunes DB filename");
 
+
+    if !std::path::Path::new(&itunesdb_filename).exists() {
+        panic!("No itunesDB file with that name '{}' exists", itunesdb_filename);
+    }
+
     let itunesdb_file_type: String = std::env::args()
         .nth(2)
         .expect("Missing second parameter: iTunes DB file type. Supported types are 'photo', 'itunes', 'itprefs', 'playcounts', 'pfalbumbs', and 'preferences'");
