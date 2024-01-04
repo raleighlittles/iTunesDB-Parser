@@ -38,6 +38,10 @@ pub fn parse_photo_type_file(itunesdb_filename : String, mut csv_writer_obj : cs
 
     let db_file_as_bytes: Vec<u8> = std::fs::read(&itunesdb_filename).unwrap();
 
+    if db_file_as_bytes.len() < 1 {
+        panic!("Provided file was empty");
+    }
+
     // Photo Database counters
     let mut num_image_lists = 0;
     let mut num_image_items = 0;
