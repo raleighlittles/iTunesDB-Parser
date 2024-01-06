@@ -1,4 +1,3 @@
-
 use crate::helpers::helpers;
 use crate::helpers::itunesdb_helpers;
 
@@ -8,23 +7,22 @@ use crate::constants::itunesdb_constants;
 use crate::constants::photo_database_constants;
 use crate::constants::photofolderalbums_constants;
 
-use std::io::Read;
-
-pub fn parse_photofolder_albums_file(itunesdb_filename : String) {
-
-    let itunesdb_file_as_bytes: Vec<u8> = std::fs::read(&itunesdb_filename).unwrap();
-
-    println!("Parsing PhotoFolderAlbums file: {}", itunesdb_filename);
-
-    let mut idx : usize = 0;
+pub fn parse_photofolder_albums_file(itunesdb_file_as_bytes: Vec<u8>) {
+    let mut idx: usize = 0;
 
     while idx < (itunesdb_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
+        let photofolderalbums_file_heading: &[u8] =
+            &itunesdb_file_as_bytes[idx..idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
 
-        let photofolderalbums_file_heading : &[u8] = &itunesdb_file_as_bytes[idx .. idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
-
-        if photofolderalbums_file_heading == photofolderalbums_constants::PHOTOFOLDERALBUMS_OBJECT_KEY.as_bytes() {
-
-            let num_folders = helpers::get_slice_as_le_u32(idx, &itunesdb_file_as_bytes, photofolderalbums_constants::PFA_NUM_FOLDERS_OFFSET, photofolderalbums_constants::PFA_NUM_FOLDERS_LEN);
+        if photofolderalbums_file_heading
+            == photofolderalbums_constants::PHOTOFOLDERALBUMS_OBJECT_KEY.as_bytes()
+        {
+            let num_folders = helpers::get_slice_as_le_u32(
+                idx,
+                &itunesdb_file_as_bytes,
+                photofolderalbums_constants::PFA_NUM_FOLDERS_OFFSET,
+                photofolderalbums_constants::PFA_NUM_FOLDERS_LEN,
+            );
 
             println!("'{}' photo folders found", num_folders);
 
@@ -35,21 +33,10 @@ pub fn parse_photofolder_albums_file(itunesdb_filename : String) {
     }
 }
 
-
-//pub fn parse_photo_type_file(itunesdb_filename : String, mut csv_writer_obj : csv::Writer<std::fs::File>) {
-pub fn parse_photo_type_file(itunesdb_file_path : &std::path::Path, mut csv_writer_obj : csv::Writer<std::fs::File>) {
-
-    let mut itunesdb_file_as_bytes = Vec::new();
-
-    let mut itunesdb_file = std::fs::File::open(itunesdb_file_path).unwrap();
-
-    itunesdb_file.read_to_end(&mut itunesdb_file_as_bytes).unwrap();
-    
-
-    // if itunesdb_file_as_bytes.len() < 1 {
-    //     panic!("Provided file '{}' was empty", itunesdb_filename);
-    // }
-
+pub fn parse_photo_type_file(
+    itunesdb_file_as_bytes: Vec<u8>,
+    mut csv_writer_obj: csv::Writer<std::fs::File>,
+) {
     // Photo Database counters
     let mut num_image_lists = 0;
     let mut num_image_items = 0;
@@ -57,21 +44,18 @@ pub fn parse_photo_type_file(itunesdb_file_path : &std::path::Path, mut csv_writ
     let mut num_photo_albums = 0;
     let mut num_photo_data_objects = 0;
 
-    println!("Parsing photo file: {}", itunesdb_file_path.display());
-
     let mut images_found: Vec<photo_database::Image> = Vec::new();
 
     let mut curr_img = photo_database::Image::default();
 
     let mut idx = 0;
 
-    while idx < (itunesdb_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
+    while idx < (itunesdb_file_as_bytes.len() - (itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE + 1))
+    {
         let potential_photo_section_heading =
             &itunesdb_file_as_bytes[idx..idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
 
-        if potential_photo_section_heading
-            == photo_database_constants::IMAGE_LIST_KEY.as_bytes()
-        {
+        if potential_photo_section_heading == photo_database_constants::IMAGE_LIST_KEY.as_bytes() {
             let image_list_num_images = helpers::get_slice_as_le_u32(
                 idx,
                 &itunesdb_file_as_bytes,
@@ -79,10 +63,7 @@ pub fn parse_photo_type_file(itunesdb_file_path : &std::path::Path, mut csv_writ
                 photo_database_constants::IMAGE_LIST_NUM_IMAGES_LEN,
             );
 
-            println!(
-                "{} images found in file {}",
-                image_list_num_images, itunesdb_file_path.display()
-            );
+            println!("{} images found", image_list_num_images);
             println!("==========");
             num_image_lists += 1;
 
@@ -121,7 +102,14 @@ pub fn parse_photo_type_file(itunesdb_file_path : &std::path::Path, mut csv_writ
                 photo_database_constants::IMAGE_ITEM_SOURCE_IMG_SIZE_LEN,
             );
 
-            println!("ImageItem#{} : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}", num_image_items, itunesdb_helpers::decode_itunes_stars(image_item_rating as u8), image_item_source_img_size, helpers::get_timestamp_as_mac(image_item_orig_date_timestamp_raw as u64), helpers::get_timestamp_as_mac(image_item_digitized_timestamp_raw as u64));
+            println!(
+                "ImageItem#{} : {} , ImgSize= {}, OrigDateTS= {} , DigitizedDateTS= {}",
+                num_image_items,
+                itunesdb_helpers::decode_itunes_stars(image_item_rating as u8),
+                image_item_source_img_size,
+                helpers::get_timestamp_as_mac(image_item_orig_date_timestamp_raw as u64),
+                helpers::get_timestamp_as_mac(image_item_digitized_timestamp_raw as u64)
+            );
 
             println!("==========");
             num_image_items += 1;
@@ -136,8 +124,12 @@ pub fn parse_photo_type_file(itunesdb_file_path : &std::path::Path, mut csv_writ
         else if potential_photo_section_heading
             == photo_database_constants::IMAGE_NAME_KEY.as_bytes()
         {
-
-            let ithmb_offset = helpers::get_slice_as_le_u32(idx, &itunesdb_file_as_bytes, photo_database_constants::IMAGE_NAME_ITHMB_OFFSET_OFFSET, photo_database_constants::IMAGE_NAME_ITHMB_OFFSET_LEN);
+            let ithmb_offset = helpers::get_slice_as_le_u32(
+                idx,
+                &itunesdb_file_as_bytes,
+                photo_database_constants::IMAGE_NAME_ITHMB_OFFSET_OFFSET,
+                photo_database_constants::IMAGE_NAME_ITHMB_OFFSET_LEN,
+            );
 
             let image_name_img_size = helpers::get_slice_as_le_u32(
                 idx,
@@ -146,7 +138,7 @@ pub fn parse_photo_type_file(itunesdb_file_path : &std::path::Path, mut csv_writ
                 photo_database_constants::IMAGE_NAME_IMG_SIZE_LEN,
             );
 
-            // TODO: Figure out why the Image Height and Image Width are both zero
+            // TODO: Figure out why the Image Height and Image Width are both zero sometimes?
             let image_name_img_height = helpers::get_slice_as_le_u32(
                 idx,
                 &itunesdb_file_as_bytes,
@@ -229,8 +221,7 @@ pub fn parse_photo_type_file(itunesdb_file_path : &std::path::Path, mut csv_writ
                     photo_database_constants::DATA_OBJECT_STRING_SUBCONTAINER_ENCODING_LEN,
                 );
 
-                if data_object_subcontainer_encoding == 0
-                    || data_object_subcontainer_encoding == 1
+                if data_object_subcontainer_encoding == 0 || data_object_subcontainer_encoding == 1
                 {
                     // TODO: Figure out why I'm off by a width of 4 on the length.
                     // Same issue with UTF-16 encoding (below)
@@ -250,7 +241,14 @@ pub fn parse_photo_type_file(itunesdb_file_path : &std::path::Path, mut csv_writ
 
                     curr_img.set_filename(data_object_subcontainer_data.to_string());
                 } else if data_object_subcontainer_encoding == 2 {
-                    let data_object_pairwise_combined = &helpers::return_utf16_from_utf8(&helpers::get_slice_from_offset_with_len(idx, &itunesdb_file_as_bytes, photo_database_constants::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET + 4, (data_object_subcontainer_str_len) as usize));
+                    let data_object_pairwise_combined =
+                        &helpers::return_utf16_from_utf8(&helpers::get_slice_from_offset_with_len(
+                            idx,
+                            &itunesdb_file_as_bytes,
+                            photo_database_constants::DATA_OBJECT_STRING_SUBCONTAINER_DATA_OFFSET
+                                + 4,
+                            (data_object_subcontainer_str_len) as usize,
+                        ));
 
                     let data_object_subcontainer_data =
                         String::from_utf16(&data_object_pairwise_combined)
@@ -290,7 +288,7 @@ pub fn parse_photo_type_file(itunesdb_file_path : &std::path::Path, mut csv_writ
         idx += itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE;
     } // end while
 
-    // println!("{} images found", images_found.len());
+    println!("{} images found", images_found.len());
 
     // Setup columns of CSV file
     // TODO see if there's a way to get the struct field names as strings?
@@ -303,7 +301,7 @@ pub fn parse_photo_type_file(itunesdb_file_path : &std::path::Path, mut csv_writ
             "Original Date",
             "Digitized Date (Mac epoch)",
             "Digitized Date",
-            "iThmb Offset"
+            "iThmb Offset",
         ])
         .expect("Can't create CSV headers"); // TODO better log message
 
@@ -323,9 +321,8 @@ pub fn parse_photo_type_file(itunesdb_file_path : &std::path::Path, mut csv_writ
                 image.original_date_ts.to_string(),
                 image.digitized_date_epoch.to_string(),
                 image.digitized_date_ts.to_string(),
-                image.ithmb_offset.to_string()
+                image.ithmb_offset.to_string(),
             ])
             .expect("Can't write row");
     }
-
 }

@@ -7,9 +7,7 @@ use crate::helpers::helpers;
 use crate::helpers::itunesdb_helpers;
 
 
-pub fn parse_itunesdb_file(itunesdb_filename : String) {
-
-    let db_file_as_bytes: Vec<u8> = std::fs::read(&itunesdb_filename).unwrap();
+pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
 
     let mut music_csv_writer = helpers::init_csv_writer("music.csv");
     let mut podcast_csv_writer = helpers::init_csv_writer("podcasts.csv");
@@ -24,14 +22,14 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
     let mut idx = 0;
 
-    while idx < (db_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
-        let potential_section_heading = &db_file_as_bytes[idx..idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
+    while idx < (itunesdb_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
+        let potential_section_heading = &itunesdb_file_as_bytes[idx..idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
 
         // Parse Database Object
         if potential_section_heading == itunesdb_constants::DATABASE_OBJECT_KEY.as_bytes() {
             let db_language_raw = helpers::get_slice_from_offset_with_len(
                 idx,
-                &db_file_as_bytes,
+                &itunesdb_file_as_bytes,
                 itunesdb_constants::DATABASE_OBJECT_LANGUAGE_OFFSET,
                 itunesdb_constants::DATABASE_OBJECT_LANGUAGE_LEN,
             );
@@ -40,12 +38,11 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
                 .expect("Can't parse database language string");
 
             println!(
-                "File {} is using language: {}, and has iTunes version: {}",
-                itunesdb_filename,
+                "File is using language: {}, and has iTunes version: {}",
                 db_language,
                 itunesdb::parse_version_number(helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::DATABASE_OBJECT_VERSION_NUMBER_OFFSET,
                     itunesdb_constants::DATABASE_OBJECT_VERSION_NUMBER_LEN
                 ))
@@ -58,7 +55,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
             let dataset_type_raw = helpers::get_slice_from_offset_with_len(
                 idx,
-                &db_file_as_bytes,
+                &itunesdb_file_as_bytes,
                 itunesdb_constants::DATASET_TYPE_OFFSET,
                 itunesdb_constants::DATASET_TYPE_LEN,
             );
@@ -76,7 +73,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
         else if potential_section_heading == itunesdb_constants::TRACKLIST_KEY.as_bytes() {
             let num_songs_in_db = helpers::get_slice_as_le_u32(
                 idx,
-                &db_file_as_bytes,
+                &itunesdb_file_as_bytes,
                 itunesdb_constants::TRACKLIST_NUM_SONGS_OFFSET,
                 itunesdb_constants::TRACKLIST_NUM_SONGS_LEN,
             );
@@ -92,13 +89,13 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
                 "========== Track #{} of {} ",
                 helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_NUMBER_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_NUMBER_LEN
                 ),
                 helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_NUM_TRACKS_IN_ALBUM_OFFSET,
                     itunesdb_constants::TRACK_ITEM_NUM_TRACKS_IN_ALBUM_LEN
                 )
@@ -107,7 +104,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
             let num_discs = helpers::get_slice_as_le_u32(
                 idx,
-                &db_file_as_bytes,
+                &itunesdb_file_as_bytes,
                 itunesdb_constants::TRACK_ITEM_TRACK_TOTAL_NUM_DISCS_OFFSET,
                 itunesdb_constants::TRACK_ITEM_TRACK_TOTAL_NUM_DISCS_LEN,
             );
@@ -116,7 +113,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
             if num_discs > 0 {
                 let tracks_current_disc_num = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_DISC_NUMBER_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_DISC_NUMBER_LEN,
                 );
@@ -131,7 +128,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
             write!(track_item_info, "==========\n").unwrap();
 
-            let track_filetype_raw = &db_file_as_bytes[idx
+            let track_filetype_raw = &itunesdb_file_as_bytes[idx
                 + itunesdb_constants::TRACK_ITEM_TRACK_FILETYPE_OFFSET
                 ..idx
                     + itunesdb_constants::TRACK_ITEM_TRACK_FILETYPE_OFFSET
@@ -153,7 +150,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
                 curr_song.file_extension = track_item_extension;
             }
 
-            let track_media_type_raw = &db_file_as_bytes[idx
+            let track_media_type_raw = &itunesdb_file_as_bytes[idx
                 + itunesdb_constants::TRACK_ITEM_TRACK_MEDIA_TYPE_OFFSET
                 ..idx
                     + itunesdb_constants::TRACK_ITEM_TRACK_MEDIA_TYPE_OFFSET
@@ -161,7 +158,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
             let track_movie_file_flag = helpers::get_slice_as_le_u32(
                 idx,
-                &db_file_as_bytes,
+                &itunesdb_file_as_bytes,
                 itunesdb_constants::TRACK_ITEM_TRACK_MOVIE_FLAG_SETTING_OFFSET,
                 itunesdb_constants::TRACK_ITEM_TRACK_MOVIE_FLAG_SETTING_LEN,
             );
@@ -183,14 +180,14 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
             ) {
                 let season_number = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_SEASON_NUMBER_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_SEASON_NUMBER_LEN,
                 );
 
                 let episode_number = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_EPISODE_NUMBER_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_EPISODE_NUMBER_LEN,
                 );
@@ -210,7 +207,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_advanced_audio_type = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_ADVANCED_TRACK_TYPE_OFFSET,
                     itunesdb_constants::TRACK_ITEM_ADVANCED_TRACK_TYPE_LEN,
                 );
@@ -224,7 +221,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let apple_user_id = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_USER_ID_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_USER_ID_LEN,
                 );
@@ -233,7 +230,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
                     write!(track_item_info, "Apple User ID: {} \n", apple_user_id).unwrap();
                 }
 
-                let track_bitrate_type_raw = &db_file_as_bytes[idx
+                let track_bitrate_type_raw = &itunesdb_file_as_bytes[idx
                     + itunesdb_constants::TRACK_ITEM_TRACK_BITRATE_SETTING_OFFSET
                     ..idx
                         + itunesdb_constants::TRACK_ITEM_TRACK_BITRATE_SETTING_OFFSET
@@ -241,14 +238,14 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_bitrate = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_BITRATE_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_BITRATE_LEN,
                 );
 
                 let track_sample_rate_raw = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_SAMPLE_RATE_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_SAMPLE_RATE_LEN,
                 );
@@ -258,14 +255,14 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_volume_setting = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_VOLUME_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_VOLUME_LEN,
                 );
 
                 let track_bpm = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_BPM_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_BPM_LEN,
                 );
@@ -287,7 +284,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_size_bytes = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_FILE_SIZE_BYTES_LEN,
                 );
@@ -302,7 +299,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_length_raw = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_LENGTH_MILLISECONDS_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_LENGTH_MILLISECONDS_LEN,
                 );
@@ -323,14 +320,14 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_start_time_offset = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_START_TIME_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_START_TIME_LEN,
                 );
 
                 let track_stop_time_offset = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_STOP_TIME_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_STOP_TIME_LEN,
                 );
@@ -348,7 +345,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_play_count = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_PLAY_COUNT_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_PLAY_COUNT_LEN,
                 );
@@ -357,7 +354,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_skipped_count = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_SKIPPED_COUNT_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_SKIPPED_COUNT_LEN,
                 );
@@ -366,29 +363,29 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_last_played_timestamp = helpers::get_slice_as_mac_timestamp(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_LAST_PLAYED_TIMESTAMP_LEN,
                 );
 
                 let track_last_skipped_timestamp = helpers::get_slice_as_mac_timestamp(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_LEN,
                 );
 
-                let track_skip_when_shuffle_setting = &db_file_as_bytes[idx + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET .. idx + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_LEN];
+                let track_skip_when_shuffle_setting = &itunesdb_file_as_bytes[idx + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET .. idx + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_LEN];
 
                 write!(track_item_info, "Play/Skip statistics: # of plays: {} , Last played on: {} | # of skips: {}, Last skipped on: {} (Skip when shuffling? {}) ", track_play_count, track_last_played_timestamp, track_skipped_count, track_last_skipped_timestamp, track_skip_when_shuffle_setting[0] ).unwrap();
 
-                let track_is_compilation_setting_raw = &db_file_as_bytes[idx
+                let track_is_compilation_setting_raw = &itunesdb_file_as_bytes[idx
                     + itunesdb_constants::TRACK_ITEM_IS_COMPILATION_SETTING_OFFSET
                     ..idx
                         + itunesdb_constants::TRACK_ITEM_IS_COMPILATION_SETTING_OFFSET
                         + itunesdb_constants::TRACK_ITEM_IS_COMPILATION_SETTING_LEN];
 
-                let track_has_lyrics_setting_raw = &db_file_as_bytes[idx
+                let track_has_lyrics_setting_raw = &itunesdb_file_as_bytes[idx
                     + itunesdb_constants::TRACK_ITEM_TRACK_LYRICS_AVAILABLE_SETTING_OFFSET
                     ..idx
                         + itunesdb_constants::TRACK_ITEM_TRACK_LYRICS_AVAILABLE_SETTING_OFFSET
@@ -403,7 +400,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_rating = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_RATING_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_RATING_LEN,
                 );
@@ -413,7 +410,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                     let track_prev_rating = helpers::get_slice_as_le_u32(
                         idx,
-                        &db_file_as_bytes,
+                        &itunesdb_file_as_bytes,
                         itunesdb_constants::TRACK_ITEM_TRACK_PREVIOUS_RATING_OFFSET,
                         itunesdb_constants::TRACK_ITEM_TRACK_PREVIOUS_RATING_LEN,
                     );
@@ -429,26 +426,26 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let gapless_playback_setting_for_track = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_GAPLESS_PLAYBACK_SETTING_LEN,
                 );
 
                 if gapless_playback_setting_for_track == 1 {
-                    let num_beginning_silence_samples = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, itunesdb_constants::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_OFFSET, itunesdb_constants::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_LEN);
+                    let num_beginning_silence_samples = helpers::get_slice_as_le_u32(idx, &itunesdb_file_as_bytes, itunesdb_constants::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_OFFSET, itunesdb_constants::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_LEN);
 
                     let num_ending_silence_samples = helpers::get_slice_as_le_u32(
                         idx,
-                        &db_file_as_bytes,
+                        &itunesdb_file_as_bytes,
                         itunesdb_constants::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_OFFSET,
                         itunesdb_constants::TRACK_ITEM_TRACK_ENDING_SILENCE_SAMPLE_COUNT_LEN,
                     );
 
-                    // let num_total_samples = helpers::get_slice_as_le_u32(idx, &db_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_LEN);
+                    // let num_total_samples = helpers::get_slice_as_le_u32(idx, &itunesdb_file_as_bytes, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET, iTunesDB::TRACK_ITEM_TRACK_NUM_SAMPLES_LEN);
 
                     let num_total_samples = helpers::get_slice_as_le_u64(
                         idx,
-                        &db_file_as_bytes,
+                        &itunesdb_file_as_bytes,
                         itunesdb_constants::TRACK_ITEM_TRACK_NUM_SAMPLES_OFFSET,
                         itunesdb_constants::TRACK_ITEM_TRACK_NUM_SAMPLES_LEN,
                     );
@@ -458,7 +455,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_crossfade_setting = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_CROSSFADING_SETTING_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_CROSSFADING_SETTING_LEN,
                 );
@@ -474,7 +471,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
                 )
                 .unwrap();
 
-                let track_has_artwork_setting = &db_file_as_bytes[idx
+                let track_has_artwork_setting = &itunesdb_file_as_bytes[idx
                     + itunesdb_constants::TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_OFFSET
                     ..idx
                         + itunesdb_constants::TRACK_ITEM_TRACK_HAS_ARTWORK_SETTING_OFFSET
@@ -484,7 +481,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
                 if itunesdb::track_has_artwork(track_has_artwork_setting) {
                     let track_associated_artwork_size = helpers::get_slice_as_le_u32(
                         idx,
-                        &db_file_as_bytes,
+                        &itunesdb_file_as_bytes,
                         itunesdb_constants::TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_OFFSET,
                         itunesdb_constants::TRACK_ITEM_TRACK_ARTWORK_SIZE_BYTES_LEN,
                     );
@@ -499,7 +496,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_year_released = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_YEAR_PUBLISHED_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_YEAR_PUBLISHED_LEN,
                 );
@@ -519,14 +516,14 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 // let track_added_timestamp = helpers::get_slice_as_mac_timestamp(
                 //     idx,
-                //     &db_file_as_bytes,
+                //     &itunesdb_file_as_bytes,
                 //     itunesdb_constants::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET,
                 //     itunesdb_constants::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN,
                 // );
 
                 let track_added_epoch = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN,
                 );
@@ -547,7 +544,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
                 let track_modified_timestamp = helpers::get_slice_as_mac_timestamp(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_MODIFIED_TIME_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_MODIFIED_TIME_LEN,
                 );
@@ -555,7 +552,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
                 let track_published_to_store_timestamp: chrono::DateTime<chrono::Utc> =
                     helpers::get_slice_as_mac_timestamp(
                         idx,
-                        &db_file_as_bytes,
+                        &itunesdb_file_as_bytes,
                         itunesdb_constants::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET,
                         itunesdb_constants::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_LEN,
                     );
@@ -584,7 +581,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
         } else if potential_section_heading == itunesdb_constants::PLAYLIST_KEY.as_bytes() {
             let mut playlist_info: String = "==== ".to_string();
 
-            let is_master_playlist_setting = &db_file_as_bytes[idx
+            let is_master_playlist_setting = &itunesdb_file_as_bytes[idx
                 + itunesdb_constants::PLAYLIST_IS_MASTER_PLAYLIST_SETTING_OFFSET
                 ..idx
                     + itunesdb_constants::PLAYLIST_IS_MASTER_PLAYLIST_SETTING_OFFSET
@@ -598,7 +595,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
             let playlist_created_timestamp = helpers::get_slice_as_mac_timestamp(
                 idx,
-                &db_file_as_bytes,
+                &itunesdb_file_as_bytes,
                 itunesdb_constants::PLAYLIST_CREATED_TIMESTAMP_OFFSET,
                 itunesdb_constants::PLAYLIST_CREATED_TIMESTAMP_LEN,
             );
@@ -612,7 +609,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
             let playlist_sort_order = helpers::get_slice_as_le_u32(
                 idx,
-                &db_file_as_bytes,
+                &itunesdb_file_as_bytes,
                 itunesdb_constants::PLAYLIST_PLAYLIST_SORT_ORDER_OFFSET,
                 itunesdb_constants::PLAYLIST_PLAYLIST_SORT_ORDER_LEN,
             );
@@ -633,7 +630,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
             let playlist_item_added_timestamp = helpers::get_slice_as_mac_timestamp(
                 idx,
-                &db_file_as_bytes,
+                &itunesdb_file_as_bytes,
                 itunesdb_constants::PLAYLIST_ITEM_ADDED_TIMESTAMP_OFFSET,
                 itunesdb_constants::PLAYLIST_ITEM_ADDED_TIMESTAMP_LEN,
             );
@@ -653,7 +650,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
             let album_item_total_num_songs = helpers::get_slice_as_le_u32(
                 idx,
-                &db_file_as_bytes,
+                &itunesdb_file_as_bytes,
                 itunesdb_constants::ALBUM_LIST_TOTAL_NUM_SONGS_OFFSET,
                 itunesdb_constants::ALBUM_LIST_TOTAL_NUM_SONGS_LEN,
             );
@@ -685,7 +682,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
 
             let data_object_type_raw = helpers::get_slice_as_le_u32(
                 idx,
-                &db_file_as_bytes,
+                &itunesdb_file_as_bytes,
                 itunesdb_constants::DATA_OBJECT_TYPE_OFFSET,
                 itunesdb_constants::DATA_OBJECT_TYPE_LEN,
             );
@@ -701,14 +698,14 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
             if itunesdb::is_data_object_type_string(data_object_type_raw) {
                 let data_object_string_len = helpers::get_slice_as_le_u32(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::DATA_OBJECT_STRING_LENGTH_OFFSET,
                     itunesdb_constants::DATA_OBJECT_STRING_LENGTH_LEN,
                 );
 
                 let data_object_str_bytes = helpers::get_slice_from_offset_with_len(
                     idx,
-                    &db_file_as_bytes,
+                    &itunesdb_file_as_bytes,
                     itunesdb_constants::DATA_OBJECT_STRING_LOCATION_OFFSET,
                     data_object_string_len as usize,
                 );
@@ -820,7 +817,7 @@ pub fn parse_itunesdb_file(itunesdb_filename : String) {
                     || (data_object_type_raw
                         == itunesdb::HandleableDataObjectType::Podcast_RSS_URL as u32)
                 {
-                    let podcast_url = itunesdb::decode_podcast_urls(idx, &db_file_as_bytes);
+                    let podcast_url = itunesdb::decode_podcast_urls(idx, &itunesdb_file_as_bytes);
 
                     write!(
                         data_object_info,
