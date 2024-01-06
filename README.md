@@ -41,17 +41,37 @@ The table below shows which iTunesDB files are supported.
 
 The source code for the parser is in the `itunesdb_parser` directory.
 
-Because iPodLinux isn't maintained anymore, I was worried that the website (and thus the iTunesDB wiki) would be taken down at some point, so I downloaded the documentation. Both the original website, and a markdown-formatted version are in the `itunesdb-doc` folder: [Link](./itunesdb-doc/README.md)
+Because iPodLinux isn't maintained anymore, I was worried that the website (and thus the iTunesDB wiki) would be taken down at some point, so I downloaded the documentation.
 
-# Code
+Both the original website, and a markdown-formatted version are in the `itunesdb_docs` folder.
 
-The parser is written in Rust. You can build it by running `cargo build`. It requires two arguments: (1) the iTunesDB filename, (2) the type of iTunesDB file - currently only "photo" (for Photo Database) and "music" (for iTunesDB) are supported
+# Code and usage
+
+The parser is written in Rust. You can build it by running `cargo build`.
+
+It requires two arguments:
+
+(1) the iTunesDB filename, 
+
+(2) the type of iTunesDB file.
+
+Possible options are:
+
+| Field         | Value                                    |
+|---------------|------------------------------------------|
+| "photo"       | Photos Database files, no iThmb files    |
+| "itunes"      | iTunes DB (music and podcasts only) file |
+| "itprefs"     | iTunes Preferences file                  |
+| "playcounts"  | Playcounts file                          |
+| "pfalbums"    | Photo Folder Albums                      |
+| "preferences" | Preferences file                         |
+
 
 ```bash
 $ /target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
 ```
 
-Running this tool will create a CSV file with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs and podcasts mentioned in the iTunesDB file.
+For iTunesDB, Photos Database, and Playcounts files, a CSV will be generated with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs and podcasts mentioned in the iTunesDB file.
 
 ![CSV music screenshot](./docs/20230716_music-csv.png)
 
@@ -61,13 +81,13 @@ If you run it on a Photo Database file, you'll see the list of all images stored
 
 ![CSV photo screenshot](./docs/20230715_photodatabase-csv.png)
 
-# Future roadma
+# Future roadmap
 
-This project is a very early work-in-progress. The next major feature to come is iThumb file decoding.
+This project is a very early work-in-progress. The next major feature to come is [iThumb file decoding](https://github.com/raleighlittles/iTunesDB-Parser/issues/4)
 
 
 # Interested in contributing?
 
-I don't have an iPod anymore, or any other files from it besides the Photos Database ones. If you have any iTunesDB files from the unsupported list and are willing to share, please contact me.
+If you have any iTunesDB files from the unsupported list and are willing to share, please contact me.
 
 Special thanks to @AZProductions for providing an iTunesDB file.
