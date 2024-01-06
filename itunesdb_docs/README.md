@@ -19168,12 +19168,6 @@ Personal tools
 
 </div>
 </div>
-<div class="portlet" id="p-logo">
-
-`     `<a style="background-image: url(../stylesheets/images/wiki.png);" href="http://www.ipodlinux.org/" title="ipod linux"></a>  
-`   `
-
-</div>
 
 <div class="portlet" id="p-nav">
 <h5>
@@ -19221,7 +19215,6 @@ Toolbox
 
 </div>
 
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2601587627618324" data-ad-slot="4565738575" data-ad-format="auto" data-full-width-responsive="true"><iframe id="aswift_1" style="height: 1px !important; max-height: 1px !important; max-width: 1px !important; width: 1px !important;" src="./ITunesDB - wikiPodLinux_files/saved_resource(2).html"><iframe id="google_ads_frame1" src="./ITunesDB - wikiPodLinux_files/saved_resource(3).html"></iframe></iframe></ins>
 
 
 </div>
@@ -19229,16 +19222,6 @@ Toolbox
 <div class="visualClear">
 </div>
 <div id="footer">
-<div id="f-poweredbyico">
-
-<img src="./ITunesDB - wikiPodLinux_files/poweredby_mediawiki_88x31.png">
-
-</div>
-<div id="f-copyrightico">
-
-<img src="./ITunesDB - wikiPodLinux_files/sflogo.php" border="0" alt="SourceForge.net Logo">
-
-</div>
 
 -   This page was last modified 18:55, 26 Apr 2017.
 -   This page has been accessed 125659 times.
@@ -19254,8 +19237,6 @@ Toolbox
 
 <noscript>
 <div>
-
-<img src="//top-fwz1.mail.ru/counter?id=994598;js=na" style="border:0;position:absolute;left:-9999px;" alt="" />
 
 </div>
 </noscript>
