@@ -6,7 +6,6 @@ A tone file is a text file, with the first line consisting of the header, follow
 
 The first integer represents a frequency (in Hertz) and the second integer represents the duration (in milliseconds).
 
-
 Here's an example of a tone file:
 
 ```
@@ -27,7 +26,28 @@ The sounds are emitted by the iPod's [piezoelectric speaker](https://en.wikipedi
 
 # Code
 
-This directory contains some utilities for working with tone files.
+This directory contains some utilities for working with tone files. There is a Rust CLI utility and a simple shell script.
+
+## Rust CLI
+
+There's a Rust CLI tool called `ipod_tone_player` that can:
+
+(1) play the sounds encoded in a Tone file to your actual speakers/headphones
+(2) save the sounds encoded in a Tone file, to a WAV file
+
+To play the sounds from your speakers/headphones, do:
+
+```bash
+./ipod_tone_player <TONE_FILE_PATH> --sound
+```
+
+To save the sounds to a WAV file, do:
+
+```bash
+./ipod_tone_player <TONE_FILE_PATH> --file
+```
+
+## Shell script
 
 The script `mobo_tone_player.sh` can be used to play tone files on your computer directly, using your motherboard's own piezo speaker.
 
