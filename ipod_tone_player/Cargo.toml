@@ -10,5 +10,12 @@ edition = "2021"
 # For sound playback
 rodio = "0.17.3"
 
-# Testing
+# For saving to WAV file
 hound = "3.5.1"
+
+# GUI
+egui = "0.25.0"
+eframe = "0.25.0"
+
+# File picker dialog
+egui_file = "0.14.0"
