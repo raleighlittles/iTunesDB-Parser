@@ -30,4 +30,4 @@ pub const VOLUME_LIMIT_OFFSET : usize = 2896; // 0xB50
 pub const VOLUME_LIMIT_LEN : usize = 1;
 
 pub const REGION_OFFSET : usize = 2928; // 0xB70
-pub const REGION_LEN : usize = 1;
+pub const REGION_LEN : usize = 2;
