@@ -10,7 +10,7 @@ The format for iTunesDB files was reverse-engineered by the [iPod Linux](https:/
 
 # About
 
-This repository contains a parser/extractor for iTunesDB files, written in Rust.
+This repository contains a parser/extractor for iTunesDB files, written in Rust. The parser is located in the `parser` directory.
 
 The table below shows which iTunesDB files are supported.
 
@@ -22,7 +22,7 @@ The table below shows which iTunesDB files are supported.
 | On The Go Playlist   | :negative_squared_cross_mark: Not yet supported                  |
 | Photo Database       | :heavy_check_mark: Can extract all associated metadata of images |
 | PhotoFolderAlbums    | Partial - only can detect the # of photo albums                  |
-| PhotoFolderPrefs     | :negative_squared_cross_mark: Not yet supported                  |
+| PhotoFolderPrefs     | No support planned.                                              |
 | PhotosFolderName     | :negative_squared_cross_mark: Not yet supported                  |
 | Play Counts          | :heavy_check_mark:                                               |
 | Preferences          | :heavy_check_mark:                                               |
@@ -39,7 +39,15 @@ The table below shows which iTunesDB files are supported.
 | winPrefs             | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#winPrefs_File) |
 
 
-The source code for the parser is in the `itunesdb_parser` directory.
+In examining your iPod's file system you'll find other types of files besides the one listed above. These are:
+
+* [`.plist` files](https://en.wikipedia.org/wiki/Property_list)
+
+* [`.tone` files](https://github.com/raleighlittles/iPod_tone_file_player)
+
+* `alarms` files: https://github.com/raleighlittles/iTunesDB-Parser/issues/6
+
+* `.itdb` files, which are just SQLite 3 databases with a different extension.
 
 Because iPodLinux isn't maintained anymore, I was worried that the website (and thus the iTunesDB wiki) would be taken down at some point, so I downloaded the documentation.
 
