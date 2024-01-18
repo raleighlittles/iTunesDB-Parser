@@ -72,9 +72,9 @@ pub fn parse_preferences_file(itunesdb_file_as_bytes: Vec<u8>) {
 
         println!("Daylight Savings Time enabled?: {}", preferences::is_daylight_savings_enabled(dst_setting_raw as u8));
 
-        let language_selection_idx = helpers::get_slice_as_le_u32(idx, &itunesdb_file_as_bytes, preferences_constants::LANGUAGE_SELECTION_OFFSET, preferences_constants::LANGUAGE_SELECTION_LEN);
+        let lang_selection_idx = helpers::get_slice_as_le_u32(idx, &itunesdb_file_as_bytes, preferences_constants::LANGUAGE_SELECTION_OFFSET, preferences_constants::LANGUAGE_SELECTION_LEN);
 
-        println!("Selected language idx: {}", language_selection_idx);
+        println!("Selected language idx: {} ~ Parses to '{}'", lang_selection_idx, preferences::decode_language_from_idx(lang_selection_idx as u8));
 
         let tz_info_raw = helpers::get_slice_as_le_u32(idx, &itunesdb_file_as_bytes, preferences_constants::TIMEZONE_INFO_OFFSET, preferences_constants::TIMEZONE_INFO_LEN);
 
