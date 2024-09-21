@@ -55,6 +55,7 @@ fn main() {
 
     let mut itunesdb_file_as_bytes = Vec::new();
 
+    // https://stackoverflow.com/questions/47660946/why-does-a-file-need-to-be-mutable-to-call-readread-to-string
     let mut itunesdb_file = std::fs::File::open(itunesdb_file_path).unwrap();
 
     itunesdb_file.read_to_end(&mut itunesdb_file_as_bytes).unwrap();
@@ -63,7 +64,9 @@ fn main() {
         .nth(2)
         .expect("Missing second parameter: iTunes DB file type. Supported types are 'photo', 'itunes', 'itprefs', 'playcounts', 'pfalbumbs', and 'preferences'");
 
-    let desired_report_csv_filename = itunesdb_filename.to_string();
+    let desired_report_csv_filename = itunesdb_filename.to_string() + ".csv";
+
+    assert!(desired_report_csv_filename != itunesdb_filename);
 
     if itunesdb_file_type == "photo" {
         let photos_csv_writer = helpers::helpers::init_csv_writer(&desired_report_csv_filename);
