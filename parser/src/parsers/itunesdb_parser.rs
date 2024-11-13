@@ -1,4 +1,6 @@
 use std::fmt::Write;
+use std::fs::File;
+use std::io;
 
 use crate::constants::itunesdb_constants;
 use crate::itunesdb;
@@ -840,6 +842,32 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
 
     println!("{} songs found", songs_found.len());
 
+    // Add JSON output @joshkenney
+    if !songs_found.is_empty() {
+        let songs_json = serde_json::to_string_pretty(&songs_found)
+            .expect("Error serializing songs to JSON");
+        
+        let mut songs_json_file = File::create("songs.json")
+            .expect("Error creating songs JSON file");
+        
+        io::Write::write_all(&mut songs_json_file, songs_json.as_bytes())
+            .expect("Error writing songs JSON file");
+            
+        println!("Created songs.json with {} songs", songs_found.len());
+    }
+
+    if !podcasts_found.is_empty() {
+        let podcasts_json = serde_json::to_string_pretty(&podcasts_found)
+            .expect("Error serializing podcasts to JSON");
+            
+        let mut podcasts_json_file = File::create("podcasts.json")
+            .expect("Error creating podcasts JSON file");
+        
+        io::Write::write_all(&mut podcasts_json_file, podcasts_json.as_bytes())
+            .expect("Error writing podcasts JSON file");
+            
+        println!("Created podcasts.json with {} podcasts", podcasts_found.len());
+    }
 
     podcast_csv_writer.write_record(&[
         "Episode Title",

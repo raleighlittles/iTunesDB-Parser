@@ -11,7 +11,11 @@
  use crate::helpers::helpers;
  use crate::helpers::itunesdb_helpers;
 
- pub struct Podcast {
+ use serde::Serialize;
+
+ 
+ #[derive(Serialize)]
+  pub struct Podcast {
     pub podcast_title : String,
     pub podcast_publisher : String,
     pub podcast_genre : String,
@@ -35,7 +39,8 @@
     }
  }
 
-pub struct Song {
+ #[derive(Serialize)]
+ pub struct Song {
     pub file_extension: String,
     pub bitrate_kbps: u32,
     pub sample_rate_hz: u32,
