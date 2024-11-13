@@ -1,5 +1,6 @@
 **/**.DS_Store
 **/*.csv
+**/*.json
 **/.vscode
 **/.txt
 repopack-output.txt
