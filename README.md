@@ -76,7 +76,9 @@ Possible options are:
 
 
 ```bash
-$ /target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
+$ cd iTunesDB-Parser
+$ cargo build
+$ ./parser/target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
 ```
 
 For iTunesDB, Photos Database, and Playcounts files, a CSV will be generated with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs and podcasts mentioned in the iTunesDB file.
