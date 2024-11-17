@@ -17,7 +17,7 @@ The table below shows which iTunesDB files are supported.
 | File type            | Supported?                                                       |
 |----------------------|------------------------------------------------------------------|
 | Artwork DB           | :negative_squared_cross_mark: Not yet supported                  |
-| DeviceInfo           | :negative_squared_cross_mark: Not yet supported                  |
+| DeviceInfo           | Partial - Can extract iPod name only |
 | Equalizer Presets    | :negative_squared_cross_mark: Not yet supported                  |
 | On The Go Playlist   | :negative_squared_cross_mark: Not yet supported                  |
 | Photo Database       | :heavy_check_mark: Can extract all associated metadata of images |
@@ -63,7 +63,8 @@ It requires two arguments:
 
 (2) the type of iTunesDB file.
 
-Possible options are:
+The 7 possible "type" options are:
+
 
 | Field         | Value                                    |
 |---------------|------------------------------------------|
@@ -73,6 +74,7 @@ Possible options are:
 | "playcounts"  | Playcounts file                          |
 | "pfalbums"    | Photo Folder Albums                      |
 | "preferences" | Preferences file                         |
+| "deviceinfo"  | DeviceInfo file                          |
 
 
 ```bash
@@ -98,4 +100,9 @@ This project is a very early work-in-progress. The next major feature to come is
 
 If you have any iTunesDB files from the unsupported list and are willing to share, please contact me.
 
-Special thanks to @AZProductions for providing an iTunesDB file.
+Special thanks to:
+
+* @AZProductions 
+* @joshkenney
+
+for providing iTunesDB files!

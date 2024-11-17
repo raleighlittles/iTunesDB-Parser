@@ -1,15 +1,30 @@
 /**
  * File: helpers.rs
- * 
+ *
  * General helper methods. For iTunes-specific helper methods, see itunesdb_helpers.rs
  *
  */
-
 use std::fmt::Write;
 
 // TODO: Once Rust adds support for default arguments, add the following arguments:
 //       * endianness
 //       * radix
+pub fn build_le_u16_from_bytes(bytes: &[u8]) -> u16 {
+    let mut number: u16 = 0;
+    const RADIX: u16 = 256;
+
+    for (idx, item) in bytes.iter().enumerate() {
+        let summand: u16 = RADIX
+            .checked_pow(idx as u32)
+            .unwrap_or_else(|| panic!("Can't raise {} to power {}", RADIX, idx))
+            as u16;
+
+        number += (summand as u16) * (*item as u16);
+    }
+
+    return number;
+}
+
 pub fn build_le_u32_from_bytes(bytes: &[u8]) -> u32 {
     let mut number: u32 = 0;
     const RADIX: u32 = 256;
@@ -122,9 +137,12 @@ const MAC_TO_LINUX_EPOCH_CONVERSION: i64 = 2082844800;
 
 /// Converts a given Mac epoch time into an actual UTC timestamp
 pub fn get_timestamp_as_mac(mac_timestamp: u64) -> chrono::DateTime<chrono::Utc> {
-    return chrono::DateTime::<chrono::Utc>::from_timestamp((mac_timestamp as i64) - MAC_TO_LINUX_EPOCH_CONVERSION, 0).unwrap();
+    return chrono::DateTime::<chrono::Utc>::from_timestamp(
+        (mac_timestamp as i64) - MAC_TO_LINUX_EPOCH_CONVERSION,
+        0,
+    )
+    .unwrap();
 }
-
 
 /// Converts an integer seconds into a string representing that time in hours, minutes, and seconds
 /// only showing the time units appropriately (ie not showing "hours" if the time is less than 1 hour)

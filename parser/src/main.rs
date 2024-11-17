@@ -9,6 +9,7 @@ mod constants {
     pub mod photofolderalbums_constants;
     pub mod playcounts_constants;
     pub mod preferences_constants;
+    pub mod deviceinfo_constants;
 }
 
 mod helpers {
@@ -21,6 +22,7 @@ mod parsers {
     pub mod photo_type_parser;
     pub mod playcounts_parser;
     pub mod preferences_parser;
+    pub mod deviceinfo_parser;
 }
 
 mod itunesdb;
@@ -85,7 +87,10 @@ fn main() {
         parsers::photo_type_parser::parse_photofolder_albums_file(itunesdb_file_as_bytes);
     } else if itunesdb_file_type == "preferences" {
         parsers::preferences_parser::parse_preferences_file(itunesdb_file_as_bytes);
-    } else {
+    } else if itunesdb_file_type == "deviceinfo" {
+        parsers::deviceinfo_parser::parse_device_info_file(itunesdb_file_as_bytes);
+    }
+    else {
         println!(
             "'{}' is not a supported iTunesDB file type!",
             itunesdb_file_type
