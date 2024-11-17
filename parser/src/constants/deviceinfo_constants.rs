@@ -5,4 +5,4 @@
  */
 
 pub const DEVICEINFO_FILE_SIZE: usize = 1536; // 0x600
-pub const DEVICEINFO_STRING_LENGTH: usize = 510;
+pub const DEVICEINFO_MAX_STRING_LENGTH: usize = 510;

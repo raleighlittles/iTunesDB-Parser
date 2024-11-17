@@ -10,6 +10,7 @@ mod constants {
     pub mod playcounts_constants;
     pub mod preferences_constants;
     pub mod deviceinfo_constants;
+    pub mod equalizer_constants;
 }
 
 mod helpers {
@@ -23,6 +24,7 @@ mod parsers {
     pub mod playcounts_parser;
     pub mod preferences_parser;
     pub mod deviceinfo_parser;
+    pub mod equalizer_parser;
 }
 
 mod itunesdb;
@@ -64,7 +66,7 @@ fn main() {
 
     let itunesdb_file_type: String = std::env::args()
         .nth(2)
-        .expect("Missing second parameter: iTunes DB file type. Supported types are 'photo', 'itunes', 'itprefs', 'playcounts', 'pfalbumbs', and 'preferences'");
+        .expect("Missing second parameter: iTunes DB file type");
 
     let desired_report_csv_filename = itunesdb_filename.to_string() + ".csv";
 
@@ -89,6 +91,9 @@ fn main() {
         parsers::preferences_parser::parse_preferences_file(itunesdb_file_as_bytes);
     } else if itunesdb_file_type == "deviceinfo" {
         parsers::deviceinfo_parser::parse_device_info_file(itunesdb_file_as_bytes);
+    }
+    else if itunesdb_file_type == "equalizer" {
+        parsers::equalizer_parser::parse_equalizer_file(itunesdb_file_as_bytes);
     }
     else {
         println!(

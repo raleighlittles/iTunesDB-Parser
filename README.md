@@ -18,7 +18,7 @@ The table below shows which iTunesDB files are supported.
 |----------------------|------------------------------------------------------------------|
 | Artwork DB           | :negative_squared_cross_mark: Not yet supported                  |
 | DeviceInfo           | Partial - Can extract iPod name only |
-| Equalizer Presets    | :negative_squared_cross_mark: Not yet supported                  |
+| Equalizer Presets    | :heavy_check_mark: Extracts both the iTunes and actual DSP  values |
 | On The Go Playlist   | :negative_squared_cross_mark: Not yet supported                  |
 | Photo Database       | :heavy_check_mark: Can extract all associated metadata of images |
 | PhotoFolderAlbums    | Partial - only can detect the # of photo albums                  |
@@ -75,6 +75,7 @@ The 7 possible "type" options are:
 | "pfalbums"    | Photo Folder Albums                      |
 | "preferences" | Preferences file                         |
 | "deviceinfo"  | DeviceInfo file                          |
+| "equalizer"   | Equalizer Presets file                   |
 
 
 ```bash
