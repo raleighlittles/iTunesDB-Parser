@@ -33,7 +33,7 @@ The table below shows which iTunesDB files are supported.
 | iTunesPlaylists      | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPlaylists) |
 | iTunesPodcasts       | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPodcasts) |
 | iTunesPrefs          | :heavy_check_mark:                                               |
-| iTunesSD             | :negative_squared_cross_mark: Not yet supported                  |
+| iTunesSD             | :heavy_check_mark:                                               |
 | iTunesStats          | :negative_squared_cross_mark: Not yet supported                  |
 | iTunesVideoPlaylists | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesVideoPlaylists) |
 | winPrefs             | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#winPrefs_File) |
@@ -76,6 +76,7 @@ The 7 possible "type" options are:
 | "preferences" | Preferences file                         |
 | "deviceinfo"  | DeviceInfo file                          |
 | "equalizer"   | Equalizer Presets file                   |
+| "itunessd"    | iTunesSD file                            |
 
 
 ```bash

@@ -41,6 +41,22 @@ pub fn build_le_u32_from_bytes(bytes: &[u8]) -> u32 {
     return number;
 }
 
+pub fn build_be_u32_from_bytes(bytes: &[u8]) -> u32 {
+    let mut number: u32 = 0;
+    const RADIX: u32 = 256;
+
+    for (idx, item) in bytes.iter().rev().enumerate() {
+        let summand: u32 = RADIX
+            .checked_pow(idx as u32)
+            .unwrap_or_else(|| panic!("Can't raise {} to power {}", RADIX, idx))
+            as u32;
+
+        number += (summand as u32) * (*item as u32);
+    }
+
+    return number;
+}
+
 // TODO: Use template function
 pub fn build_le_u64_from_bytes(bytes: &[u8]) -> u64 {
     let mut number: u64 = 0;
