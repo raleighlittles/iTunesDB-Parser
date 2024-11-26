@@ -6,7 +6,13 @@ After running the iTunesDB parser application on an iTunesDB file, you end up wi
 
 If you want to use this tool with your _own_ CSV files, see `test.csv` for an example of the format.
 
-## Usage info
+## Code usage
+
+Install dependencies
+
+```bash
+$ pip install requirements.txt
+```
 
 ```
 usage: spotify_integration.py [-h] -f CSV_FILE [-t TRACK_COLUMN] -a API_CREDENTIALS_FILE
@@ -27,7 +33,9 @@ options:
 # API instructions
 
 See `spotify_api_credentials.json` for example of format
-Both are 32-character alphanumeric values
+
+Both client_id and client_secret are 32-character alphanumeric values
+
 See: https://developer.spotify.com/documentation/web-api/concepts/apps
 for instructions on how to generate!
 

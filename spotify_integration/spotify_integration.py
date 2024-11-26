@@ -88,8 +88,8 @@ if __name__ == '__main__':
     spotify_tracks_and_track_ids = get_track_ids_from_csv(
         argparse_args.csv_file, api_obj)
 
-    playlist_description = f"Playlist created on {
-        datetime.datetime.now().isoformat()} \n Created by {socket.gethostname()}"
+    # Cannot have newline in playlist description
+    playlist_description = f"Playlist created on {datetime.datetime.now().isoformat()} Created by {socket.gethostname()}"
 
     new_playlist_id = create_playlist_from_tracks(
         spotify_tracks_and_track_ids, "Test Playlist", playlist_description, api_obj)
