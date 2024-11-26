@@ -34,6 +34,7 @@ mod itunesprefs;
 mod photo_database;
 mod preferences;
 mod itunessd;
+mod equalizer;
 
 use std::io::Read;
 
@@ -97,7 +98,8 @@ fn main() {
     } else if itunesdb_file_type == "deviceinfo" {
         parsers::deviceinfo_parser::parse_device_info_file(itunesdb_file_as_bytes);
     } else if itunesdb_file_type == "equalizer" {
-        parsers::equalizer_parser::parse_equalizer_file(itunesdb_file_as_bytes);
+        let equalizer_csv_writer = helpers::helpers::init_csv_writer(&desired_report_csv_filename);
+        parsers::equalizer_parser::parse_equalizer_file(itunesdb_file_as_bytes, equalizer_csv_writer);
     } else if itunesdb_file_type == "itunessd" {
         parsers::itunessd_parser::parse_itunessd_file(itunesdb_file_as_bytes);
     } else {
