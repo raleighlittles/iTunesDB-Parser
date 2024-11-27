@@ -16,40 +16,39 @@ This repository contains a parser/extractor for iTunesDB files, written in Rust.
 
 The table below shows which iTunesDB files are supported.
 
-| File type            | Supported?                                                       |
-|----------------------|------------------------------------------------------------------|
-| Artwork DB           | :negative_squared_cross_mark: Not yet supported                  |
-| DeviceInfo           | Partial - Can extract iPod name only |
-| Equalizer Presets    | :heavy_check_mark: Extracts both the iTunes and actual DSP  values |
-| On The Go Playlist   | :negative_squared_cross_mark: Not yet supported                  |
-| Photo Database       | :heavy_check_mark: Can extract all associated metadata of images |
-| PhotoFolderAlbums    | Partial - only can detect the # of photo albums                  |
-| PhotoFolderPrefs     | No support planned.                                              |
-| PhotosFolderName     | :negative_squared_cross_mark: Not yet supported                  |
-| Play Counts          | :heavy_check_mark:                                               |
-| Preferences          | :heavy_check_mark:                                               |
-| WABContactsGroup     | :negative_squared_cross_mark: Not yet supported                  |
-| iEKInfo              | :negative_squared_cross_mark: Not yet supported                  |
-| iTunesDB             | Partial - Songs and Podcasts only. No television or movies       |
-| iTunesPState         | :negative_squared_cross_mark: Not yet supported                  |
-| iTunesPlaylists      | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPlaylists) |
-| iTunesPodcasts       | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPodcasts) |
-| iTunesPrefs          | :heavy_check_mark:                                               |
-| iTunesSD             | :heavy_check_mark:                                               |
-| iTunesStats          | :negative_squared_cross_mark: Not yet supported                  |
+| File type            | Supported?                                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------------- |
+| Artwork DB           | :negative_squared_cross_mark: Not yet supported                                               |
+| DeviceInfo           | Partial - Can extract iPod name only                                                          |
+| Equalizer Presets    | :heavy_check_mark: Extracts both the iTunes and actual DSP values                             |
+| On The Go Playlist   | :negative_squared_cross_mark: Not yet supported                                               |
+| Photo Database       | :heavy_check_mark: Can extract all associated metadata of images                              |
+| PhotoFolderAlbums    | Partial - only can detect the # of photo albums                                               |
+| PhotoFolderPrefs     | No support planned.                                                                           |
+| PhotosFolderName     | :negative_squared_cross_mark: Not yet supported                                               |
+| Play Counts          | :heavy_check_mark:                                                                            |
+| Preferences          | :heavy_check_mark:                                                                            |
+| WABContactsGroup     | :negative_squared_cross_mark: Not yet supported                                               |
+| iEKInfo              | :negative_squared_cross_mark: Not yet supported                                               |
+| iTunesDB             | Partial - Songs and Podcasts only. No television or movies                                    |
+| iTunesPState         | :negative_squared_cross_mark: Not yet supported                                               |
+| iTunesPlaylists      | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPlaylists)      |
+| iTunesPodcasts       | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPodcasts)       |
+| iTunesPrefs          | :heavy_check_mark:                                                                            |
+| iTunesSD             | :heavy_check_mark:                                                                            |
+| iTunesStats          | :negative_squared_cross_mark: Not yet supported                                               |
 | iTunesVideoPlaylists | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesVideoPlaylists) |
-| winPrefs             | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#winPrefs_File) |
-
+| winPrefs             | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#winPrefs_File)        |
 
 In examining your iPod's file system you'll find other types of files besides the one listed above. These are:
 
-* [`.plist` files](https://en.wikipedia.org/wiki/Property_list)
+-   [`.plist` files](https://en.wikipedia.org/wiki/Property_list)
 
-* [`.tone` files](https://github.com/raleighlittles/iPod_tone_file_player)
+-   [`.tone` files](https://github.com/raleighlittles/iPod_tone_file_player)
 
-* `alarms` files: https://github.com/raleighlittles/iTunesDB-Parser/issues/6
+-   `alarms` files: https://github.com/raleighlittles/iTunesDB-Parser/issues/6
 
-* `.itdb` files, which are just SQLite 3 databases with a different extension.
+-   `.itdb` files, which are just SQLite 3 databases with a different extension.
 
 Because iPodLinux isn't maintained anymore, I was worried that the website (and thus the iTunesDB wiki) would be taken down at some point, so I downloaded the documentation.
 
@@ -61,15 +60,14 @@ The parser is written in Rust. You can build it by running `cargo build`.
 
 It requires two arguments:
 
-(1) the iTunesDB filename, 
+(1) the iTunesDB filename,
 
 (2) the type of iTunesDB file.
 
 The 7 possible "type" options are:
 
-
 | Field         | Value                                    |
-|---------------|------------------------------------------|
+| ------------- | ---------------------------------------- |
 | "photo"       | Photos Database files, no iThmb files    |
 | "itunes"      | iTunes DB (music and podcasts only) file |
 | "itprefs"     | iTunes Preferences file                  |
@@ -80,11 +78,8 @@ The 7 possible "type" options are:
 | "equalizer"   | Equalizer Presets file                   |
 | "itunessd"    | iTunesSD file                            |
 
-
 ```bash
 $ cd iTunesDB-Parser
-$ cargo init
-$ cargo build
 $ ./parser/target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
 ```
 
@@ -104,15 +99,14 @@ Equalizer settings CSV: ![Equalizer settings CSV screenshot](./docs/20241126_equ
 
 This project is a very early work-in-progress. The next major feature to come is [iThumb file decoding](https://github.com/raleighlittles/iTunesDB-Parser/issues/4)
 
-
 # Interested in contributing?
 
 If you have any iTunesDB files from the unsupported list and are willing to share, please contact me.
 
 Special thanks to:
 
-* @AZProductions 
-* @joshkenney
+-   @AZProductions
+-   @joshkenney
 
 for providing iTunesDB files!
 
