@@ -4,3 +4,8 @@
 **/.vscode
 **/.txt
 repopack-output.txt
+
+
+# Added by cargo
+
+/target

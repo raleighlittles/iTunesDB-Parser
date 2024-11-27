@@ -39,6 +39,13 @@ mod equalizer;
 use std::io::Read;
 
 fn main() {
+    // add a check for the number of arguments
+    let args: Vec<String> = std::env::args().collect();
+    
+    if args.len() < 3 {
+        panic!("Usage: {} <iTunes DB filename> <type> [format=csv|json]", args[0]);
+    }
+
     let itunesdb_filename: String = std::env::args()
         .nth(1)
         .expect("Missing first parameter: iTunes DB filename");
@@ -60,6 +67,20 @@ fn main() {
             itunesdb_filename, itunesdb_file_length
         );
     }
+
+    // Default to "csv" if no format specified
+    let output_format = if args.len() > 3 {
+        match args[3].to_lowercase().as_str() {
+            "json" => "json",
+            "csv" => "csv",
+            _ => {
+                eprintln!("Invalid format specified. Using default 'csv'");
+                "csv"
+            }
+        }
+    } else {
+        "csv"
+    };
 
     let mut itunesdb_file_as_bytes = Vec::new();
 
@@ -85,7 +106,7 @@ fn main() {
             photos_csv_writer,
         );
     } else if itunesdb_file_type == "itunes" {
-        parsers::itunesdb_parser::parse_itunesdb_file(itunesdb_file_as_bytes);
+        parsers::itunesdb_parser::parse_itunesdb_file(itunesdb_file_as_bytes, output_format);
     } else if itunesdb_file_type == "itprefs" {
         parsers::preferences_parser::parse_itunes_prefs_file(itunesdb_file_as_bytes);
     } else if itunesdb_file_type == "playcounts" {
