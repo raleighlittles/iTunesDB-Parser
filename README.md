@@ -79,8 +79,9 @@ The 7 possible "type" options are:
 | "itunessd"    | iTunesSD file                            |
 
 ```bash
-$ cd iTunesDB-Parser
-$ ./parser/target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
+$ cd iTunesDB-Parser/parser
+$ cargo build
+$ ./target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
 ```
 
 For iTunesDB, Photos Database, Equalizer files, and Playcounts files, a CSV will be generated with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs and podcasts mentioned in the iTunesDB file.
@@ -101,9 +102,9 @@ There's 2 extra utilities that may be of use:
 
 <img src="./docs/Spotify_Primary_Logo_RGB_Black.png" alt="Spotify logo" width="100">
 
-* Spotify integration: This creates a Spotify playlist out of the songs that were found on your iPod. See the README in that directory for more.
+-   Spotify integration: This creates a Spotify playlist out of the songs that were found on your iPod. See the README in that directory for more.
 
-* Song renaming functionality: iPods (generally ?) store the song files on their hard drive, however, the filenames are usually just a generic unique ID. I wrote a Python script that lets you rename the songs to have the song title and artist name instead, using the data that is in the iTunesDB file. See the README in that directory for more information.
+-   Song renaming functionality: iPods (generally ?) store the song files on their hard drive, however, the filenames are usually just a generic unique ID. I wrote a Python script that lets you rename the songs to have the song title and artist name instead, using the data that is in the iTunesDB file. See the README in that directory for more information.
 
 # Future roadmap
 
