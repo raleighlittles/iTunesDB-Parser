@@ -83,6 +83,7 @@ The 7 possible "type" options are:
 
 ```bash
 $ cd iTunesDB-Parser
+$ cargo init
 $ cargo build
 $ ./parser/target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
 ```
