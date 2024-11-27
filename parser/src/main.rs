@@ -106,7 +106,7 @@ fn main() {
             photos_csv_writer,
         );
     } else if itunesdb_file_type == "itunes" {
-        parsers::itunesdb_parser::parse_itunesdb_file(itunesdb_file_as_bytes, output_format);
+        parsers::itunesdb_parser::parse_itunesdb_file(itunesdb_file_as_bytes, output_format.to_string());
     } else if itunesdb_file_type == "itprefs" {
         parsers::preferences_parser::parse_itunes_prefs_file(itunesdb_file_as_bytes);
     } else if itunesdb_file_type == "playcounts" {
