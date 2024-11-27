@@ -5,7 +5,6 @@ pub struct EqualizerPreset {
     pub equalizer_preamp_value_raw: i32,
     pub equalizer_preamp_value_db: f32,
     pub equalizer_num_of_bands: u8,
-    pub equalizer_settings: Vec<EqualizerFrequencySetting>
 }
 
 impl Default for EqualizerPreset {
@@ -18,7 +17,6 @@ impl Default for EqualizerPreset {
             equalizer_preamp_value_raw: 0,
             equalizer_preamp_value_db: 0.0,
             equalizer_num_of_bands: 0,
-            equalizer_settings: Vec::new()
         };
     }
  }
