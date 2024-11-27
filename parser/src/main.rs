@@ -3,8 +3,11 @@
 /// https://stackoverflow.com/questions/58935890
 
 mod constants {
+    pub mod deviceinfo_constants;
+    pub mod equalizer_constants;
     pub mod itunesdb_constants;
     pub mod itunesprefs_constants;
+    pub mod itunessd_constants;
     pub mod photo_database_constants;
     pub mod photofolderalbums_constants;
     pub mod playcounts_constants;
@@ -17,7 +20,10 @@ mod helpers {
 }
 
 mod parsers {
+    pub mod deviceinfo_parser;
+    pub mod equalizer_parser;
     pub mod itunesdb_parser;
+    pub mod itunessd_parser;
     pub mod photo_type_parser;
     pub mod playcounts_parser;
     pub mod preferences_parser;
@@ -27,6 +33,8 @@ mod itunesdb;
 mod itunesprefs;
 mod photo_database;
 mod preferences;
+mod itunessd;
+mod equalizer;
 
 use std::io::Read;
 
@@ -58,11 +66,13 @@ fn main() {
     // https://stackoverflow.com/questions/47660946/why-does-a-file-need-to-be-mutable-to-call-readread-to-string
     let mut itunesdb_file = std::fs::File::open(itunesdb_file_path).unwrap();
 
-    itunesdb_file.read_to_end(&mut itunesdb_file_as_bytes).unwrap();
+    itunesdb_file
+        .read_to_end(&mut itunesdb_file_as_bytes)
+        .unwrap();
 
     let itunesdb_file_type: String = std::env::args()
         .nth(2)
-        .expect("Missing second parameter: iTunes DB file type. Supported types are 'photo', 'itunes', 'itprefs', 'playcounts', 'pfalbumbs', and 'preferences'");
+        .expect("Missing second parameter: iTunes DB file type");
 
     let desired_report_csv_filename = itunesdb_filename.to_string() + ".csv";
 
@@ -85,6 +95,13 @@ fn main() {
         parsers::photo_type_parser::parse_photofolder_albums_file(itunesdb_file_as_bytes);
     } else if itunesdb_file_type == "preferences" {
         parsers::preferences_parser::parse_preferences_file(itunesdb_file_as_bytes);
+    } else if itunesdb_file_type == "deviceinfo" {
+        parsers::deviceinfo_parser::parse_device_info_file(itunesdb_file_as_bytes);
+    } else if itunesdb_file_type == "equalizer" {
+        let equalizer_csv_writer = helpers::helpers::init_csv_writer(&desired_report_csv_filename);
+        parsers::equalizer_parser::parse_equalizer_file(itunesdb_file_as_bytes, equalizer_csv_writer);
+    } else if itunesdb_file_type == "itunessd" {
+        parsers::itunessd_parser::parse_itunessd_file(itunesdb_file_as_bytes);
     } else {
         println!(
             "'{}' is not a supported iTunesDB file type!",

@@ -1,3 +1,5 @@
+![build-badge](https://github.com/raleighlittles/iTunesDB-Parser/actions/workflows/main.yml/badge.svg)
+
 # Background
 
 iPods store various information in what are called, "iTunesDB files". Despite the name, these are not "real" database (eg Postgres) files, but, instead binary files.
@@ -17,8 +19,8 @@ The table below shows which iTunesDB files are supported.
 | File type            | Supported?                                                       |
 |----------------------|------------------------------------------------------------------|
 | Artwork DB           | :negative_squared_cross_mark: Not yet supported                  |
-| DeviceInfo           | :negative_squared_cross_mark: Not yet supported                  |
-| Equalizer Presets    | :negative_squared_cross_mark: Not yet supported                  |
+| DeviceInfo           | Partial - Can extract iPod name only |
+| Equalizer Presets    | :heavy_check_mark: Extracts both the iTunes and actual DSP  values |
 | On The Go Playlist   | :negative_squared_cross_mark: Not yet supported                  |
 | Photo Database       | :heavy_check_mark: Can extract all associated metadata of images |
 | PhotoFolderAlbums    | Partial - only can detect the # of photo albums                  |
@@ -33,7 +35,7 @@ The table below shows which iTunesDB files are supported.
 | iTunesPlaylists      | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPlaylists) |
 | iTunesPodcasts       | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPodcasts) |
 | iTunesPrefs          | :heavy_check_mark:                                               |
-| iTunesSD             | :negative_squared_cross_mark: Not yet supported                  |
+| iTunesSD             | :heavy_check_mark:                                               |
 | iTunesStats          | :negative_squared_cross_mark: Not yet supported                  |
 | iTunesVideoPlaylists | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesVideoPlaylists) |
 | winPrefs             | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#winPrefs_File) |
@@ -63,7 +65,8 @@ It requires two arguments:
 
 (2) the type of iTunesDB file.
 
-Possible options are:
+The 7 possible "type" options are:
+
 
 | Field         | Value                                    |
 |---------------|------------------------------------------|
@@ -73,6 +76,9 @@ Possible options are:
 | "playcounts"  | Playcounts file                          |
 | "pfalbums"    | Photo Folder Albums                      |
 | "preferences" | Preferences file                         |
+| "deviceinfo"  | DeviceInfo file                          |
+| "equalizer"   | Equalizer Presets file                   |
+| "itunessd"    | iTunesSD file                            |
 
 
 ```bash
@@ -81,7 +87,7 @@ $ cargo build
 $ ./parser/target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
 ```
 
-For iTunesDB, Photos Database, and Playcounts files, a CSV will be generated with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs and podcasts mentioned in the iTunesDB file.
+For iTunesDB, Photos Database, Equalizer files, and Playcounts files, a CSV will be generated with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs and podcasts mentioned in the iTunesDB file.
 
 ![CSV music screenshot](./docs/20230716_music-csv.png)
 
@@ -90,6 +96,8 @@ For iTunesDB, Photos Database, and Playcounts files, a CSV will be generated wit
 If you run it on a Photo Database file, you'll see the list of all images stored on that iPod.
 
 ![CSV photo screenshot](./docs/20230715_photodatabase-csv.png)
+
+Equalizer settings CSV: ![Equalizer settings CSV screenshot](./docs/20241126_equalizer-csv-example.png)
 
 # Future roadmap
 
@@ -100,4 +108,11 @@ This project is a very early work-in-progress. The next major feature to come is
 
 If you have any iTunesDB files from the unsupported list and are willing to share, please contact me.
 
-Special thanks to @AZProductions for providing an iTunesDB file.
+Special thanks to:
+
+* @AZProductions 
+* @joshkenney
+
+for providing iTunesDB files!
+
+<a href="https://www.buymeacoffee.com/raleighlittles" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="45" width="175"></a>
