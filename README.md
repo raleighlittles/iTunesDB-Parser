@@ -97,6 +97,16 @@ If you run it on a Photo Database file, you'll see the list of all images stored
 
 Equalizer settings CSV: ![Equalizer settings CSV screenshot](./docs/20241126_equalizer-csv-example.png)
 
+# Extras
+
+There's 2 extra utilities that may be of use:
+
+<img src="./docs/Spotify_Primary_Logo_RGB_Black.png" alt="Spotify logo" width="100">
+
+* Spotify integration: This creates a Spotify playlist out of the songs that were found on your iPod. See the README in that directory for more.
+
+* Song renaming functionality: iPods (generally ?) store the song files on their hard drive, however, the filenames are usually just a generic unique ID. I wrote a Python script that lets you rename the songs to have the song title and artist name instead, using the data that is in the iTunesDB file. See the README in that directory for more information.
+
 # Future roadmap
 
 This project is a very early work-in-progress. The next major feature to come is [iThumb file decoding](https://github.com/raleighlittles/iTunesDB-Parser/issues/4)

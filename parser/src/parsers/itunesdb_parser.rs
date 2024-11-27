@@ -6,9 +6,7 @@ use crate::itunesdb;
 use crate::helpers::helpers;
 use crate::helpers::itunesdb_helpers;
 
-
-pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
-
+pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>) {
     let mut music_csv_writer = helpers::init_csv_writer("music.csv");
     let mut podcast_csv_writer = helpers::init_csv_writer("podcasts.csv");
 
@@ -23,7 +21,8 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
     let mut idx = 0;
 
     while idx < (itunesdb_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
-        let potential_section_heading = &itunesdb_file_as_bytes[idx..idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
+        let potential_section_heading =
+            &itunesdb_file_as_bytes[idx..idx + itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE];
 
         // Parse Database Object
         if potential_section_heading == itunesdb_constants::DATABASE_OBJECT_KEY.as_bytes() {
@@ -52,7 +51,6 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
         }
         // Parse DataSet
         else if potential_section_heading == itunesdb_constants::DATASET_KEY.as_bytes() {
-
             let dataset_type_raw = helpers::get_slice_from_offset_with_len(
                 idx,
                 &itunesdb_file_as_bytes,
@@ -138,8 +136,7 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
             if helpers::build_le_u32_from_bytes(track_filetype_raw) == 0 {
                 println!("Track Item file type missing. Is this is a 1st - 4th gen iPod?");
             } else {
-                let track_item_extension =
-                    itunesdb::decode_track_item_filetype(track_filetype_raw);
+                let track_item_extension = itunesdb::decode_track_item_filetype(track_filetype_raw);
                 write!(
                     track_item_info,
                     "Track extension: '{}' | ",
@@ -202,7 +199,6 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
                 track_media_type_enum,
                 itunesdb::HandleableMediaType::SongLike
             ) {
-
                 curr_media_type = track_media_type_enum;
 
                 let track_advanced_audio_type = helpers::get_slice_as_le_u32(
@@ -280,7 +276,6 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
 
                 curr_song.bitrate_kbps = track_bitrate;
                 curr_song.sample_rate_hz = track_sample_rate_hz;
-
 
                 let track_size_bytes = helpers::get_slice_as_le_u32(
                     idx,
@@ -375,7 +370,11 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
                     itunesdb_constants::TRACK_ITEM_TRACK_LAST_SKIPPED_TIMESTAMP_LEN,
                 );
 
-                let track_skip_when_shuffle_setting = &itunesdb_file_as_bytes[idx + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET .. idx + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_LEN];
+                let track_skip_when_shuffle_setting = &itunesdb_file_as_bytes[idx
+                    + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET
+                    ..idx
+                        + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_OFFSET
+                        + itunesdb_constants::TRACK_ITEM_TRACK_SKIP_WHEN_SHUFFLING_SETTING_LEN];
 
                 write!(track_item_info, "Play/Skip statistics: # of plays: {} , Last played on: {} | # of skips: {}, Last skipped on: {} (Skip when shuffling? {}) ", track_play_count, track_last_played_timestamp, track_skipped_count, track_last_skipped_timestamp, track_skip_when_shuffle_setting[0] ).unwrap();
 
@@ -432,7 +431,12 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
                 );
 
                 if gapless_playback_setting_for_track == 1 {
-                    let num_beginning_silence_samples = helpers::get_slice_as_le_u32(idx, &itunesdb_file_as_bytes, itunesdb_constants::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_OFFSET, itunesdb_constants::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_LEN);
+                    let num_beginning_silence_samples = helpers::get_slice_as_le_u32(
+                        idx,
+                        &itunesdb_file_as_bytes,
+                        itunesdb_constants::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_OFFSET,
+                        itunesdb_constants::TRACK_ITEM_TRACK_BEGINNING_SILENCE_SAMPLE_COUNT_LEN,
+                    );
 
                     let num_ending_silence_samples = helpers::get_slice_as_le_u32(
                         idx,
@@ -514,13 +518,6 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
                     curr_song.song_year = track_year_released as u16;
                 }
 
-                // let track_added_timestamp = helpers::get_slice_as_mac_timestamp(
-                //     idx,
-                //     &itunesdb_file_as_bytes,
-                //     itunesdb_constants::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_OFFSET,
-                //     itunesdb_constants::TRACK_ITEM_TRACK_ADDED_TIMESTAMP_LEN,
-                // );
-
                 let track_added_epoch = helpers::get_slice_as_le_u32(
                     idx,
                     &itunesdb_file_as_bytes,
@@ -542,40 +539,50 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
                     .unwrap();
                 }
 
-                let track_modified_timestamp = helpers::get_slice_as_mac_timestamp(
+                let track_modified_epoch = helpers::get_slice_as_le_u32(
                     idx,
                     &itunesdb_file_as_bytes,
                     itunesdb_constants::TRACK_ITEM_TRACK_MODIFIED_TIME_OFFSET,
                     itunesdb_constants::TRACK_ITEM_TRACK_MODIFIED_TIME_LEN,
                 );
 
-                let track_published_to_store_timestamp: chrono::DateTime<chrono::Utc> =
-                    helpers::get_slice_as_mac_timestamp(
-                        idx,
-                        &itunesdb_file_as_bytes,
-                        itunesdb_constants::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET,
-                        itunesdb_constants::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_LEN,
-                    );
-
-                write!(
-                    track_item_info,
-                    "Last modified: {} Published to iTunes store: {}",
-                    track_modified_timestamp, track_published_to_store_timestamp
-                )
-                .unwrap();
-
-                //println!("{} \n", track_item_info);
-            }
-
-            else if matches!(
-                track_media_type_enum,
-                itunesdb::HandleableMediaType::Podcast) {
-
-                    println!("TrackItem: Podcast found");
-
-                    curr_media_type = track_media_type_enum;
-
+                if track_modified_epoch > 0 {
+                    let track_modified_timestamp =
+                        helpers::get_timestamp_as_mac(track_modified_epoch as u64);
+                    write!(
+                        track_item_info,
+                        "Track last modified: {} | ",
+                        track_modified_timestamp
+                    ).unwrap();
                 }
+
+                let track_published_to_store_epoch = helpers::get_slice_as_le_u32(
+                    idx,
+                    &itunesdb_file_as_bytes,
+                    itunesdb_constants::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_OFFSET,
+                    itunesdb_constants::TRACK_ITEM_TRACK_RELEASED_TIMESTAMP_LEN,
+                );
+
+                if track_published_to_store_epoch > 0 {
+                    let track_published_to_store_timestamp: chrono::DateTime<chrono::Utc> =
+                        helpers::get_timestamp_as_mac(track_published_to_store_epoch as u64);
+
+                    write!(
+                        track_item_info,
+                        "Date published on iTunes: {}",
+                        track_published_to_store_timestamp
+                    ).unwrap();
+                }
+
+                println!("{} \n", track_item_info);
+            } else if matches!(
+                track_media_type_enum,
+                itunesdb::HandleableMediaType::Podcast
+            ) {
+                println!("TrackItem: Podcast found");
+
+                curr_media_type = track_media_type_enum;
+            }
 
             idx += itunesdb_constants::TRACK_ITEM_LAST_OFFSET;
         } else if potential_section_heading == itunesdb_constants::PLAYLIST_KEY.as_bytes() {
@@ -624,8 +631,7 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
             //println!("{} ====", playlist_info);
 
             idx += itunesdb_constants::PLAYLIST_LAST_OFFSET;
-        } else if potential_section_heading == itunesdb_constants::PLAYLIST_ITEM_KEY.as_bytes()
-        {
+        } else if potential_section_heading == itunesdb_constants::PLAYLIST_ITEM_KEY.as_bytes() {
             let mut playlist_item_info: String = "-----".to_string();
 
             let playlist_item_added_timestamp = helpers::get_slice_as_mac_timestamp(
@@ -711,10 +717,9 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
                 );
 
                 // let data_object_str = std::str::from_utf8(&data_object_str_bytes).expect("Can't parse string data object!");
-                let data_object_str = String::from_utf16(&helpers::return_utf16_from_utf8(
-                    &data_object_str_bytes,
-                ))
-                .expect("Can't decode string to UTF-16");
+                let data_object_str =
+                    String::from_utf16(&helpers::return_utf16_from_utf8(&data_object_str_bytes))
+                        .expect("Can't decode string to UTF-16");
 
                 write!(
                     data_object_info,
@@ -724,59 +729,40 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
                 .unwrap();
 
                 // We've found a title, now, use the TrackItem info to determine if the title is for a song or for a podcast
-                if data_object_type_raw == itunesdb::HandleableDataObjectType::Title as u32
-                {
+                if data_object_type_raw == itunesdb::HandleableDataObjectType::Title as u32 {
                     if curr_media_type == itunesdb::HandleableMediaType::SongLike {
                         curr_song.song_title = data_object_str;
-                    } 
-                    else if curr_media_type == itunesdb::HandleableMediaType::Podcast {
+                    } else if curr_media_type == itunesdb::HandleableMediaType::Podcast {
                         curr_podcast.podcast_title = data_object_str;
                     }
-                }
-                 else if data_object_type_raw
-                    == itunesdb::HandleableDataObjectType::Album as u32
-                {
+                } else if data_object_type_raw == itunesdb::HandleableDataObjectType::Album as u32 {
                     curr_song.song_album = data_object_str;
-
-                } else if data_object_type_raw
-                    == itunesdb::HandleableDataObjectType::Artist as u32
+                } else if data_object_type_raw == itunesdb::HandleableDataObjectType::Artist as u32
                 {
                     if curr_media_type == itunesdb::HandleableMediaType::SongLike {
                         curr_song.song_artist = data_object_str;
-                    }
-                    else if curr_media_type == itunesdb::HandleableMediaType::Podcast {
+                    } else if curr_media_type == itunesdb::HandleableMediaType::Podcast {
                         curr_podcast.podcast_publisher = data_object_str;
                     }
-
-                } else if data_object_type_raw
-                    == itunesdb::HandleableDataObjectType::Genre as u32
-                {
+                } else if data_object_type_raw == itunesdb::HandleableDataObjectType::Genre as u32 {
                     if curr_media_type == itunesdb::HandleableMediaType::SongLike {
                         curr_song.song_genre = data_object_str;
-                    }
-
-                    else if curr_media_type == itunesdb::HandleableMediaType::Podcast {
+                    } else if curr_media_type == itunesdb::HandleableMediaType::Podcast {
                         if curr_podcast.podcast_genre.is_empty() {
                             curr_podcast.podcast_genre = data_object_str;
                         }
                     }
-
-                } else if data_object_type_raw
-                    == itunesdb::HandleableDataObjectType::Comment as u32
+                } else if data_object_type_raw == itunesdb::HandleableDataObjectType::Comment as u32
                 {
                     if curr_media_type == itunesdb::HandleableMediaType::SongLike {
-
                         curr_song.song_comment = data_object_str;
-
                     } else if curr_media_type == itunesdb::HandleableMediaType::Podcast {
                         curr_podcast.podcast_subtitle = data_object_str;
                     }
-
                 } else if data_object_type_raw
                     == itunesdb::HandleableDataObjectType::Composer as u32
                 {
                     curr_song.song_composer = data_object_str;
-
                 } else if data_object_type_raw
                     == itunesdb::HandleableDataObjectType::FileLocation as u32
                 {
@@ -785,26 +771,21 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
                     if curr_song.are_enough_fields_valid() {
                         songs_found.push(curr_song);
                         curr_song = itunesdb::Song::default();
-
                     }
-                }
-                else if data_object_type_raw == itunesdb::HandleableDataObjectType::FileType as u32 {
-                    
+                } else if data_object_type_raw
+                    == itunesdb::HandleableDataObjectType::FileType as u32
+                {
                     if curr_media_type == itunesdb::HandleableMediaType::Podcast {
-
                         curr_podcast.podcast_file_type = data_object_str;
                     }
-
-                }
-                else if data_object_type_raw == itunesdb::HandleableDataObjectType::PodcastDescription as u32 {
-                    
+                } else if data_object_type_raw
+                    == itunesdb::HandleableDataObjectType::PodcastDescription as u32
+                {
                     if curr_media_type == itunesdb::HandleableMediaType::Podcast {
-
                         curr_podcast.podcast_description = data_object_str;
                     }
 
                     if !curr_podcast.podcast_title.is_empty() {
-
                         podcasts_found.push(curr_podcast);
                         curr_podcast = itunesdb::Podcast::default();
                     }
@@ -840,25 +821,28 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes : Vec<u8>) {
 
     println!("{} songs found", songs_found.len());
 
-
-    podcast_csv_writer.write_record(&[
-        "Episode Title",
-        "Publisher",
-        "Genre",
-        "Subtitle",
-        "Description",
-        "File Type"
-    ]).expect("Error can't create CSV file headers for podcast file");
+    podcast_csv_writer
+        .write_record(&[
+            "Episode Title",
+            "Publisher",
+            "Genre",
+            "Subtitle",
+            "Description",
+            "File Type",
+        ])
+        .expect("Error can't create CSV file headers for podcast file");
 
     for episode in podcasts_found.iter() {
-        podcast_csv_writer.write_record(&[
-            episode.podcast_title.to_string(),
-            episode.podcast_publisher.to_string(),
-            episode.podcast_genre.to_string(),
-            episode.podcast_subtitle.to_string(),
-            episode.podcast_description.to_string().replace("\n", ""),
-            episode.podcast_file_type.to_string()
-        ]).expect("Can't write row to podcast CSV file");
+        podcast_csv_writer
+            .write_record(&[
+                episode.podcast_title.to_string(),
+                episode.podcast_publisher.to_string(),
+                episode.podcast_genre.to_string(),
+                episode.podcast_subtitle.to_string(),
+                episode.podcast_description.to_string().replace("\n", ""),
+                episode.podcast_file_type.to_string(),
+            ])
+            .expect("Can't write row to podcast CSV file");
     }
 
     music_csv_writer
