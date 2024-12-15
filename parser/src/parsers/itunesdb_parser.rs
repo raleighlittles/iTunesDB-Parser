@@ -1,4 +1,6 @@
 use std::fmt::Write;
+use std::fs::File;
+use std::io;
 
 use crate::constants::itunesdb_constants;
 use crate::itunesdb;
@@ -6,9 +8,7 @@ use crate::itunesdb;
 use crate::helpers::helpers;
 use crate::helpers::itunesdb_helpers;
 
-pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>) {
-    let mut music_csv_writer = helpers::init_csv_writer("music.csv");
-    let mut podcast_csv_writer = helpers::init_csv_writer("podcasts.csv");
+pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: String) {
 
     let mut songs_found: Vec<itunesdb::Song> = Vec::new();
     let mut podcasts_found: Vec<itunesdb::Podcast> = Vec::new();
@@ -818,84 +818,113 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>) {
     }
 
     println!("{} podcasts found", podcasts_found.len());
-
     println!("{} songs found", songs_found.len());
 
-    podcast_csv_writer
-        .write_record(&[
-            "Episode Title",
-            "Publisher",
-            "Genre",
-            "Subtitle",
-            "Description",
-            "File Type",
-        ])
-        .expect("Error can't create CSV file headers for podcast file");
+    // Add JSON output @joshkenney
+    if output_format == "json" {
+        // Only create JSON output
+        if !songs_found.is_empty() {
+            let songs_json = serde_json::to_string_pretty(&songs_found)
+                .expect("Error serializing songs to JSON");
+            let mut songs_json_file = File::create("music.json")
+                .expect("Error creating songs JSON file");
+            io::Write::write_all(&mut songs_json_file, songs_json.as_bytes())
+                .expect("Error writing songs JSON file");
+            println!("Created music.json with {} songs", songs_found.len());
+        }
 
-    for episode in podcasts_found.iter() {
-        podcast_csv_writer
-            .write_record(&[
-                episode.podcast_title.to_string(),
-                episode.podcast_publisher.to_string(),
-                episode.podcast_genre.to_string(),
-                episode.podcast_subtitle.to_string(),
-                episode.podcast_description.to_string().replace("\n", ""),
-                episode.podcast_file_type.to_string(),
-            ])
-            .expect("Can't write row to podcast CSV file");
-    }
+        if !podcasts_found.is_empty() {
+            let podcasts_json = serde_json::to_string_pretty(&podcasts_found)
+                .expect("Error serializing podcasts to JSON");
+            let mut podcasts_json_file = File::create("podcasts.json")
+                .expect("Error creating podcasts JSON file");
+            io::Write::write_all(&mut podcasts_json_file, podcasts_json.as_bytes())
+                .expect("Error writing podcasts JSON file");
+            println!("Created podcasts.json with {} podcasts", podcasts_found.len());
+        }
+     // default to CSV output
+    } else {
+        let mut music_csv_writer = helpers::init_csv_writer("music.csv");
+        let mut podcast_csv_writer = helpers::init_csv_writer("podcasts.csv");
 
-    music_csv_writer
-        .write_record(&[
-            "Song Title",
-            "Artist",
-            "Album",
-            "Year released",
-            "File size",
-            "Song Duration",
-            "Filename",
-            "Genre",
-            "File extension",
-            "Bitrate (kbps)",
-            "Sample Rate (Hz)",
-            "File size (bytes)",
-            "Song duration (seconds)",
-            "Play count",
-            "Rating",
-            "Added to library on (timestamp)",
-            "Added to library on (epoch)",
-            "Composer",
-            "Comment",
-        ])
-        .expect("Can't create CSV file headers for music file");
+        if !podcasts_found.is_empty() {
+            podcast_csv_writer.write_record(&[
+                "Episode Title",
+                "Publisher",
+                "Genre",
+                "Subtitle",
+                "Description",
+                "File Type"
+            ]).expect("Error can't create CSV file headers for podcast file");
 
-    for song in songs_found.iter() {
-        // the duplicate `to_string()` calls are to avoid this error:
-        // cannot move out of `song.song_title` which is behind a shared reference
-        // move occurs because `song.song_title` has type `String`, which does not implement the `Copy` trait
+            for episode in podcasts_found.iter() {
+                podcast_csv_writer.write_record(&[
+                    episode.podcast_title.to_string(),
+                    episode.podcast_publisher.to_string(),
+                    episode.podcast_genre.to_string(),
+                    episode.podcast_subtitle.to_string(),
+                    episode.podcast_description.to_string().replace("\n", ""),
+                    episode.podcast_file_type.to_string()
+                ]).expect("Can't write row to podcast CSV file");
+            }
+            println!("Created podcasts.csv with {} podcasts", podcasts_found.len());
+        }
 
-        music_csv_writer
-            .write_record(&[
-                song.song_title.to_string(),
-                song.song_artist.to_string(),
-                song.song_album.to_string(),
-                song.song_year.to_string(),
-                song.file_size_friendly.to_string(),
-                song.song_duration_friendly.to_string(),
-                song.song_filename.to_string(),
-                song.song_genre.to_string(),
-                song.file_extension.to_string(),
-                song.bitrate_kbps.to_string(),
-                song.sample_rate_hz.to_string(),
-                song.file_size_bytes.to_string(),
-                song.song_duration_s.to_string(),
-                song.num_plays.to_string(),
-                itunesdb_helpers::decode_itunes_stars(song.song_rating_raw),
-                song.song_added_to_library_ts.to_string(),
-                song.song_added_to_library_epoch.to_string(),
-                song.song_composer.to_string(),
-                song.song_comment.to_string(),
-            ])
-            .expect("Can't write row to CSV");
+        if !songs_found.is_empty() {
+            music_csv_writer
+                .write_record(&[
+                    "Song Title",
+                    "Artist",
+                    "Album",
+                    "Year released",
+                    "File size",
+                    "Song Duration",
+                    "Filename",
+                    "Genre",
+                    "File extension",
+                    "Bitrate (kbps)",
+                    "Sample Rate (Hz)",
+                    "File size (bytes)",
+                    "Song duration (seconds)",
+                    "Play count",
+                    "Rating",
+                    "Added to library on (timestamp)",
+                    "Added to library on (epoch)",
+                    "Composer",
+                    "Comment",
+                ])
+                .expect("Can't create CSV file headers for music file");
+
+            for song in songs_found.iter() {
+                // the duplicate `to_string()` calls are to avoid this error:
+                // cannot move out of `song.song_title` which is behind a shared reference
+                // move occurs because `song.song_title` has type `String`, which does not implement the `Copy` trait
+
+                music_csv_writer
+                    .write_record(&[
+                        song.song_title.to_string(),
+                        song.song_artist.to_string(),
+                        song.song_album.to_string(),
+                        song.song_year.to_string(),
+                        song.file_size_friendly.to_string(),
+                        song.song_duration_friendly.to_string(),
+                        song.song_filename.to_string(),
+                        song.song_genre.to_string(),
+                        song.file_extension.to_string(),
+                        song.bitrate_kbps.to_string(),
+                        song.sample_rate_hz.to_string(),
+                        song.file_size_bytes.to_string(),
+                        song.song_duration_s.to_string(),
+                        song.num_plays.to_string(),
+                        itunesdb_helpers::decode_itunes_stars(song.song_rating_raw),
+                        song.song_added_to_library_ts.to_string(),
+                        song.song_added_to_library_epoch.to_string(),
+                        song.song_composer.to_string(),
+                        song.song_comment.to_string(),
+                    ])
+                    .expect("Can't write row to CSV");
+            }
+            println!("Created music.csv with {} songs", songs_found.len());
+        }
     }
 }
