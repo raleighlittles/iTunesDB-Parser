@@ -1,9 +1,0 @@
-[package]
-name = "to_spotify"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-# This must be on a single line for some reason
-rspotify = { version = "0.13.3",default-features = false,features = ["env-file", "client-ureq", "ureq-rustls-tls"]}
-dotenv = "0.15.0"
