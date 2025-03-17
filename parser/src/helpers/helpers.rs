@@ -59,12 +59,12 @@ pub fn build_be_u32_from_bytes(bytes: &[u8]) -> u32 {
 
 // TODO: Use template function
 pub fn build_le_u64_from_bytes(bytes: &[u8]) -> u64 {
-    let mut array = [0u8; 8]; // Create an 8-byte array initialized to zero
-    let len = bytes.len().min(8); // Ensure we don't read more than 8 bytes
+    let mut array = [0u8; 8];
+    let len = bytes.len().min(8);
 
-    array[..len].copy_from_slice(&bytes[..len]); // Copy bytes into the array
+    array[..len].copy_from_slice(&bytes[..len]);
 
-    u64::from_le_bytes(array) // Convert to little-endian u64
+    u64::from_le_bytes(array)
 }
 
 pub fn get_slice_from_offset_with_len(
