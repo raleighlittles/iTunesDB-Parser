@@ -59,18 +59,12 @@ pub fn build_be_u32_from_bytes(bytes: &[u8]) -> u32 {
 
 // TODO: Use template function
 pub fn build_le_u64_from_bytes(bytes: &[u8]) -> u64 {
-    let mut number: u64 = 0;
-    const RADIX: u64 = 256;
+    let mut array = [0u8; 8];
+    let len = bytes.len().min(8);
 
-    for (idx, item) in bytes.iter().enumerate() {
-        let summand: u64 = RADIX
-            .checked_pow(idx as u32)
-            .unwrap_or_else(|| panic!("Can't raise {} to power {}", RADIX, idx));
+    array[..len].copy_from_slice(&bytes[..len]);
 
-        number += (summand) * (*item as u64);
-    }
-
-    return number;
+    u64::from_le_bytes(array)
 }
 
 pub fn get_slice_from_offset_with_len(
@@ -243,4 +237,74 @@ pub fn init_csv_writer(filename: &str) -> csv::Writer<std::fs::File> {
         .expect(&format!("Can't initialize CSV file '{}'", &filename));
 
     return csv_writer;
+}
+
+#[cfg(test)]
+mod helpers_tests {
+    use super::*;
+
+    #[test]
+    fn test_build_le_u16_from_bytes() {
+        let bytes: [u8; 2] = [0x34, 0x12];
+        assert_eq!(build_le_u16_from_bytes(&bytes), 0x1234);
+    }
+
+    #[test]
+    fn test_build_le_u32_from_bytes() {
+        let bytes: [u8; 4] = [0x78, 0x56, 0x34, 0x12];
+        assert_eq!(build_le_u32_from_bytes(&bytes), 0x12345678);
+    }
+
+    #[test]
+    fn test_build_le_u64_from_bytes() {
+        let bytes: [u8; 8] = [0xAB, 0xBC, 0xCD, 0xDE, 0xEF, 0x00, 0x00, 0x00];
+        assert_eq!(build_le_u64_from_bytes(&bytes), 0xefdecdbcab);
+    }
+    #[test]
+    fn test_get_slice_from_offset_with_len() {
+        let file_as_array: [u8; 10] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let slice = get_slice_from_offset_with_len(0, &file_as_array, 2, 4);
+        assert_eq!(slice, vec![2, 3, 4, 5]);
+    }
+
+    #[test]
+    fn test_get_slice_as_le_u32() {
+        let file_as_array: [u8; 10] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let value = get_slice_as_le_u32(0, &file_as_array, 2, 4);
+        assert_eq!(value, 0x05040302);
+    }
+
+    #[test]
+    fn test_get_slice_as_le_u64() {
+        let file_as_array: [u8; 10] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let value = get_slice_as_le_u64(0, &file_as_array, 1, 8);
+        assert_eq!(value, 0x0807060504030201);
+    }
+
+    #[test]
+    fn test_return_utf16_from_utf8() {
+        let utf8_bytes: [u8; 6] = [0x61, 0x00, 0x62, 0x00, 0x63, 0x00]; // "abc" in UTF-16
+        let utf16_array = return_utf16_from_utf8(&utf8_bytes);
+        assert_eq!(utf16_array, vec![0x61, 0x62, 0x63]);
+    }
+
+    #[test]
+    fn test_get_timestamp_as_mac() {
+        let mac_timestamp: u64 = 0x00000000;
+        let timestamp = get_timestamp_as_mac(mac_timestamp);
+        assert_eq!(timestamp.to_string(), "1904-01-01 00:00:00 UTC");
+    }
+
+    #[test]
+    fn test_convert_seconds_to_human_readable_duration() {
+        assert_eq!(
+            convert_seconds_to_human_readable_duration(787),
+            "13 minutes, 7 seconds"
+        );
+        assert_eq!(convert_seconds_to_human_readable_duration(3600), "1 hour");
+        assert_eq!(
+            convert_seconds_to_human_readable_duration(61),
+            "1 minute, 1 second"
+        );
+    }
 }

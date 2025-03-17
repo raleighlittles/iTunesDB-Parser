@@ -121,3 +121,10 @@ Special thanks to:
 for providing iTunesDB files!
 
 <a href="https://www.buymeacoffee.com/raleighlittles" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="45" width="175"></a>
+
+
+<p>
+  <a href="https://www.paypal.me/raleighlittles">
+      <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="paypal" />
+  </a>
+</p>

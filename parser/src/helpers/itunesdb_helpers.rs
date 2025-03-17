@@ -55,3 +55,24 @@ pub fn get_canonical_path(itunesdb_format_path: String) -> String {
 
     return str::replace(&string_to_sanitize, ITUNESDB_DIRECTORY_SEPARATOR, "/");
 }
+
+#[cfg(test)]
+mod itunesdb_helpers_tests {
+    use super::*;
+
+    #[test]
+    fn test_decode_itunes_stars() {
+        assert_eq!(decode_itunes_stars(0), "No rating");
+        assert_eq!(decode_itunes_stars(20), "1 / 5 (⭐)");
+        assert_eq!(decode_itunes_stars(40), "2 / 5 (⭐⭐)");
+        assert_eq!(decode_itunes_stars(60), "3 / 5 (⭐⭐⭐)");
+        assert_eq!(decode_itunes_stars(80), "4 / 5 (⭐⭐⭐⭐)");
+        assert_eq!(decode_itunes_stars(100), "5 / 5 (⭐⭐⭐⭐⭐)");
+    }
+
+    #[test]
+    fn test_get_canonical_path() {
+        assert_eq!(get_canonical_path("E::DCIM:129CANON:IMG_2470.JPG".to_string()), "DCIM/129CANON/IMG_2470.JPG");
+        assert_eq!(get_canonical_path(":F06:T359.ithmb".to_string()), "F06/T359.ithmb");
+    }
+}
