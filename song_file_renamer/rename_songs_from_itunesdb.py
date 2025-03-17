@@ -31,7 +31,7 @@ if __name__ == "__main__":
         for csv_row in csv_reader:
             song_title = csv_row["Song Title"]
             if song_title is None or song_title == "":
-                song_title = "UKNOWN_SONG_TITLE"
+                song_title = "UNKNOWN_SONG_TITLE"
             song_artist = csv_row["Artist"]
             if song_artist is None or song_artist == "":
                 song_artist = "UNKNOWN_ARTIST"
