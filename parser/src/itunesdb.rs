@@ -5,42 +5,38 @@
  * or: http://www.ipodlinux.org/ITunesDB/#iTunesDB_file
  *
  */
+use crate::constants::itunesdb_constants;
 
- use crate::constants::itunesdb_constants;
+use crate::helpers::helpers;
+use crate::helpers::itunesdb_helpers;
 
- use crate::helpers::helpers;
- use crate::helpers::itunesdb_helpers;
+use serde::Serialize;
 
- use serde::Serialize;
+#[derive(Serialize)]
+pub struct Podcast {
+    pub podcast_title: String,
+    pub podcast_publisher: String,
+    pub podcast_genre: String,
+    pub podcast_file_type: String,
+    pub podcast_subtitle: String,
+    pub podcast_description: String,
+}
 
- 
- #[derive(Serialize)]
-  pub struct Podcast {
-    pub podcast_title : String,
-    pub podcast_publisher : String,
-    pub podcast_genre : String,
-    pub podcast_file_type : String,
-    pub podcast_subtitle : String,
-    pub podcast_description : String
- }
-
- impl Default for Podcast {
-
+impl Default for Podcast {
     fn default() -> Podcast {
-
         return Podcast {
             podcast_title: "".to_string(),
-            podcast_publisher : "".to_string(),
+            podcast_publisher: "".to_string(),
             podcast_genre: "".to_string(),
             podcast_file_type: "".to_string(),
             podcast_subtitle: "".to_string(),
-            podcast_description: "".to_string()
+            podcast_description: "".to_string(),
         };
     }
- }
+}
 
- #[derive(Serialize)]
- pub struct Song {
+#[derive(Serialize)]
+pub struct Song {
     pub file_extension: String,
     pub bitrate_kbps: u32,
     pub sample_rate_hz: u32,
@@ -58,7 +54,7 @@
     pub song_composer: String,
     pub song_album: String,
     pub song_genre: String,
-    pub song_comment: String, 
+    pub song_comment: String,
     /// As far as I can tell from looking at the output, this field
     /// is always the last one to get populated
     pub song_filename: String,
@@ -96,11 +92,9 @@ impl Default for Song {
 }
 
 impl Song {
-
     pub fn set_song_duration(&mut self, song_duration_raw: u32) {
-
         self.song_duration_s = super::itunesdb::decode_raw_track_length_to_s(song_duration_raw);
-        
+
         self.song_duration_friendly =
             helpers::convert_seconds_to_human_readable_duration(self.song_duration_s);
     }
@@ -113,8 +107,7 @@ impl Song {
 
     pub fn set_song_added_timestamp(&mut self, added_to_library_epoch: u64) {
         self.song_added_to_library_epoch = added_to_library_epoch;
-        self.song_added_to_library_ts =
-            helpers::get_timestamp_as_mac(added_to_library_epoch);
+        self.song_added_to_library_ts = helpers::get_timestamp_as_mac(added_to_library_epoch);
     }
 
     pub fn set_song_filename(&mut self, song_filename_raw: String) {
@@ -136,8 +129,6 @@ impl Song {
         }
     }
 }
-
-
 
 pub fn parse_version_number(version_number: u32) -> String {
     let itunes_version: String;
@@ -243,24 +234,30 @@ pub fn get_track_length_info(
     start_time_offset_raw: u32,
     stop_time_offset_raw: u32,
 ) -> String {
+
     let mut formatted_track_length_info: String = String::new();
 
-    //formatted_track_length_info.push_str(&format!("Track length: {} seconds", track_length_s).to_owned());
+    if start_time_offset_raw == stop_time_offset_raw {
+        formatted_track_length_info.push_str("NULL, N/A");
+    }
+    else if start_time_offset_raw > stop_time_offset_raw {
+        formatted_track_length_info.push_str("INVALID START/STOP TIME OFFSET");
+    } else {
+        let played_track_length_ms = stop_time_offset_raw - start_time_offset_raw;
 
-    let played_track_length_ms = stop_time_offset_raw - start_time_offset_raw;
-
-    if (played_track_length_ms != track_length_raw)
-        && ((start_time_offset_raw != 0) || (stop_time_offset_raw != 0))
-    {
-        formatted_track_length_info.push_str(
-            &format!(
-                " | w/ offset: {} seconds (Start ~ {}s, Stop ~{}s)",
-                played_track_length_ms / 1000,
-                start_time_offset_raw / 1000,
-                stop_time_offset_raw / 1000
-            )
-            .to_owned(),
-        );
+        if (played_track_length_ms != track_length_raw)
+            && ((start_time_offset_raw != 0) || (stop_time_offset_raw != 0))
+        {
+            formatted_track_length_info.push_str(
+                &format!(
+                    " | w/ offset: {} seconds (Start ~ {}s, Stop ~{}s)",
+                    played_track_length_ms / 1000,
+                    start_time_offset_raw / 1000,
+                    stop_time_offset_raw / 1000
+                )
+                .to_owned(),
+            );
+        }
     }
 
     return formatted_track_length_info;
@@ -268,7 +265,6 @@ pub fn get_track_length_info(
 
 /// iTunesDB files store time in milliseconds
 pub fn decode_raw_track_length_to_s(track_length_raw: u32) -> u32 {
-
     return track_length_raw / 1000;
 }
 

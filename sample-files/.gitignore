@@ -1,0 +1,2 @@
+# Don't check in generated CSV files
+*.csv
