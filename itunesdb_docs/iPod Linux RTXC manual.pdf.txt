@@ -1,0 +1,21 @@
+Title:           The DatasheetArchive - Datasheet Search Engine
+Subject:         http://www.datasheetarchive.com
+Keywords:        electronic components, datasheets, data sheet, pdf, datasheetarchive, semiconductors, ics, transistors, diodes, thyristors, specsheet, download, rohs, equivalent, application notes, integrated circuit, free, data book, rfq, datablad
+Author:          The DatasheetArchive
+Producer:        PDF Edit pro.
+CreationDate:    Thu Oct  4 07:06:52 2012 MST
+ModDate:         Thu Oct  4 07:06:52 2012 MST
+Custom Metadata: no
+Metadata Stream: no
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           467
+Encrypted:       yes (print:yes copy:yes change:no addNotes:no algorithm:RC4)
+Page size:       792 x 612 pts (letter)
+Page rot:        0
+File size:       774437 bytes
+Optimized:       no
+PDF version:     1.4
