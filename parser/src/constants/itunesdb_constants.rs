@@ -17,8 +17,11 @@ pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
     // ----- DATABASE OBJECT ----- //
     pub const DATABASE_OBJECT_KEY: &str = "mhbd";
 
-    pub const DATABASE_OBJECT_VERSION_NUMBER_OFFSET: usize = 4;
+    pub const DATABASE_OBJECT_VERSION_NUMBER_OFFSET: usize = 16;
     pub const DATABASE_OBJECT_VERSION_NUMBER_LEN: usize = 4;
+
+    pub const DATABASE_OBJECT_LIBRARY_PERSISTENT_ID_OFFSET : usize = 72;
+    pub const DATABASE_OBJECT_LIBRARY_PERSISTENT_ID_LEN : usize = 8;
 
     pub const DATABASE_OBJECT_LANGUAGE_OFFSET: usize = 70;
     pub const DATABASE_OBJECT_LANGUAGE_LEN: usize = 2;

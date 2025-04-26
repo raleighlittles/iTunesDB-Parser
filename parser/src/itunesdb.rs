@@ -234,13 +234,11 @@ pub fn get_track_length_info(
     start_time_offset_raw: u32,
     stop_time_offset_raw: u32,
 ) -> String {
-
     let mut formatted_track_length_info: String = String::new();
 
     if start_time_offset_raw == stop_time_offset_raw {
         formatted_track_length_info.push_str("NULL, N/A");
-    }
-    else if start_time_offset_raw > stop_time_offset_raw {
+    } else if start_time_offset_raw > stop_time_offset_raw {
         formatted_track_length_info.push_str("INVALID START/STOP TIME OFFSET");
     } else {
         let played_track_length_ms = stop_time_offset_raw - start_time_offset_raw;

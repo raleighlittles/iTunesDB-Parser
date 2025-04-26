@@ -36,15 +36,18 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
             let db_language = std::str::from_utf8(&db_language_raw)
                 .expect("Can't parse database language string");
 
+            let library_persistent_id  : String = helpers::get_slice_from_offset_with_len(idx, &itunesdb_file_as_bytes, itunesdb_constants::DATABASE_OBJECT_LIBRARY_PERSISTENT_ID_OFFSET, itunesdb_constants::DATABASE_OBJECT_LIBRARY_PERSISTENT_ID_LEN).iter().map(|b| format!("{:02x}", b)).collect::<String>();
+
             println!(
-                "File is using language: {}, and has iTunes version: {}",
+                "Database language: {} | Database version: {} | Library persistent ID: {}",
                 db_language,
                 itunesdb::parse_version_number(helpers::get_slice_as_le_u32(
                     idx,
                     &itunesdb_file_as_bytes,
                     itunesdb_constants::DATABASE_OBJECT_VERSION_NUMBER_OFFSET,
                     itunesdb_constants::DATABASE_OBJECT_VERSION_NUMBER_LEN
-                ))
+                )),
+                library_persistent_id.to_uppercase()
             );
 
             idx += itunesdb_constants::DATABASE_OBJECT_LAST_OFFSET;
@@ -672,17 +675,7 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
 
             idx += itunesdb_constants::ALBUM_LIST_LAST_OFFSET;
         }
-        // else if potential_section_heading == iTunesDB::ALBUM_ITEM_KEY.as_bytes() {
 
-        //     let album_item_info : String = "######## Album item found! | ".to_string();
-
-        //     // write!(album_item_info, " {} ########\n", itunesdb_helpers::get_timestamp_as_mac(helpers::build_le_u32_from_bytes(album_item_unknown_timestamp_raw) as u64)).unwrap();
-
-        //     println!("{} ########\n", album_item_info);
-
-        //     idx += iTunesDB::ALBUM_ITEM_LAST_OFFSET;
-
-        // }
         else if potential_section_heading == itunesdb_constants::DATA_OBJECT_KEY.as_bytes() {
             let mut data_object_info: String = "%%%%%%% Data Object found!\n".to_string();
 
@@ -716,7 +709,6 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
                     data_object_string_len as usize,
                 );
 
-                // let data_object_str = std::str::from_utf8(&data_object_str_bytes).expect("Can't parse string data object!");
                 let data_object_str =
                     String::from_utf16(&helpers::return_utf16_from_utf8(&data_object_str_bytes))
                         .expect("Can't decode string to UTF-16");
@@ -865,7 +857,7 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
                     episode.podcast_subtitle.to_string(),
                     episode.podcast_description.to_string().replace("\n", ""),
                     episode.podcast_file_type.to_string()
-                ]).expect("Can't write row to podcast CSV file");
+                ]).expect("ERROR! Can't write row to podcast CSV file");
             }
             println!("Created podcasts.csv with {} podcasts", podcasts_found.len());
         }
@@ -893,7 +885,7 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
                     "Composer",
                     "Comment",
                 ])
-                .expect("Can't create CSV file headers for music file");
+                .expect("ERROR! Can't create CSV file headers for music file");
 
             for song in songs_found.iter() {
                 // the duplicate `to_string()` calls are to avoid this error:
@@ -922,7 +914,7 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
                         song.song_composer.to_string(),
                         song.song_comment.to_string(),
                     ])
-                    .expect("Can't write row to CSV");
+                    .expect("ERROR! Can't write row to music CSV");
             }
             println!("Created music.csv with {} songs", songs_found.len());
         }
