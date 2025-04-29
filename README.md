@@ -30,7 +30,7 @@ The table below shows which iTunesDB files are supported.
 | Preferences          | :heavy_check_mark:                                                                            |
 | WABContactsGroup     | :negative_squared_cross_mark: Not yet supported                                               |
 | iEKInfo              | :negative_squared_cross_mark: Not yet supported                                               |
-| iTunesDB             | Partial - Songs and Podcasts only. No television or movies                                    |
+| iTunesDB             | Partial - Songs and Podcasts only. See limitations section below. No TV episodes/movies.      |
 | iTunesPState         | :negative_squared_cross_mark: Not yet supported                                               |
 | iTunesPlaylists      | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPlaylists)      |
 | iTunesPodcasts       | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPodcasts)       |
@@ -39,6 +39,8 @@ The table below shows which iTunesDB files are supported.
 | iTunesStats          | :negative_squared_cross_mark: Not yet supported                                               |
 | iTunesVideoPlaylists | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesVideoPlaylists) |
 | winPrefs             | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#winPrefs_File)        |
+| iTunesCDB file       | :grey_question: Not yet documented. See [issue](https://github.com/raleighlittles/iTunesDB-Parser/issues/11) |
+
 
 In examining your iPod's file system you'll find other types of files besides the one listed above. These are:
 
@@ -53,6 +55,10 @@ In examining your iPod's file system you'll find other types of files besides th
 Because iPodLinux isn't maintained anymore, I was worried that the website (and thus the iTunesDB wiki) would be taken down at some point, so I downloaded the documentation.
 
 Both the original website, and a markdown-formatted version are in the `itunesdb_docs` folder.
+
+## Limitations 
+
+There is a known issue where, sometimes, not all of a user's songs are corrected detected from the iTunesDB file. I am still unsure what causes this issue but its been observed with more recent iTunesDB files. If this happens to you, please open an issue and be prepared to provide extra information about your system.
 
 # Code and usage
 
@@ -99,7 +105,6 @@ Equalizer settings CSV: ![Equalizer settings CSV screenshot](./docs/20241126_equ
 # Extras
 
 There's 2 extra utilities that may be of use:
-
 
 -   Spotify integration: This creates a Spotify playlist out of the songs that were found on your iPod. You first use this tool to extract the CSV file from the iTunesDB file, then call the script with that CSV file. See repository: https://github.com/raleighlittles/iTunes-Spotify-Integration
 
