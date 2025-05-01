@@ -22,17 +22,21 @@ pub fn parse_itunessd_file(itunessd_file_as_bytes: Vec<u8>) {
 
     if itunessd_header_size != itunessd_constants::ITUNESSD_HEADER_SIZE_EXPECTED_VALUE as u32 {
         panic!(
-            "Invalid iTunesSD header size value of '{}'",
-            itunessd_header_size
+            "Invalid iTunesSD header size value of '{}', expected '{}'",
+            itunessd_header_size,
+            itunessd_constants::ITUNESSD_HEADER_SIZE_EXPECTED_VALUE
         );
     }
 
     println!("==========");
 
     let mut file_idx: usize = itunessd_header_size as usize;
+    let mut num_songs_parsed : usize = 1;
 
     while file_idx < itunessd_file_as_bytes.len() - itunessd_constants::ITUNESSD_ENTRY_SIZE {
         // Now parse the individual song entries... start by checking that the size of the entry object matches the known value
+
+        println!("---------- Song {} of {} ----------", num_songs_parsed, num_songs);
 
         let entry_size =
             helpers::build_be_u32_from_bytes(&helpers::get_slice_from_offset_with_len(
@@ -109,7 +113,9 @@ pub fn parse_itunessd_file(itunessd_file_as_bytes: Vec<u8>) {
             song_filename.trim_matches(char::from(0))
         );
 
-        println!("----------");
+        println!("--------------------");
+        
+        num_songs_parsed += 1;
 
         file_idx += itunessd_constants::ITUNESSD_ENTRY_SIZE;
     }

@@ -709,7 +709,7 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
                     data_object_string_len as usize,
                 );
 
-                let data_object_str =
+                let mut data_object_str =
                     String::from_utf16(&helpers::return_utf16_from_utf8(&data_object_str_bytes))
                         .expect("Can't decode string to UTF-16");
 
@@ -719,6 +719,9 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
                     data_object_string_len, data_object_str
                 )
                 .unwrap();
+
+                // Remove newlines from string, cannot contain new lines in CSV or JSON output
+                data_object_str = data_object_str.trim().replace("\n", " ").replace("\r", " ");
 
                 // We've found a title, now, use the TrackItem info to determine if the title is for a song or for a podcast
                 if data_object_type_raw == itunesdb::HandleableDataObjectType::Title as u32 {

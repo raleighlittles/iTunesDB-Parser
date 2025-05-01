@@ -122,6 +122,7 @@ fn main() {
         let equalizer_csv_writer = helpers::helpers::init_csv_writer(&desired_report_csv_filename);
         parsers::equalizer_parser::parse_equalizer_file(itunesdb_file_as_bytes, equalizer_csv_writer);
     } else if itunesdb_file_type == "itunessd" {
+        print!("Parsing iTunesSD file '{}'...", itunesdb_filename);
         parsers::itunessd_parser::parse_itunessd_file(itunesdb_file_as_bytes);
     } else {
         println!(

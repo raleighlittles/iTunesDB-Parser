@@ -35,7 +35,7 @@ The table below shows which iTunesDB files are supported.
 | iTunesPlaylists      | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPlaylists)      |
 | iTunesPodcasts       | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPodcasts)       |
 | iTunesPrefs          | :heavy_check_mark:                                                                            |
-| iTunesSD             | :heavy_check_mark:                                                                            |
+| iTunesSD             | :heavy_check_mark: Only for non-3rd generation iPod shuffle. See [issue](https://github.com/raleighlittles/iTunesDB-Parser/issues/15)   |
 | iTunesStats          | :negative_squared_cross_mark: Not yet supported                                               |
 | iTunesVideoPlaylists | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesVideoPlaylists) |
 | winPrefs             | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#winPrefs_File)        |
@@ -118,12 +118,6 @@ This project is a very early work-in-progress. The next major feature to come is
 
 If you have any iTunesDB files from the unsupported list and are willing to share, please contact me.
 
-Special thanks to:
-
--   @AZProductions
--   @joshkenney
-
-for providing iTunesDB files!
 
 <a href="https://www.buymeacoffee.com/raleighlittles" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="45" width="175"></a>
 
@@ -131,5 +125,22 @@ for providing iTunesDB files!
 <p>
   <a href="https://www.paypal.me/raleighlittles">
       <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="paypal" />
+  </a>
+</p>
+
+<h2>💖 Contributors & Supporters 💖 </h2>
+
+<p>
+  <a href="https://github.com/AZProductions">
+    <img src="https://github.com/AZProductions.png" width="50" alt="@AZProductions" />
+  </a>
+  <a href="https://github.com/joshkenney">
+    <img src="https://github.com/joshkenney.png" width="50" alt="@joshkenney" />
+  </a>
+  <a href="https://github.com/yagueto">
+    <img src="https://github.com/yagueto.png" width="50" alt="@yagueto" />
+  </a>
+  <a href="https://github.com/tristansokol">
+    <img src="https://github.com/tristansokol.png" width="50" alt="@tristansokol">
   </a>
 </p>
