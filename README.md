@@ -82,7 +82,8 @@ The 7 possible "type" options are:
 | "preferences" | Preferences file                         |
 | "deviceinfo"  | DeviceInfo file                          |
 | "equalizer"   | Equalizer Presets file                   |
-| "itunessd"    | iTunesSD file                            |
+| ??????   | iTunesSD file                            |
+| ??????? | ???????????/      |
 
 ```bash
 $ cd iTunesDB-Parser/parser
@@ -90,7 +91,7 @@ $ cargo build
 $ ./target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
 ```
 
-For iTunesDB, Photos Database, Equalizer files, and Playcounts files, a CSV will be generated with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs and podcasts mentioned in the iTunesDB file.
+For iTunesDB, Photos Database, Equalizer files, and Playcounts files, a CSV will be generated with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs and podcasts mentioned in the iTunesDB file. iTunesDB files have the option of exporting to JSON instead of CSV.
 
 ![CSV music screenshot](./docs/20230716_music-csv.png)
 

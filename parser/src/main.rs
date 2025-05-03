@@ -7,6 +7,7 @@ mod constants {
     pub mod equalizer_constants;
     pub mod itunesdb_constants;
     pub mod itunesprefs_constants;
+    pub mod itunessd_3g_constants;
     pub mod itunessd_constants;
     pub mod photo_database_constants;
     pub mod photofolderalbums_constants;
@@ -23,6 +24,7 @@ mod parsers {
     pub mod deviceinfo_parser;
     pub mod equalizer_parser;
     pub mod itunesdb_parser;
+    pub mod itunessd_3g_parser;
     pub mod itunessd_parser;
     pub mod photo_type_parser;
     pub mod playcounts_parser;
@@ -121,10 +123,14 @@ fn main() {
     } else if itunesdb_file_type == "equalizer" {
         let equalizer_csv_writer = helpers::helpers::init_csv_writer(&desired_report_csv_filename);
         parsers::equalizer_parser::parse_equalizer_file(itunesdb_file_as_bytes, equalizer_csv_writer);
-    } else if itunesdb_file_type == "itunessd" {
+    } else if itunesdb_file_type == "shuffle" {
         print!("Parsing iTunesSD file '{}'...", itunesdb_filename);
         parsers::itunessd_parser::parse_itunessd_file(itunesdb_file_as_bytes);
-    } else {
+    } else if itunesdb_file_type == "itunessd_3g" {
+        print!("Parsing iTunesSD 3rd Gen Shuffle file '{}'...", itunesdb_filename);
+        parsers::itunessd_3g_parser::parse_itunessd_3rdgen_file(itunesdb_file_as_bytes);
+    }
+     else {
         println!(
             "'{}' is not a supported iTunesDB file type!",
             itunesdb_file_type

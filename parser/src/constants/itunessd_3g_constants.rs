@@ -1,0 +1,93 @@
+/**
+ * File: itunessd_3g_constants.rs
+ * https://github.com/nims11/IPod-Shuffle-4g/blob/master/docs/iTunesSD3gen.md
+ * 
+ */
+
+/// Header constants
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_HEADER_ID_KEY : &str = "bdhs";
+
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_HEADER_LENGTH_OFFSET : usize = 8;
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_HEADER_LENGTH_LEN : usize = 4;
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_HEADER_EXPECTED_LENGTH: usize = 64;
+
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_NUM_TRACKS_TOTAL_OFFSET : usize = 12;
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_NUM_TRACKS_TOTAL_LEN : usize = 4;
+
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_NUM_PLAYLISTS_OFFSET : usize = 16;
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_NUM_PLAYLISTS_LEN : usize = 4;
+
+// TODO: Add support for this field
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_MAX_VOLUME_OFFSET : usize = 28;
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_MAX_VOLUME_LEN : usize = 1;
+
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_NUM_MUSIC_ONLY_TRACKS_OFFSET : usize = 32;
+pub const ITUNESSD_3RDGEN_SHUFFLE_DB_NUM_MUSIC_ONLY_TRACKS_LEN : usize = 4;
+
+
+// Tracks header constant
+
+pub const ITUNESSD_3RDGEN_TRACKS_HEADER_ID_KEY : &str = "hths";
+
+pub const ITUNESSD_3RDGEN_TRACKS_NUM_TRACKS_OFFSET : usize = 8;
+pub const ITUNESSD_3RDGEN_TRACKS_NUM_TRACKS_LEN : usize = 4;
+
+
+// Tracks entry constants
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_HEADER_ID_KEY : &str = "rths";
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_HEADER_SIZE_OFFSET : usize = 4;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_HEADER_SIZE_LEN : usize = 4;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_HEADER_EXPECTED_SIZE: usize = 372;
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_START_TIME_MS_OFFSET : usize = 8;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_START_TIME_MS_LEN : usize = 4;
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_STOP_TIME_MS_OFFSET : usize = 12;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_STOP_TIME_MS_LEN : usize = 4;
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_VOLUME_GAIN : usize = 16;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_VOLUME_GAIN_LEN : usize = 4;
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_FILE_TYPE_OFFSET : usize = 20;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_FILE_TYPE_LEN : usize = 4;
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_FILENAME_OFFSET : usize = 24;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_FILENAME_LEN : usize = 256;
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_BOOKMARK_MS_OFFSET : usize = 280;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_BOOKMARK_MS_LEN : usize = 4;
+
+// 'Dont skip on shuffle', 'Remember playing position', 'Part of uninterruptable album', 'unknown_1' were all 1 byte each
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_PREGAP_OFFSET : usize = 288;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_PREGAP_LEN : usize = 4;
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_POSTGAP_OFFSET : usize = 292;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_POSTGAP_LEN : usize = 4;
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_NUM_SAMPLES_OFFSET : usize = 296;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_NUM_SAMPLES_LEN : usize = 4;
+
+// unknown_file_related_data1 was 4 bytes
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_GAPLESS_DATA_OFFSET : usize = 304;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_GAPLESS_DATA_LEN : usize = 4;
+
+// unknown_file_related_data2 was 4 bytes
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_ALBUM_ID_OFFSET : usize = 312;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_ALBUM_ID_LEN : usize = 4;
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_TRACK_NUM_OFFSET : usize = 316;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_TRACK_NUM_LEN : usize = 4;
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_DISC_NUM_OFFSET : usize = 320;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_DISC_NUM_LEN : usize = 4;
+
+// "unknown_2" was 8 bytes
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_DATABASEID_OFFSET : usize = 332;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_DATABASEID_LEN : usize = 8;
+
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_ARTIST_ID_OFFSET : usize = 340;
+pub const ITUNESSD_3RDGEN_TRACK_ENTRY_ARTIST_ID_LEN : usize = 4;
+
