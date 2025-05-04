@@ -1,0 +1,1 @@
+This directory contains sample iTunesDB files provided by people. The "output" directory has the output file produced by the parser. Some files do not produce any output other than what is shown on the console so those are not included here.

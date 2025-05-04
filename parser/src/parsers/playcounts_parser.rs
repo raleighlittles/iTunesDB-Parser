@@ -9,7 +9,7 @@ use crate::helpers::helpers;
 pub fn parse_playcounts(itunesdb_file_as_bytes: Vec<u8>, mut csv_writer_obj : csv::Writer<std::fs::File>) {
 
 
-    let mut idx = 0;
+    let mut idx: usize = 0;
 
     while idx < (itunesdb_file_as_bytes.len() - itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE) {
 
