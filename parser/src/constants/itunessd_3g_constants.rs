@@ -58,7 +58,7 @@ pub const ITUNESSD_3RDGEN_TRACK_ENTRY_FILENAME_LEN : usize = 256;
 pub const ITUNESSD_3RDGEN_TRACK_ENTRY_BOOKMARK_MS_OFFSET : usize = 280;
 pub const ITUNESSD_3RDGEN_TRACK_ENTRY_BOOKMARK_MS_LEN : usize = 4;
 
-// 'Dont skip on shuffle', 'Remember playing position', 'Part of uninterruptable album', 'unknown_1' were all 1 byte each
+// 'Dont skip on shuffle', 'Remember playing position', 'Part of uninterruptible album', 'unknown_1' were all 1 byte each
 pub const ITUNESSD_3RDGEN_TRACK_ENTRY_PREGAP_OFFSET : usize = 288;
 pub const ITUNESSD_3RDGEN_TRACK_ENTRY_PREGAP_LEN : usize = 4;
 

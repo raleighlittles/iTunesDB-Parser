@@ -1,6 +1,6 @@
 use crate::constants::itunessd_constants;
 use crate::helpers::helpers;
-use crate::itunessd::{self, iTunesSDFileType};
+use crate::itunessd;
 
 pub fn parse_itunessd_file(itunessd_file_as_bytes: Vec<u8>) {
     let num_songs = helpers::build_be_u32_from_bytes(&helpers::get_slice_from_offset_with_len(
@@ -91,7 +91,7 @@ pub fn parse_itunessd_file(itunessd_file_as_bytes: Vec<u8>) {
 
         println!(
             "File Type: {}",
-            iTunesSDFileType::try_from(file_type_raw).unwrap_or_else(|err| {
+            itunessd::iTunesSDFileType::try_from(file_type_raw).unwrap_or_else(|err| {
                 panic!("Error parsing iTunesSD file type: {}", err)
             })
         );

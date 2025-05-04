@@ -31,21 +31,24 @@ mod parsers {
     pub mod preferences_parser;
 }
 
+mod equalizer;
 mod itunesdb;
 mod itunesprefs;
+mod itunessd;
 mod photo_database;
 mod preferences;
-mod itunessd;
-mod equalizer;
 
 use std::io::Read;
 
 fn main() {
     // add a check for the number of arguments
     let args: Vec<String> = std::env::args().collect();
-    
+
     if args.len() < 3 {
-        panic!("Usage: {} <iTunes DB filename> <type> [format=csv|json]", args[0]);
+        panic!(
+            "Usage: {} <iTunes DB filename> <type> [format=csv|json]",
+            args[0]
+        );
     }
 
     let itunesdb_filename: String = std::env::args()
@@ -108,7 +111,10 @@ fn main() {
             photos_csv_writer,
         );
     } else if itunesdb_file_type == "itunes" {
-        parsers::itunesdb_parser::parse_itunesdb_file(itunesdb_file_as_bytes, output_format.to_string());
+        parsers::itunesdb_parser::parse_itunesdb_file(
+            itunesdb_file_as_bytes,
+            output_format.to_string(),
+        );
     } else if itunesdb_file_type == "itprefs" {
         parsers::preferences_parser::parse_itunes_prefs_file(itunesdb_file_as_bytes);
     } else if itunesdb_file_type == "playcounts" {
@@ -122,15 +128,22 @@ fn main() {
         parsers::deviceinfo_parser::parse_device_info_file(itunesdb_file_as_bytes);
     } else if itunesdb_file_type == "equalizer" {
         let equalizer_csv_writer = helpers::helpers::init_csv_writer(&desired_report_csv_filename);
-        parsers::equalizer_parser::parse_equalizer_file(itunesdb_file_as_bytes, equalizer_csv_writer);
+        parsers::equalizer_parser::parse_equalizer_file(
+            itunesdb_file_as_bytes,
+            equalizer_csv_writer,
+        );
     } else if itunesdb_file_type == "shuffle" {
         print!("Parsing iTunesSD file '{}'...", itunesdb_filename);
         parsers::itunessd_parser::parse_itunessd_file(itunesdb_file_as_bytes);
     } else if itunesdb_file_type == "itunessd_3g" {
-        print!("Parsing iTunesSD 3rd Gen Shuffle file '{}'...", itunesdb_filename);
-        parsers::itunessd_3g_parser::parse_itunessd_3rdgen_file(itunesdb_file_as_bytes);
-    }
-     else {
+        let itunessd_3g_csv_writer =
+            helpers::helpers::init_csv_writer(&desired_report_csv_filename);
+        print!(
+            "Parsing iTunesSD 3rd Gen Shuffle file '{}'...",
+            itunesdb_filename
+        );
+        parsers::itunessd_3g_parser::parse_itunessd_3rdgen_file(itunesdb_file_as_bytes, itunessd_3g_csv_writer);
+    } else {
         println!(
             "'{}' is not a supported iTunesDB file type!",
             itunesdb_file_type
