@@ -81,7 +81,7 @@ pub fn parse_itunessd_3rdgen_file(
                 num_tracks_total, num_tracks_music_only, num_playlists
             );
 
-            // Write CSV header
+            // Write CSV header row
             csv_writer_obj
                 .write_record(&[
                     "Filename",
@@ -101,7 +101,6 @@ pub fn parse_itunessd_3rdgen_file(
 
             println!("--------------------");
 
-            //idx += itunessd_3g_constants::ITUNESSD_3RDGEN_SHUFFLE_DB_HEADER_EXPECTED_LENGTH;
         } else if itunessd_3rd_gen_heading
             == itunessd_3g_constants::ITUNESSD_3RDGEN_TRACKS_HEADER_ID_KEY.as_bytes()
         {
@@ -115,7 +114,6 @@ pub fn parse_itunessd_3rdgen_file(
 
             println!("Found {} tracks in this group", num_tracks_in_group);
 
-            //idx += itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE;
         } else if itunessd_3rd_gen_heading
             == itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_HEADER_ID_KEY.as_bytes()
         {
@@ -236,12 +234,6 @@ pub fn parse_itunessd_3rdgen_file(
                     itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_DISC_NUM_OFFSET,
                     itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_DISC_NUM_LEN,
                 ));
-            // let database_id = helpers::build_le_u64_from_bytes(&helpers::get_slice_from_offset_with_len(
-            //     idx,
-            //     &itunessd_file_as_bytes,
-            //     itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_DATABASEID_OFFSET,
-            //     itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_DATABASEID_LEN,
-            // ));
 
             let database_id: String = helpers::get_slice_from_offset_with_len(
                 idx,
@@ -294,7 +286,7 @@ pub fn parse_itunessd_3rdgen_file(
                     album_id.to_string(),
                     artist_id.to_string(),
                     volume_gain.to_string(),
-                    database_id,
+                    database_id.to_uppercase(),
                 ])
                 .unwrap();
         } // end else-if
