@@ -10,6 +10,11 @@ pub fn parse_itunessd_3rdgen_file(
     let mut idx: usize = 0;
 
     while idx < itunessd_file_as_bytes.len() {
+        // Ensure at least 4 bytes are available before slicing
+        if idx + 4 > itunessd_file_as_bytes.len() {
+            println!("Insufficient bytes available for parsing iTunesSD header.");
+            break;
+        }
         let itunessd_3rd_gen_heading: &[u8] = &itunessd_file_as_bytes[idx..idx + 4];
 
         if itunessd_3rd_gen_heading
