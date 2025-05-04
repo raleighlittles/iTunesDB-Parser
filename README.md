@@ -35,11 +35,12 @@ The table below shows which iTunesDB files are supported.
 | iTunesPlaylists      | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPlaylists)      |
 | iTunesPodcasts       | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesPodcasts)       |
 | iTunesPrefs          | :heavy_check_mark:                                                                            |
-| iTunesSD             | :heavy_check_mark: Only for non-3rd generation iPod shuffle. See [issue](https://github.com/raleighlittles/iTunesDB-Parser/issues/15)   |
+| iTunesSD             | :heavy_check_mark: Supports standard version and also 3rd-generation specific version.        |
 | iTunesStats          | :negative_squared_cross_mark: Not yet supported                                               |
 | iTunesVideoPlaylists | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesVideoPlaylists) |
 | winPrefs             | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#winPrefs_File)        |
 | iTunesCDB file       | :grey_question: Not yet documented. See [issue](https://github.com/raleighlittles/iTunesDB-Parser/issues/11) |
+| iTunesStats          | No support yet; [documented](https://github.com/nims11/IPod-Shuffle-4g/blob/master/docs/iTunesStats3gen.md), but no sample files to verify against. |
 
 
 In examining your iPod's file system you'll find other types of files besides the one listed above. These are:
@@ -70,7 +71,7 @@ It requires two arguments:
 
 (2) the type of iTunesDB file.
 
-The 7 possible "type" options are:
+The possible "type" options are:
 
 | Field         | Value                                    |
 | ------------- | ---------------------------------------- |
@@ -82,8 +83,8 @@ The 7 possible "type" options are:
 | "preferences" | Preferences file                         |
 | "deviceinfo"  | DeviceInfo file                          |
 | "equalizer"   | Equalizer Presets file                   |
-| ??????   | iTunesSD file                            |
-| ??????? | ???????????/      |
+| "itunessd"    | iTunesSD file (standard)                 |
+| "itunessd_3g" | iTunesSD specifically for 3rd generation |
 
 ```bash
 $ cd iTunesDB-Parser/parser
@@ -91,7 +92,7 @@ $ cargo build
 $ ./target/debug/itunesdb_parser <path-to-itunesdb-file> '<type>'
 ```
 
-For iTunesDB, Photos Database, Equalizer files, and Playcounts files, a CSV will be generated with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs and podcasts mentioned in the iTunesDB file. iTunesDB files have the option of exporting to JSON instead of CSV.
+For iTunesDB, iTunesSD (3rd gen only), Photos Database, Equalizer files, and Playcounts files, a CSV will be generated with all the relevant information. For example, if you run it on an iTunesDB file, the output CSV will contain the info for all songs and podcasts mentioned in the iTunesDB file. iTunesDB files have the option of exporting to JSON instead of CSV.
 
 ![CSV music screenshot](./docs/20230716_music-csv.png)
 
@@ -102,6 +103,8 @@ If you run it on a Photo Database file, you'll see the list of all images stored
 ![CSV photo screenshot](./docs/20230715_photodatabase-csv.png)
 
 Equalizer settings CSV: ![Equalizer settings CSV screenshot](./docs/20241126_equalizer-csv-example.png)
+
+You can see examples of the files produced in the `samples/output` directory.
 
 # Extras
 
@@ -117,8 +120,7 @@ This project is a very early work-in-progress. The next major feature to come is
 
 # Interested in contributing?
 
-If you have any iTunesDB files from the unsupported list and are willing to share, please contact me.
-
+If you have any iTunesDB files from the unsupported list and are willing to share, please contact me. iTunesDB files do _not_ contain any personally identifiable information.
 
 <a href="https://www.buymeacoffee.com/raleighlittles" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="45" width="175"></a>
 
