@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 /*
  * File: playcounts_constants.rs
  * 

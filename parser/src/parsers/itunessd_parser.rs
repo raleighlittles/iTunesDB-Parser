@@ -73,7 +73,7 @@ pub fn parse_itunessd_file(itunessd_file_as_bytes: Vec<u8>) {
             println!("Stop Time: {}", stop_time);
         }
 
-        let volume_raw =
+        let _volume_raw =
             helpers::build_be_u32_from_bytes(&helpers::get_slice_from_offset_with_len(
                 file_idx,
                 &itunessd_file_as_bytes,
@@ -91,7 +91,7 @@ pub fn parse_itunessd_file(itunessd_file_as_bytes: Vec<u8>) {
 
         println!(
             "File Type: {}",
-            itunessd::iTunesSDFileType::try_from(file_type_raw).unwrap_or_else(|err| {
+            itunessd::ITunesSdFileType::try_from(file_type_raw).unwrap_or_else(|err| {
                 panic!("Error parsing iTunesSD file type: {}", err)
             })
         );

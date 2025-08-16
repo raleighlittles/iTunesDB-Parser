@@ -122,7 +122,7 @@ pub fn get_slice_as_mac_timestamp(
         get_slice_as_le_u32(array_idx, file_as_array, file_offset, slice_len) as u64;
 
     if epoch_time == 0 {
-        eprintln!("Error! Epoch time converted was 0. Check the slice starting at idx {} with len {}, actually contains a valid timestamp", array_idx, slice_len);
+        println!("Warning: Epoch time converted was 0 (slice at idx {} with len {}). This usually means the timestamp was not set in the iTunesDB file.", array_idx, slice_len);
     }
 
     return get_timestamp_as_mac(epoch_time);

@@ -56,6 +56,24 @@ pub fn get_canonical_path(itunesdb_format_path: String) -> String {
     return str::replace(&string_to_sanitize, ITUNESDB_DIRECTORY_SEPARATOR, "/");
 }
 
+pub fn is_song_in_vec(song_to_check: &crate::itunesdb::Song, songs_vec: &Vec<crate::itunesdb::Song>) -> bool {
+    for song in songs_vec {
+        if song == song_to_check {
+            return true;
+        }
+    }
+    false
+}
+
+pub fn is_podcast_in_vec(podcast_to_check: &crate::itunesdb::Podcast, podcast_vec: &Vec<crate::itunesdb::Podcast>) -> bool {
+    for podcast in podcast_vec {
+        if podcast == podcast_to_check {
+            return true;
+        }
+    }
+    false
+}
+
 #[cfg(test)]
 mod itunesdb_helpers_tests {
     use super::*;

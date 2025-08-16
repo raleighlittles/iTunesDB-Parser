@@ -70,6 +70,7 @@ impl Image {
     }
 }
 
+#[allow(dead_code)]
 pub enum MhodType {
     AlbumName = 1,
     ThumbNailImage = 2,
