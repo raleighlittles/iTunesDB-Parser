@@ -149,4 +149,7 @@ If you have any iTunesDB files from the unsupported list and are willing to shar
   <a href="https://github.com/tristansokol">
     <img src="https://github.com/tristansokol.png" width="50" alt="@tristansokol">
   </a>
+  <a href="https://github.com/Jiteshprm">
+    <img src="https://github.com/Jiteshprm.png" width="50" alt="@Jiteshprm" />
+  </a>
 </p>
