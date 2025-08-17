@@ -12,7 +12,7 @@ use crate::helpers::itunesdb_helpers;
 
 use serde::Serialize;
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct Podcast {
     pub podcast_title: String,
     pub podcast_publisher: String,
@@ -20,6 +20,7 @@ pub struct Podcast {
     pub podcast_file_type: String,
     pub podcast_subtitle: String,
     pub podcast_description: String,
+    pub podcast_url: String,
 }
 
 impl Default for Podcast {
@@ -31,11 +32,18 @@ impl Default for Podcast {
             podcast_file_type: "".to_string(),
             podcast_subtitle: "".to_string(),
             podcast_description: "".to_string(),
+            podcast_url: "".to_string(),
         };
     }
 }
 
-#[derive(Serialize)]
+impl Podcast {
+    pub fn is_valid(&self) -> bool {
+        !self.podcast_title.is_empty() && !self.podcast_file_type.is_empty()
+    }
+}
+
+#[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct Song {
     pub file_extension: String,
     pub bitrate_kbps: u32,
@@ -110,15 +118,12 @@ impl Song {
         self.song_added_to_library_ts = helpers::get_timestamp_as_mac(added_to_library_epoch);
     }
 
-    pub fn set_song_filename(&mut self, song_filename_raw: String) {
-        self.song_filename = itunesdb_helpers::get_canonical_path(song_filename_raw)
-    }
 
     /// This function determines whether there's enough metadata for the song to be added.
     /// Because an iPod can have songs from different sources (eg you can upload your own MP3 songs to your device)
     /// the level of metadata present can vary. At a minimum, a song is considered valid if it has:
     /// (1) a title, (2) a file size, (3) a file location
-    pub fn are_enough_fields_valid(&mut self) -> bool {
+    pub fn is_valid(&self) -> bool {
         if (self.file_size_bytes > 0)
             && (!self.song_title.is_empty())
             && (!self.song_filename.is_empty())
@@ -427,11 +432,11 @@ pub fn decode_playlist_sort_order(playlist_sort_order_raw: u32) -> String {
 
 /// The "Handleable" in this case means it represents a field that will get logged or is particularly important.
 /// Not all Data Object fields will be present and even of those that are, not all are relevant.
-#[allow(non_camel_case_types)]
+#[allow(non_camel_case_types, dead_code)]
 pub enum HandleableDataObjectType {
     Title = 1,
     /// The last data object is the file location
-    FileLocation = 2,
+    FilePath = 2,
     Album = 3,
     Artist = 4,
     Genre = 5,
@@ -440,7 +445,7 @@ pub enum HandleableDataObjectType {
     Composer = 12,
     PodcastDescription = 14,
     PodcastEnclosureURL = 15,
-    Podcast_RSS_URL = 16,
+    PodcastUrl = 16,
 }
 
 pub fn is_data_object_type_string(data_object_raw: u32) -> bool {
@@ -552,6 +557,8 @@ pub fn decode_data_object_type(data_object_type_raw: u32) -> String {
             "Indeterminate field (#{}), either column sizing or order indicator",
             data_object_type_raw
         );
+    } else if data_object_type_raw == 102 {
+        data_object_type = format!("Unknown type (#{}), iTunes 7.4+", data_object_type_raw);
     } else if data_object_type_raw == 200 {
         data_object_type = "Album (from Album List, iTunes 7.1+ only)".to_string();
     }

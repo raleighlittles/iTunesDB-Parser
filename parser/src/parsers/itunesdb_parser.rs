@@ -14,6 +14,7 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
     let mut podcasts_found: Vec<itunesdb::Podcast> = Vec::new();
 
     let mut curr_song = itunesdb::Song::default();
+    let mut curr_song_saved = false;
     let mut curr_podcast = itunesdb::Podcast::default();
 
     let mut curr_media_type = itunesdb::HandleableMediaType::UNKNOWN;
@@ -61,7 +62,7 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
                 itunesdb_constants::DATASET_TYPE_LEN,
             );
 
-            let dataset_type_parsed = itunesdb::parse_dataset_type(dataset_type_raw[0] as u32);
+            let _dataset_type_parsed = itunesdb::parse_dataset_type(dataset_type_raw[0] as u32);
 
             // println!(
             //     "Dataset Type: {}",
@@ -83,6 +84,28 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
 
             idx += itunesdb_constants::TRACKLIST_LAST_OFFSET;
         } else if potential_section_heading == itunesdb_constants::TRACK_ITEM_KEY.as_bytes() {
+            // Finalize any pending song from the previous MHIT before starting a new one
+            if curr_song_saved {
+                // Update last saved entry with any late-arriving MHOD fields
+                if let Some(last) = songs_found.last_mut() {
+                    *last = curr_song.clone();
+                    eprintln!("[Debug] Finalizing previously saved song at MHIT boundary. title='{}' filename='{}'", last.song_title, last.song_filename);
+                }
+            } else if curr_song.is_valid() {
+                eprintln!("[Debug] Saving song at MHIT boundary. title='{}' filename='{}' size={}", curr_song.song_title, curr_song.song_filename, curr_song.file_size_bytes);
+                songs_found.push(curr_song.clone());
+            } else {
+                if curr_song.file_size_bytes == 0 || curr_song.song_title.is_empty() || curr_song.song_filename.is_empty() {
+                    eprintln!(
+                        "[Debug] Dropping incomplete song at MHIT boundary. title='{}' filename='{}' size={}",
+                        curr_song.song_title,
+                        curr_song.song_filename,
+                        curr_song.file_size_bytes
+                    );
+                }
+            }
+            curr_song = itunesdb::Song::default();
+            curr_song_saved = false;
             let mut track_item_info: String = String::new();
 
             write!(
@@ -587,8 +610,18 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
                 curr_media_type = track_media_type_enum;
             }
 
+
             idx += itunesdb_constants::TRACK_ITEM_LAST_OFFSET;
         } else if potential_section_heading == itunesdb_constants::PLAYLIST_KEY.as_bytes() {
+            // Finalize any pending song before moving into playlist sections
+            if curr_song_saved {
+                if let Some(last) = songs_found.last_mut() { *last = curr_song.clone(); }
+            } else if curr_song.is_valid() {
+                songs_found.push(curr_song.clone());
+            }
+            curr_song = itunesdb::Song::default();
+            curr_song_saved = false;
+
             let mut playlist_info: String = "==== ".to_string();
 
             let is_master_playlist_setting = &itunesdb_file_as_bytes[idx
@@ -755,61 +788,94 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
                         curr_podcast.podcast_subtitle = data_object_str;
                     }
                 } else if data_object_type_raw
+                    == itunesdb::HandleableDataObjectType::FilePath as u32
+                {
+                    if curr_media_type == itunesdb::HandleableMediaType::SongLike {
+                        curr_song.song_filename = data_object_str.clone();
+                        eprintln!(
+                            "[Debug] FilePath parsed for song. title='{}' filename='{}'",
+                            curr_song.song_title,
+                            curr_song.song_filename
+                        );
+                    } else if curr_media_type == itunesdb::HandleableMediaType::Podcast {
+                        curr_podcast.podcast_file_type = data_object_str;
+                    }
+                } else if data_object_type_raw
                     == itunesdb::HandleableDataObjectType::Composer as u32
                 {
                     curr_song.song_composer = data_object_str;
                 } else if data_object_type_raw
-                    == itunesdb::HandleableDataObjectType::FileLocation as u32
-                {
-                    curr_song.set_song_filename(data_object_str);
-
-                    if curr_song.are_enough_fields_valid() {
-                        songs_found.push(curr_song);
-                        curr_song = itunesdb::Song::default();
-                    }
-                } else if data_object_type_raw
-                    == itunesdb::HandleableDataObjectType::FileType as u32
-                {
-                    if curr_media_type == itunesdb::HandleableMediaType::Podcast {
-                        curr_podcast.podcast_file_type = data_object_str;
-                    }
-                } else if data_object_type_raw
                     == itunesdb::HandleableDataObjectType::PodcastDescription as u32
                 {
-                    if curr_media_type == itunesdb::HandleableMediaType::Podcast {
-                        curr_podcast.podcast_description = data_object_str;
-                    }
+                    curr_podcast.podcast_description = data_object_str;
+                } else if data_object_type_raw
+                    == itunesdb::HandleableDataObjectType::PodcastUrl as u32
+                {
+                    curr_podcast.podcast_url = data_object_str;
+                }
 
-                    if !curr_podcast.podcast_title.is_empty() {
-                        podcasts_found.push(curr_podcast);
-                        curr_podcast = itunesdb::Podcast::default();
+                //println!("{}", data_object_info);
+
+                // If current media type is song-like, consider saving/updating as soon as the song becomes valid
+                if curr_media_type == itunesdb::HandleableMediaType::SongLike {
+                    if curr_song.is_valid() {
+                        if !curr_song_saved {
+                            songs_found.push(curr_song.clone());
+                            curr_song_saved = true;
+                            eprintln!("[Debug] Early-save song when became valid. title='{}' filename='{}'", curr_song.song_title, curr_song.song_filename);
+                        } else {
+                            if let Some(last) = songs_found.last_mut() { *last = curr_song.clone(); }
+                        }
                     }
                 }
             }
             // Non-string MHODs
-            else {
-                if (data_object_type_raw
-                    == itunesdb::HandleableDataObjectType::PodcastEnclosureURL as u32)
-                    || (data_object_type_raw
-                        == itunesdb::HandleableDataObjectType::Podcast_RSS_URL as u32)
-                {
-                    let podcast_url = itunesdb::decode_podcast_urls(idx, &itunesdb_file_as_bytes);
+            else if (data_object_type_raw
+                == itunesdb::HandleableDataObjectType::PodcastEnclosureURL as u32)
+                || (data_object_type_raw
+                    == itunesdb::HandleableDataObjectType::PodcastUrl as u32)
+            {
+                let podcast_url = itunesdb::decode_podcast_urls(idx, &itunesdb_file_as_bytes);
 
-                    write!(
-                        data_object_info,
-                        "Podcast discovered, with URL: {}",
-                        podcast_url
-                    )
-                    .unwrap();
-                }
+                write!(
+                    data_object_info,
+                    "Podcast discovered, with URL: {}",
+                    podcast_url
+                )
+                .unwrap();
+            } else {
+                // This is for other non-string data objects that we don't handle yet
+                //println!("{}", data_object_info);
             }
 
             //println!("{} %%%%%%% \r\n", data_object_info);
 
-            idx += itunesdb_constants::DATA_OBJECT_LAST_OFFSET;
+            // Advance by MHOD total length (header specifies this), not a fixed constant
+            let mhod_total_length = helpers::get_slice_as_le_u32(
+                idx,
+                &itunesdb_file_as_bytes,
+                8, // total length field offset within MHOD header
+                itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE,
+            );
+            idx += mhod_total_length as usize;
         }
 
-        idx += itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE;
+        else {
+            // No known section matched; advance by the default substructure size
+            idx += itunesdb_constants::DEFAULT_SUBSTRUCTURE_SIZE;
+        }
+    }
+
+    // EOF: finalize any pending items before reporting counts
+    if curr_song_saved {
+        if let Some(last) = songs_found.last_mut() { *last = curr_song.clone(); }
+    } else if curr_song.is_valid() {
+        songs_found.push(curr_song.clone());
+    }
+    if curr_podcast.is_valid() {
+        if !itunesdb_helpers::is_podcast_in_vec(&curr_podcast, &podcasts_found) {
+            podcasts_found.push(curr_podcast.clone());
+        }
     }
 
     println!("{} podcasts found", podcasts_found.len());

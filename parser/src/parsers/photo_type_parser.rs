@@ -176,7 +176,7 @@ pub fn parse_photo_type_file(
         else if potential_photo_section_heading
             == photo_database_constants::PHOTO_ALBUM_KEY.as_bytes()
         {
-            let photo_album_item_count = helpers::get_slice_as_le_u32(
+            let _photo_album_item_count = helpers::get_slice_as_le_u32(
                 idx,
                 &itunesdb_file_as_bytes,
                 photo_database_constants::PHOTO_ALBUM_ALBUM_ITEM_CNT_OFFSET,
@@ -265,7 +265,7 @@ pub fn parse_photo_type_file(
                 // );
             }
 
-            let mhod_type = photo_database::decode_mhod_type(data_object_type as u16);
+            let _mhod_type = photo_database::decode_mhod_type(data_object_type as u16);
 
             // println!(
             //     "DataObject#{} info : Type={}",

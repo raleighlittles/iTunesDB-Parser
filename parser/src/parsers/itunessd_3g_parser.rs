@@ -28,8 +28,8 @@ pub fn parse_itunessd_3rdgen_file(
                     itunessd_3g_constants::ITUNESSD_3RDGEN_SHUFFLE_DB_HEADER_LENGTH_LEN,
                 ));
 
-            if (shuffle_db_header_length
-                != itunessd_3g_constants::ITUNESSD_3RDGEN_SHUFFLE_DB_HEADER_EXPECTED_LENGTH as u32)
+            if shuffle_db_header_length
+                != itunessd_3g_constants::ITUNESSD_3RDGEN_SHUFFLE_DB_HEADER_EXPECTED_LENGTH as u32
             {
                 panic!(
                     "Invalid iTunesSD header length value of '{}', expected '{}'",
@@ -130,8 +130,8 @@ pub fn parse_itunessd_3rdgen_file(
                     itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_HEADER_SIZE_LEN,
                 ));
 
-            if (track_entry_header_length
-                != itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_HEADER_EXPECTED_SIZE as u32)
+            if track_entry_header_length
+                != itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_HEADER_EXPECTED_SIZE as u32
             {
                 panic!(
                     "Invalid iTunesSD track entry header length value of '{}', expected '{}'",
@@ -190,14 +190,14 @@ pub fn parse_itunessd_3rdgen_file(
                     itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_BOOKMARK_MS_OFFSET,
                     itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_BOOKMARK_MS_LEN,
                 ));
-            let pregap =
+            let _pregap =
                 helpers::build_le_u32_from_bytes(&helpers::get_slice_from_offset_with_len(
                     idx,
                     &itunessd_file_as_bytes,
                     itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_PREGAP_OFFSET,
                     itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_PREGAP_LEN,
                 ));
-            let postgap =
+            let _postgap =
                 helpers::build_le_u32_from_bytes(&helpers::get_slice_from_offset_with_len(
                     idx,
                     &itunessd_file_as_bytes,
@@ -211,7 +211,7 @@ pub fn parse_itunessd_3rdgen_file(
                     itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_NUM_SAMPLES_OFFSET,
                     itunessd_3g_constants::ITUNESSD_3RDGEN_TRACK_ENTRY_NUM_SAMPLES_LEN,
                 ));
-            let gapless_data =
+            let _gapless_data =
                 helpers::build_le_u32_from_bytes(&helpers::get_slice_from_offset_with_len(
                     idx,
                     &itunessd_file_as_bytes,
@@ -280,7 +280,7 @@ pub fn parse_itunessd_3rdgen_file(
                 .write_record(&[
                     filename,
                     track_num.to_string(),
-                    itunessd::iTunesSDFileType::try_from(file_type)
+                    itunessd::ITunesSdFileType::try_from(file_type)
                         .unwrap_or_else(|err| panic!("Error parsing iTunesSD file type: {}", err))
                         .to_string(),
                     start_time_ms.to_string(),
