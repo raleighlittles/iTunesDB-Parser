@@ -134,6 +134,9 @@ If you have any iTunesDB files from the unsupported list and are willing to shar
 <h2>💖 Contributors & Supporters 💖 </h2>
 
 <p>
+  <a href="https://github.com/andreagrossetti">
+    <img src="https://github.com/andreagrossetti.png" width="50" alt="@andreagrossetti" />
+  </a>
   <a href="https://github.com/AZProductions">
     <img src="https://github.com/AZProductions.png" width="50" alt="@AZProductions" />
   </a>
