@@ -969,7 +969,6 @@ pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: Strin
                         song.song_year.to_string(),
                         song.file_size_friendly.to_string(),
                         song.song_duration_friendly.to_string(),
-                        //song.song_filename.to_string(),
                         itunesdb_helpers::get_canonical_path(song.song_filename.to_string()),
                         song.song_genre.to_string(),
                         song.file_extension.to_string(),
