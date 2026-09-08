@@ -13,3 +13,6 @@ serde_json = "1.0"
 
 # Languages parsing
 isolang = "2.4.0"
+
+# For decompressing
+flate2 = "1.0"

@@ -8,7 +8,17 @@ use crate::itunesdb;
 use crate::helpers::helpers;
 use crate::helpers::itunesdb_helpers;
 
-pub fn parse_itunesdb_file(itunesdb_file_as_bytes: Vec<u8>, output_format: String) {
+pub fn parse_itunesdb_file(mut itunesdb_file_as_bytes: Vec<u8>, output_format: String) {
+    if itunesdb_helpers::is_itunescdb_compressed(&itunesdb_file_as_bytes) {
+        println!("Detected compressed iTunesCDB file. Decompressing...");
+        itunesdb_file_as_bytes = match itunesdb_helpers::decompress_itunescdb(&itunesdb_file_as_bytes) {
+            Ok(decompressed) => decompressed,
+            Err(e) => {
+                eprintln!("Error decompressing iTunesCDB file: {}", e);
+                return;
+            }
+        };
+    } // end if compressed
 
     let mut songs_found: Vec<itunesdb::Song> = Vec::new();
     let mut podcasts_found: Vec<itunesdb::Podcast> = Vec::new();

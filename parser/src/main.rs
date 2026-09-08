@@ -110,7 +110,7 @@ fn main() {
             itunesdb_file_as_bytes,
             photos_csv_writer,
         );
-    } else if itunesdb_file_type == "itunes" {
+        } else if itunesdb_file_type == "itunes" || itunesdb_file_type == "itunescdb" || itunesdb_file_type == "cdb" {
         parsers::itunesdb_parser::parse_itunesdb_file(
             itunesdb_file_as_bytes,
             output_format.to_string(),
