@@ -28,6 +28,18 @@ pub const DEFAULT_SUBSTRUCTURE_SIZE: usize = 4;
 
     pub const DATABASE_OBJECT_LAST_OFFSET: usize = 108;
 
+    // ----- COMPRESSED ---//
+    pub const DATABASE_OBJECT_HEADER_LEN_OFFSET: usize = 4;
+    pub const DATABASE_OBJECT_HEADER_LEN_LEN: usize = 4;
+
+    pub const DATABASE_OBJECT_TOTAL_LEN_OFFSET: usize = 8;
+    pub const DATABASE_OBJECT_TOTAL_LEN_LEN: usize = 4;
+
+    pub const DATABASE_OBJECT_COMPRESSION_FLAG_OFFSET: usize = 12;
+    pub const DATABASE_OBJECT_COMPRESSION_FLAG_LEN: usize = 4;
+    pub const DATABASE_OBJECT_FLAG_UNCOMPRESSED: u32 = 1;
+    pub const DATABASE_OBJECT_FLAG_COMPRESSED: u32 = 2;
+
     // ----- DATASET ----- //
     pub const DATASET_KEY: &str = "mhsd";
 

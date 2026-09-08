@@ -39,7 +39,7 @@ The table below shows which iTunesDB files are supported.
 | iTunesStats          | :negative_squared_cross_mark: Not yet supported                                               |
 | iTunesVideoPlaylists | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#iTunesVideoPlaylists) |
 | winPrefs             | :grey_question: [Not documented yet](http://www.ipodlinux.org/ITunesDB/#winPrefs_File)        |
-| iTunesCDB file       | :grey_question: Not yet documented. See [issue](https://github.com/raleighlittles/iTunesDB-Parser/issues/11) |
+| iTunesCDB       | Same limitations as regular (ie, non-compressed) iTunesDB file |
 | iTunesStats          | No support yet; [documented](https://github.com/nims11/IPod-Shuffle-4g/blob/master/docs/iTunesStats3gen.md), but no sample files to verify against. |
 
 
