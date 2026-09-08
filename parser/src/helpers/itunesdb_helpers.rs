@@ -138,6 +138,15 @@ pub fn decompress_itunescdb(itunesdb_file_as_bytes: &[u8]) -> Result<Vec<u8>, St
         itunesdb_constants::DATABASE_OBJECT_HEADER_LEN_LEN,
     ) as usize;
 
+    let min_required_header_len = itunesdb_constants::DATABASE_OBJECT_COMPRESSION_FLAG_OFFSET
+        + itunesdb_constants::DATABASE_OBJECT_COMPRESSION_FLAG_LEN;
+    if header_length < min_required_header_len {
+        return Err(format!(
+            "Reported header length ({}) is smaller than minimum required ({})",
+            header_length, min_required_header_len
+        ));
+    }
+
     if itunesdb_file_as_bytes.len() < header_length {
         return Err(format!(
             "File length ({}) is smaller than reported header length ({})",
